@@ -112,16 +112,16 @@ const SOCIAL_LINKS = [
 // ─── DATA ───────────────────────────────────────────────────────────────────
 
 const DOMAINS = [
-  { id: "fnb", label: "Food & Beverage", icon: "🍽️", desc: "Comprehensive market intelligence across food, beverage, and nutrition sectors" },
-  { id: "consumer", label: "Consumer Goods", icon: "🛒", desc: "Deep insights into consumer products, retail, and lifestyle categories" },
-  { id: "fmcg", label: "FMCG", icon: "🏪", desc: "Fast-moving consumer goods market data and competitive landscape" },
-  { id: "healthcare", label: "Healthcare", icon: "⚕️", desc: "Healthcare industry, pharma, medtech, and life sciences research" },
-  { id: "industrial", label: "Industrial", icon: "🏭", desc: "Industrial equipment, manufacturing, automation, and supply chain" },
-  { id: "technology", label: "Technology", icon: "💻", desc: "IT, software, semiconductors, and emerging technology markets" },
-  { id: "energy", label: "Energy & Utilities", icon: "⚡", desc: "Renewable energy, oil & gas, power generation, and utilities" },
-  { id: "automotive", label: "Automotive", icon: "🚗", desc: "Automotive, EV, components, and mobility sector analysis" },
-  { id: "chemicals", label: "Chemicals", icon: "🧪", desc: "Specialty chemicals, polymers, agrochemicals, and materials" },
-  { id: "finance", label: "Financial Services", icon: "🏦", desc: "Banking, insurance, fintech, and capital markets intelligence" },
+  { id: "fnb", label: "Food & Beverage", icon: "\uD83C\uDF7D\uFE0F", desc: "Comprehensive market intelligence across food, beverage, and nutrition sectors" },
+  { id: "consumer", label: "Consumer Goods", icon: "\uD83D\uDED2", desc: "Deep insights into consumer products, retail, and lifestyle categories" },
+  { id: "fmcg", label: "FMCG", icon: "\uD83C\uDFEA", desc: "Fast-moving consumer goods market data and competitive landscape" },
+  { id: "healthcare", label: "Healthcare", icon: "\u2695\uFE0F", desc: "Healthcare industry, pharma, medtech, and life sciences research" },
+  { id: "industrial", label: "Industrial", icon: "\uD83C\uDFED", desc: "Industrial equipment, manufacturing, automation, and supply chain" },
+  { id: "technology", label: "Technology", icon: "\uD83D\uDCBB", desc: "IT, software, semiconductors, and emerging technology markets" },
+  { id: "energy", label: "Energy & Utilities", icon: "\u26A1", desc: "Renewable energy, oil & gas, power generation, and utilities" },
+  { id: "automotive", label: "Automotive", icon: "\uD83D\uDE97", desc: "Automotive, EV, components, and mobility sector analysis" },
+  { id: "chemicals", label: "Chemicals", icon: "\uD83E\uDDEA", desc: "Specialty chemicals, polymers, agrochemicals, and materials" },
+  { id: "finance", label: "Financial Services", icon: "\uD83C\uDFE6", desc: "Banking, insurance, fintech, and capital markets intelligence" },
 ];
 
 const DOMAIN_PAGE_DETAILS = {
@@ -208,14 +208,14 @@ const DEFAULT_DATA_SOURCES = [
 ];
 
 const RESEARCH_SERVICES = [
-  { icon: "📑", title: "Custom Market Reports", desc: "Tailored studies aligned to your geography, segment, and decision timeline." },
-  { icon: "💰", title: "Pricing Analysis", desc: "Benchmark pricing, discount structures, and willingness-to-pay across channels." },
-  { icon: "🎯", title: "Competitive Intelligence", desc: "Track competitor moves, share shifts, product launches, and positioning." },
-  { icon: "📈", title: "Market Sizing & Forecasting", desc: "TAM, SAM, SOM models with scenario-based projections through 2035." },
-  { icon: "🧭", title: "Go-to-Market Strategy", desc: "Channel design, partner mapping, and commercialization roadmaps." },
-  { icon: "🔍", title: "Due Diligence Support", desc: "Rapid commercial validation for M&A, investment, and expansion decisions." },
-  { icon: "🌍", title: "Regional & Country Studies", desc: "Localized demand, regulation, and competitive landscapes by market." },
-  { icon: "🧪", title: "Technology & Innovation Scans", desc: "Emerging technologies, patent activity, and disruption monitoring." },
+  { icon: "\uD83D\uDCD1", title: "Custom Market Reports", desc: "Tailored studies aligned to your geography, segment, and decision timeline." },
+  { icon: "\uD83D\uDCB0", title: "Pricing Analysis", desc: "Benchmark pricing, discount structures, and willingness-to-pay across channels." },
+  { icon: "\uD83C\uDFAF", title: "Competitive Intelligence", desc: "Track competitor moves, share shifts, product launches, and positioning." },
+  { icon: "\uD83D\uDCC8", title: "Market Sizing & Forecasting", desc: "TAM, SAM, SOM models with scenario-based projections through 2035." },
+  { icon: "\uD83E\uDDED", title: "Go-to-Market Strategy", desc: "Channel design, partner mapping, and commercialization roadmaps." },
+  { icon: "\uD83D\uDD0D", title: "Due Diligence Support", desc: "Rapid commercial validation for M&A, investment, and expansion decisions." },
+  { icon: "\uD83C\uDF0D", title: "Regional & Country Studies", desc: "Localized demand, regulation, and competitive landscapes by market." },
+  { icon: "\uD83E\uDDEA", title: "Technology & Innovation Scans", desc: "Emerging technologies, patent activity, and disruption monitoring." },
 ];
 
 const FORECAST_PERIOD_LABEL = "2026–2035";
@@ -927,7 +927,7 @@ function ContactPage() {
             <span className="section-label" style={{ marginBottom: 14 }}>Services</span>
             {["Custom Market Research", "Competitive Intelligence", "Industry Deep Dives", "Due Diligence Reports", "Strategic Consulting"].map((s, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", fontSize: 13.5, color: "var(--cream-dim)" }}>
-                <span style={{ color: "var(--gold)", fontWeight: 500 }}>→</span> {s}
+                <span style={{ color: "var(--gold)", fontWeight: 500 }}>{"\u2192"}</span> {s}
               </div>
             ))}
           </div>
@@ -936,7 +936,7 @@ function ContactPage() {
         <div className="reveal reveal-delay-1" style={{ background: "var(--card-bg)", borderRadius: 14, border: "1px solid var(--border)", padding: 36 }}>
           {status === "success" && (
             <div style={{ background: "rgba(200,147,58,0.08)", border: "1px solid var(--border-gold)", borderRadius: 8, padding: "14px 18px", fontSize: 14, color: "var(--cream)", marginBottom: 22 }}>
-              <span style={{ color: "var(--gold)", marginRight: 8 }}>✓</span> Query received. We'll respond within 24–48 business hours.
+              <span style={{ color: "var(--gold)", marginRight: 8 }}>{"\u2713"}</span> Query received. We'll respond within 24{"\u2013"}48 business hours.
             </div>
           )}
           {status === "fail" && (
@@ -1030,10 +1030,10 @@ function AboutPage() {
 
           <div style={{ display: "grid", gap: 16 }}>
             {[
-              { icon: "◆", title: "Syndicated reports", desc: "Global, regional, and country editions across priority sectors." },
-              { icon: "◇", title: "Custom market sizing", desc: "Segmentation, scenarios, and forecast models tailored to your decision." },
-              { icon: "○", title: "Competitive intelligence", desc: "Pricing analysis, GTM, and channel benchmarks." },
-              { icon: "△", title: "Commercial due diligence", desc: "Rapid validation for M&A, PE, and expansion." },
+              { icon: "\u25C6", title: "Syndicated reports", desc: "Global, regional, and country editions across priority sectors." },
+              { icon: "\u25C7", title: "Custom market sizing", desc: "Segmentation, scenarios, and forecast models tailored to your decision." },
+              { icon: "\u25CB", title: "Competitive intelligence", desc: "Pricing analysis, GTM, and channel benchmarks." },
+              { icon: "\u25B3", title: "Commercial due diligence", desc: "Rapid validation for M&A, PE, and expansion." },
             ].map((f, i) => (
               <div key={i} style={{ display: "flex", gap: 18, alignItems: "flex-start" }}>
                 <div style={{ width: 44, height: 44, borderRadius: 10, border: "1px solid var(--border-gold)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--gold)", fontSize: 18, flexShrink: 0 }}>{f.icon}</div>
@@ -1064,7 +1064,7 @@ function AboutPage() {
         <div style={{ position: "relative", zIndex: 1, textAlign: "center", marginBottom: 48 }}>
           <span className="section-label" style={{ justifyContent: "center", marginBottom: 18 }}>Methodology</span>
           <h3 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 600, margin: "0 0 14px", lineHeight: 1.15 }}>
-            AXISFRAME<span style={{ color: "var(--gold)" }}>™</span>
+            AXISFRAME<span style={{ color: "var(--gold)" }}>{"\u2122"}</span>
           </h3>
           <p style={{ fontSize: 15, color: "var(--text-muted)", maxWidth: 660, margin: "0 auto", lineHeight: 1.75 }}>
             Our proprietary framework combines primary research, secondary validation, and advanced analytics. Every engagement moves through scoping, data acquisition, modeling, analyst review, and client-ready packaging.
@@ -1279,7 +1279,7 @@ function HomePage({ setPage, setActiveDomain }) {
                 decoding="async"
               />
               <div className="domain-card__overlay" />
-              <span className="domain-card__arrow">↗</span>
+              <span className="domain-card__arrow">{"\u2197"}</span>
               <div className="domain-card__content">
                 <div className="mono" style={{ fontSize: 10.5, letterSpacing: "0.2em", color: "var(--gold)", marginBottom: 10, textTransform: "uppercase" }}>
                   {(MARKETS_DATA[d.id] || []).length}+ Reports
@@ -1333,12 +1333,12 @@ function HomePage({ setPage, setActiveDomain }) {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18 }}>
           {[
-            { icon: "◉", title: "Unmatched accuracy", desc: "Three-layer verification across primary, secondary, and expert panels." },
-            { icon: "⌁", title: "Real-time intelligence", desc: "Continuous tracking of developments, M&A, and regulatory shifts." },
-            { icon: "✷", title: "Global coverage", desc: "120+ countries with region-specific analysts and local expertise." },
-            { icon: "✦", title: "AI-powered insights", desc: "Advanced ML for forecasting, trend ID, and competitive analysis." },
-            { icon: "◐", title: "Custom research", desc: "Bespoke studies, from rapid snapshots to deep strategic engagements." },
-            { icon: "⬡", title: "Trusted & confidential", desc: "Serving 78% of Fortune 500 with enterprise-grade data security." },
+            { icon: "\u25C9", title: "Unmatched accuracy", desc: "Three-layer verification across primary, secondary, and expert panels." },
+            { icon: "\u2301", title: "Real-time intelligence", desc: "Continuous tracking of developments, M&A, and regulatory shifts." },
+            { icon: "\u2737", title: "Global coverage", desc: "120+ countries with region-specific analysts and local expertise." },
+            { icon: "\u2726", title: "AI-powered insights", desc: "Advanced ML for forecasting, trend ID, and competitive analysis." },
+            { icon: "\u25D0", title: "Custom research", desc: "Bespoke studies, from rapid snapshots to deep strategic engagements." },
+            { icon: "\u2B21", title: "Trusted & confidential", desc: "Serving 78% of Fortune 500 with enterprise-grade data security." },
           ].map((f, i) => (
             <div key={i} className={`service-card reveal reveal-delay-${(i % 8) + 1}`}>
               <div className="service-icon-box">{f.icon}</div>
@@ -1773,7 +1773,7 @@ export default function App() {
                       decoding="async"
                     />
                     <div className="domain-card__overlay" />
-                    <span className="domain-card__arrow">↗</span>
+                    <span className="domain-card__arrow">{"\u2197"}</span>
                     <div className="domain-card__content">
                       <div className="mono" style={{ fontSize: 10.5, letterSpacing: "0.2em", color: "var(--gold)", marginBottom: 10, textTransform: "uppercase" }}>
                         {(MARKETS_DATA[d.id] || []).length}+ Reports
