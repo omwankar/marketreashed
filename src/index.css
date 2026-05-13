@@ -1,6 +1,31 @@
 /* ──────────────────────────────────────────────────────────────
-   InsightAxis Research — Premium Dark Design System
+   InsightAxis Intelligence — Premium Dark Design System
    ────────────────────────────────────────────────────────────── */
+
+/* Skip-to-content link (a11y). Hidden until keyboard focused. */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 12px;
+  z-index: 10000;
+  background: #c8933a;
+  color: #050e1a;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  transition: top 180ms ease;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  top: 12px;
+  outline: 2px solid #050e1a;
+  outline-offset: 2px;
+}
 
 :root {
   /* Palette */

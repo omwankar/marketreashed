@@ -6,4 +6,4 @@ Disallow: /assets/
 Disallow: /*.json$
 
 # Reference our sitemap for full URL discovery
-Sitemap: https://insightaxis.com/sitemap.xml
+Sitemap: https://insightaxis-intelligence.com/sitemap.xml

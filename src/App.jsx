@@ -21,7 +21,7 @@ const EMAILJS_SERVICE_ID = "service_h382m08";
 const EMAILJS_TEMPLATE_ID = "template_mnop61o";
 const EMAILJS_PUBLIC_KEY = "AOOa9QqbYI3vl8nkM";
 
-// â”€â”€â”€ PRESENTATION HELPERS (new) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── PRESENTATION HELPERS (new) ─────────────────────────────────────────────
 
 function FloatingParticles({ count = 20 }) {
   const particles = useMemo(
@@ -109,19 +109,19 @@ const SOCIAL_LINKS = [
   },
 ];
 
-// â”€â”€â”€ DATA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── DATA ───────────────────────────────────────────────────────────────────
 
 const DOMAINS = [
-  { id: "fnb", label: "Food & Beverage", icon: "ðŸ½ï¸", desc: "Comprehensive market intelligence across food, beverage, and nutrition sectors" },
-  { id: "consumer", label: "Consumer Goods", icon: "ðŸ›’", desc: "Deep insights into consumer products, retail, and lifestyle categories" },
-  { id: "fmcg", label: "FMCG", icon: "ðŸª", desc: "Fast-moving consumer goods market data and competitive landscape" },
-  { id: "healthcare", label: "Healthcare", icon: "âš•ï¸", desc: "Healthcare industry, pharma, medtech, and life sciences research" },
-  { id: "industrial", label: "Industrial", icon: "ðŸ­", desc: "Industrial equipment, manufacturing, automation, and supply chain" },
-  { id: "technology", label: "Technology", icon: "ðŸ’»", desc: "IT, software, semiconductors, and emerging technology markets" },
-  { id: "energy", label: "Energy & Utilities", icon: "âš¡", desc: "Renewable energy, oil & gas, power generation, and utilities" },
-  { id: "automotive", label: "Automotive", icon: "ðŸš—", desc: "Automotive, EV, components, and mobility sector analysis" },
-  { id: "chemicals", label: "Chemicals", icon: "ðŸ§ª", desc: "Specialty chemicals, polymers, agrochemicals, and materials" },
-  { id: "finance", label: "Financial Services", icon: "ðŸ¦", desc: "Banking, insurance, fintech, and capital markets intelligence" },
+  { id: "fnb", label: "Food & Beverage", icon: "🍽️", desc: "Comprehensive market intelligence across food, beverage, and nutrition sectors" },
+  { id: "consumer", label: "Consumer Goods", icon: "🛒", desc: "Deep insights into consumer products, retail, and lifestyle categories" },
+  { id: "fmcg", label: "FMCG", icon: "🏪", desc: "Fast-moving consumer goods market data and competitive landscape" },
+  { id: "healthcare", label: "Healthcare", icon: "⚕️", desc: "Healthcare industry, pharma, medtech, and life sciences research" },
+  { id: "industrial", label: "Industrial", icon: "🏭", desc: "Industrial equipment, manufacturing, automation, and supply chain" },
+  { id: "technology", label: "Technology", icon: "💻", desc: "IT, software, semiconductors, and emerging technology markets" },
+  { id: "energy", label: "Energy & Utilities", icon: "⚡", desc: "Renewable energy, oil & gas, power generation, and utilities" },
+  { id: "automotive", label: "Automotive", icon: "🚗", desc: "Automotive, EV, components, and mobility sector analysis" },
+  { id: "chemicals", label: "Chemicals", icon: "🧪", desc: "Specialty chemicals, polymers, agrochemicals, and materials" },
+  { id: "finance", label: "Financial Services", icon: "🏦", desc: "Banking, insurance, fintech, and capital markets intelligence" },
 ];
 
 const DOMAIN_PAGE_DETAILS = {
@@ -208,17 +208,17 @@ const DEFAULT_DATA_SOURCES = [
 ];
 
 const RESEARCH_SERVICES = [
-  { icon: "ðŸ“‘", title: "Custom Market Reports", desc: "Tailored studies aligned to your geography, segment, and decision timeline." },
-  { icon: "ðŸ’°", title: "Pricing Analysis", desc: "Benchmark pricing, discount structures, and willingness-to-pay across channels." },
-  { icon: "ðŸŽ¯", title: "Competitive Intelligence", desc: "Track competitor moves, share shifts, product launches, and positioning." },
-  { icon: "ðŸ“ˆ", title: "Market Sizing & Forecasting", desc: "TAM, SAM, SOM models with scenario-based projections through 2035." },
-  { icon: "ðŸ§­", title: "Go-to-Market Strategy", desc: "Channel design, partner mapping, and commercialization roadmaps." },
-  { icon: "ðŸ”", title: "Due Diligence Support", desc: "Rapid commercial validation for M&A, investment, and expansion decisions." },
-  { icon: "ðŸŒ", title: "Regional & Country Studies", desc: "Localized demand, regulation, and competitive landscapes by market." },
-  { icon: "ðŸ§ª", title: "Technology & Innovation Scans", desc: "Emerging technologies, patent activity, and disruption monitoring." },
+  { icon: "📑", title: "Custom Market Reports", desc: "Tailored studies aligned to your geography, segment, and decision timeline." },
+  { icon: "💰", title: "Pricing Analysis", desc: "Benchmark pricing, discount structures, and willingness-to-pay across channels." },
+  { icon: "🎯", title: "Competitive Intelligence", desc: "Track competitor moves, share shifts, product launches, and positioning." },
+  { icon: "📈", title: "Market Sizing & Forecasting", desc: "TAM, SAM, SOM models with scenario-based projections through 2035." },
+  { icon: "🧭", title: "Go-to-Market Strategy", desc: "Channel design, partner mapping, and commercialization roadmaps." },
+  { icon: "🔍", title: "Due Diligence Support", desc: "Rapid commercial validation for M&A, investment, and expansion decisions." },
+  { icon: "🌍", title: "Regional & Country Studies", desc: "Localized demand, regulation, and competitive landscapes by market." },
+  { icon: "🧪", title: "Technology & Innovation Scans", desc: "Emerging technologies, patent activity, and disruption monitoring." },
 ];
 
-const FORECAST_PERIOD_LABEL = "2026â€“2035";
+const FORECAST_PERIOD_LABEL = "2026–2035";
 
 const FOOTER_COLUMNS = [
   {
@@ -544,7 +544,7 @@ async function generateGeminiText(prompt, maxOutputTokens = 1800) {
   return data.candidates?.[0]?.content?.parts?.map((part) => part.text).join("") || "";
 }
 
-// â”€â”€â”€ PIE CHART SVG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── PIE CHART SVG ───────────────────────────────────────────────────────────
 
 const PIE_COLORS = ["#C8933A", "#1A6FE8", "#E8B45A", "#1152A8", "#8A96A8", "#0F2137", "#F5F0E8"];
 
@@ -582,7 +582,7 @@ function PieChart({ data, title }) {
   );
 }
 
-// â”€â”€â”€ MARKET REPORT MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── MARKET REPORT MODAL ────────────────────────────────────────────────────
 
 function MarketReport({ market, onClose, isGenerated = false }) {
   const stored = MARKET_REPORT_DATA[market.id];
@@ -623,7 +623,7 @@ function MarketReport({ market, onClose, isGenerated = false }) {
       .watermark{color:#ccc;font-size:12px;text-align:center;margin-top:10px}
       @media print{body{padding:20px}}
     </style></head><body>${printContent}
-    <div class="watermark">Â© 2025 InsightAxis Research â€” Sample Report â€” All Rights Reserved</div>
+    <div class="watermark">© 2025 InsightAxis Intelligence — Sample Report — All Rights Reserved</div>
     <script>window.onload=()=>{window.print();}</script></body></html>`);
     w.document.close();
   };
@@ -679,27 +679,25 @@ function MarketReport({ market, onClose, isGenerated = false }) {
               {data.name}
             </h2>
             <div className="mono" style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 8, letterSpacing: "0.12em" }}>
-              InsightAxis Research Â· {new Date().getFullYear()} Edition Â· Confidential Sample
+              InsightAxis Intelligence · {new Date().getFullYear()} Edition · Confidential Sample
             </div>
           </div>
           <div style={{ position: "absolute", top: 18, right: 18, display: "flex", gap: 10, zIndex: 2 }}>
             <button onClick={handlePrint} className="btn-gold" style={{ padding: "9px 16px", fontSize: 12 }}>
-              â†“ Download PDF
+              ↓ Download PDF
             </button>
             <button
               onClick={onClose}
               aria-label="Close"
               style={{ width: 38, height: 38, background: "rgba(255,255,255,0.1)", color: "var(--cream)", border: "1px solid var(--border-strong)", borderRadius: 8, cursor: "pointer", fontSize: 16 }}
             >
-              âœ•
+              ✕
             </button>
           </div>
         </div>
 
         {/* Report body */}
         <div ref={reportRef} style={{ padding: "32px 36px 40px", background: "var(--navy-2)" }}>
-          <h1 style={{ display: "none" }}>{data.name} â€” Sample Market Report â€” InsightAxis Research</h1>
-
           {/* Market Dynamics */}
           <div style={{ marginBottom: 32 }}>
             <h2 style={sectionTitle}>Market Dynamics</h2>
@@ -820,7 +818,7 @@ function MarketReport({ market, onClose, isGenerated = false }) {
 
           {/* Disclaimer */}
           <div style={{ background: "rgba(200,147,58,0.06)", border: "1px solid var(--border-gold)", borderRadius: 10, padding: "16px 20px", fontSize: 12, color: "var(--cream-dim)", lineHeight: 1.7 }}>
-            <strong style={{ color: "var(--gold)", fontWeight: 500 }}>Disclaimer.</strong> This sample/preview report is provided for evaluation purposes only. Data points, forecasts, and competitive analysis are illustrative. The complete report includes comprehensive data tables, detailed competitive benchmarking, regulatory analysis, M&A activity, and 10-year CAGR projections. Contact InsightAxis Research to purchase the full report.
+            <strong style={{ color: "var(--gold)", fontWeight: 500 }}>Disclaimer.</strong> This sample/preview report is provided for evaluation purposes only. Data points, forecasts, and competitive analysis are illustrative. The complete report includes comprehensive data tables, detailed competitive benchmarking, regulatory analysis, M&A activity, and 10-year CAGR projections. Contact InsightAxis Intelligence to purchase the full report.
           </div>
         </div>
       </div>
@@ -828,7 +826,7 @@ function MarketReport({ market, onClose, isGenerated = false }) {
   );
 }
 
-// â”€â”€â”€ GENERATE SAMPLE REPORT TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── GENERATE SAMPLE REPORT TAB ─────────────────────────────────────────────
 
 // Lightweight helper: SEO-only component used for inline route bodies that
 // don't have their own function component (e.g. the "domains" listing).
@@ -850,19 +848,19 @@ function GenerateSampleTab({ onReportReady }) {
   useSEO({
     title: "Generate Market Research Report | InsightAxis",
     description:
-      "Generate a custom market research report instantly. Choose your industry, geographies and segmentation — and get a complete analysis with market size, forecasts, and competitive landscape.",
+      "Generate a custom market research report instantly. Choose your industry, geographies and segmentation � and get a complete analysis with market size, forecasts, and competitive landscape.",
     path: "/generate",
   });
   return <MordorReportForm onGenerated={onReportReady} />;
 }
 
-// â”€â”€â”€ CONTACT PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── CONTACT PAGE ────────────────────────────────────────────────────────────
 
 function ContactPage() {
   useSEO({
-    title: "Contact InsightAxis Research | Get Custom Reports",
+    title: "Contact InsightAxis Intelligence | Get Custom Reports",
     description:
-      "Contact InsightAxis Research for custom market research reports, enterprise subscriptions, or partnership inquiries. Reach our analysts based in Pune, India.",
+      "Contact InsightAxis Intelligence for custom market research reports, enterprise subscriptions, or partnership inquiries. Reach our analysts based in Pune, India.",
     path: "/contact",
   });
   const [form, setForm] = useState({ name: "", company: "", email: "", phone: "", subject: "", message: "" });
@@ -880,8 +878,8 @@ function ContactPage() {
         reply_to: form.email,
         name: form.name,
         email: form.email,
-        company: form.company || "â€”",
-        phone: form.phone || "â€”",
+        company: form.company || "—",
+        phone: form.phone || "—",
         subject: form.subject || "General Inquiry",
         message: form.message,
         time: new Date().toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }),
@@ -908,9 +906,9 @@ function ContactPage() {
     <div style={{ maxWidth: 1080, margin: "0 auto", padding: "60px 0 80px" }}>
       <div className="reveal" style={{ textAlign: "center", marginBottom: 56 }}>
         <span className="section-label" style={{ justifyContent: "center", marginBottom: 18 }}>Contact</span>
-        <h2 style={{ fontSize: "clamp(2.2rem, 4.5vw, 3.4rem)", fontWeight: 600, margin: "0 0 14px", lineHeight: 1.1 }}>
+        <h1 style={{ fontSize: "clamp(2.2rem, 4.5vw, 3.4rem)", fontWeight: 600, margin: "0 0 14px", lineHeight: 1.1 }}>
           Speak with an <em style={{ color: "var(--gold)", fontStyle: "italic" }}>analyst</em>
-        </h2>
+        </h1>
         <p style={{ fontSize: 15.5, color: "var(--text-muted)", margin: "0 auto", maxWidth: 600, lineHeight: 1.75 }}>
           Reach our research specialists to scope a custom study, syndicated report, or advisory engagement.
         </p>
@@ -929,7 +927,7 @@ function ContactPage() {
             <span className="section-label" style={{ marginBottom: 14 }}>Services</span>
             {["Custom Market Research", "Competitive Intelligence", "Industry Deep Dives", "Due Diligence Reports", "Strategic Consulting"].map((s, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", fontSize: 13.5, color: "var(--cream-dim)" }}>
-                <span style={{ color: "var(--gold)", fontWeight: 500 }}>â†’</span> {s}
+                <span style={{ color: "var(--gold)", fontWeight: 500 }}>→</span> {s}
               </div>
             ))}
           </div>
@@ -938,12 +936,12 @@ function ContactPage() {
         <div className="reveal reveal-delay-1" style={{ background: "var(--card-bg)", borderRadius: 14, border: "1px solid var(--border)", padding: 36 }}>
           {status === "success" && (
             <div style={{ background: "rgba(200,147,58,0.08)", border: "1px solid var(--border-gold)", borderRadius: 8, padding: "14px 18px", fontSize: 14, color: "var(--cream)", marginBottom: 22 }}>
-              <span style={{ color: "var(--gold)", marginRight: 8 }}>âœ“</span> Query received. We'll respond within 24â€“48 business hours.
+              <span style={{ color: "var(--gold)", marginRight: 8 }}>✓</span> Query received. We'll respond within 24–48 business hours.
             </div>
           )}
           {status === "fail" && (
             <div style={{ background: "rgba(232,180,90,0.08)", border: "1px solid rgba(232,180,90,0.3)", borderRadius: 8, padding: "14px 18px", fontSize: 14, color: "var(--gold-light)", marginBottom: 22 }}>
-              âš  Something went wrong â€” please try again or email us directly.
+              ⚠ Something went wrong — please try again or email us directly.
             </div>
           )}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, marginBottom: 18 }}>
@@ -972,10 +970,10 @@ function ContactPage() {
           </div>
           <div style={{ marginBottom: 24 }}>
             <label style={labelStyle}>Message *</label>
-            <textarea value={form.message} onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))} placeholder="Describe your research needs, industry focus, or questionsâ€¦" rows={5} className="field-textarea" style={{ resize: "vertical" }} />
+            <textarea value={form.message} onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))} placeholder="Describe your research needs, industry focus, or questions…" rows={5} className="field-textarea" style={{ resize: "vertical" }} />
           </div>
           <button onClick={handleSubmit} disabled={sending} className="btn-gold" style={{ width: "100%", opacity: sending ? 0.6 : 1, cursor: sending ? "not-allowed" : "pointer" }}>
-            {sending ? "Sendingâ€¦" : "Submit query â†’"}
+            {sending ? "Sending…" : "Submit query →"}
           </button>
           {status === "error" && <div style={{ marginTop: 12, color: "var(--gold-light)", fontSize: 12.5 }}>Please complete all required fields.</div>}
         </div>
@@ -984,13 +982,13 @@ function ContactPage() {
   );
 }
 
-// â”€â”€â”€ ABOUT PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── ABOUT PAGE ──────────────────────────────────────────────────────────────
 
 function AboutPage() {
   useSEO({
-    title: "About InsightAxis Research | Market Intelligence Methodology",
+    title: "About InsightAxis Intelligence | Market Intelligence Methodology",
     description:
-      "InsightAxis Research delivers professional-grade market research reports across 10+ industry verticals. Learn about our methodology, analyst coverage and advisory engagements.",
+      "InsightAxis Intelligence delivers professional-grade market research reports across 10+ industry verticals. Learn about our methodology, analyst coverage and advisory engagements.",
     path: "/about",
   });
   return (
@@ -998,11 +996,11 @@ function AboutPage() {
       {/* Hero strip */}
       <div className="reveal" style={{ textAlign: "center", marginBottom: 72 }}>
         <span className="section-label" style={{ justifyContent: "center", marginBottom: 18 }}>Who we are</span>
-        <h2 style={{ fontSize: "clamp(2.4rem, 5vw, 3.8rem)", fontWeight: 600, margin: "0 0 16px", lineHeight: 1.08, letterSpacing: "-0.02em" }}>
+        <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 3.8rem)", fontWeight: 600, margin: "0 0 16px", lineHeight: 1.08, letterSpacing: "-0.02em" }}>
           Decisions, made with <em style={{ color: "var(--gold)", fontStyle: "italic" }}>clarity.</em>
-        </h2>
+        </h1>
         <p style={{ fontSize: 16, color: "var(--text-muted)", maxWidth: 720, margin: "0 auto", lineHeight: 1.75 }}>
-          InsightAxis Research helps corporate strategy, product, finance, and investment teams make confident decisions across {DOMAINS.length} industry verticals with a growing library of syndicated reports and bespoke advisory engagements.
+          InsightAxis Intelligence helps corporate strategy, product, finance, and investment teams make confident decisions across {DOMAINS.length} industry verticals with a growing library of syndicated reports and bespoke advisory engagements.
         </p>
       </div>
 
@@ -1011,7 +1009,9 @@ function AboutPage() {
         <div className="reveal" style={{ position: "relative" }}>
           <img
             src={ABOUT_IMAGE}
-            alt="InsightAxis Research analysts"
+            alt="InsightAxis Intelligence analysts"
+            loading="lazy"
+            decoding="async"
             style={{ width: "100%", aspectRatio: "4/5", objectFit: "cover", borderRadius: 12, filter: "brightness(0.85) saturate(0.9)", display: "block" }}
           />
         </div>
@@ -1030,10 +1030,10 @@ function AboutPage() {
 
           <div style={{ display: "grid", gap: 16 }}>
             {[
-              { icon: "â—†", title: "Syndicated reports", desc: "Global, regional, and country editions across priority sectors." },
-              { icon: "â—‡", title: "Custom market sizing", desc: "Segmentation, scenarios, and forecast models tailored to your decision." },
-              { icon: "â—‹", title: "Competitive intelligence", desc: "Pricing analysis, GTM, and channel benchmarks." },
-              { icon: "â–³", title: "Commercial due diligence", desc: "Rapid validation for M&A, PE, and expansion." },
+              { icon: "◆", title: "Syndicated reports", desc: "Global, regional, and country editions across priority sectors." },
+              { icon: "◇", title: "Custom market sizing", desc: "Segmentation, scenarios, and forecast models tailored to your decision." },
+              { icon: "○", title: "Competitive intelligence", desc: "Pricing analysis, GTM, and channel benchmarks." },
+              { icon: "△", title: "Commercial due diligence", desc: "Rapid validation for M&A, PE, and expansion." },
             ].map((f, i) => (
               <div key={i} style={{ display: "flex", gap: 18, alignItems: "flex-start" }}>
                 <div style={{ width: 44, height: 44, borderRadius: 10, border: "1px solid var(--border-gold)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--gold)", fontSize: 18, flexShrink: 0 }}>{f.icon}</div>
@@ -1064,7 +1064,7 @@ function AboutPage() {
         <div style={{ position: "relative", zIndex: 1, textAlign: "center", marginBottom: 48 }}>
           <span className="section-label" style={{ justifyContent: "center", marginBottom: 18 }}>Methodology</span>
           <h3 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 600, margin: "0 0 14px", lineHeight: 1.15 }}>
-            AXISFRAME<span style={{ color: "var(--gold)" }}>â„¢</span>
+            AXISFRAME<span style={{ color: "var(--gold)" }}>™</span>
           </h3>
           <p style={{ fontSize: 15, color: "var(--text-muted)", maxWidth: 660, margin: "0 auto", lineHeight: 1.75 }}>
             Our proprietary framework combines primary research, secondary validation, and advanced analytics. Every engagement moves through scoping, data acquisition, modeling, analyst review, and client-ready packaging.
@@ -1138,7 +1138,7 @@ function AboutStat({ num, suf, label }) {
   );
 }
 
-// â”€â”€â”€ HOMEPAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── HOMEPAGE ────────────────────────────────────────────────────────────────
 
 function HomeStat({ num, suf, label }) {
   const [value, ref] = useCountUp(num, 2200);
@@ -1204,10 +1204,10 @@ function HomePage({ setPage, setActiveDomain }) {
               <em style={{ color: "var(--gold)", fontStyle: "italic", fontWeight: 400 }}>Actionable</em> intelligence.
             </h1>
             <p style={{ fontSize: 17, color: "var(--text-muted)", lineHeight: 1.75, margin: "0 0 40px", maxWidth: 600 }}>
-              InsightAxis Research delivers comprehensive market intelligence across {DOMAINS.length} industry verticals â€” spanning global, regional, and country-level coverage with custom advisory built around your decisions.
+              InsightAxis Intelligence delivers comprehensive market intelligence across {DOMAINS.length} industry verticals — spanning global, regional, and country-level coverage with custom advisory built around your decisions.
             </p>
             <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-              <button onClick={() => setPage("domains")} className="btn-gold">Explore markets â†’</button>
+              <button onClick={() => setPage("domains")} className="btn-gold">Explore markets →</button>
               <button onClick={() => setPage("generate")} className="btn-ghost">Generate a sample report</button>
             </div>
           </div>
@@ -1247,7 +1247,7 @@ function HomePage({ setPage, setActiveDomain }) {
         </div>
       </section>
 
-      {/* DOMAIN CARDS â€” image background grid */}
+      {/* DOMAIN CARDS — image background grid */}
       <section style={{ maxWidth: 1240, margin: "0 auto", padding: "60px 32px" }}>
         <div className="reveal" style={{ marginBottom: 40, display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16 }}>
           <div>
@@ -1259,7 +1259,7 @@ function HomePage({ setPage, setActiveDomain }) {
               Curated coverage across global, regional, and country-level editions.
             </p>
           </div>
-          <button onClick={() => setPage("domains")} className="btn-ghost">View all â†’</button>
+          <button onClick={() => setPage("domains")} className="btn-ghost">View all →</button>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
@@ -1276,9 +1276,10 @@ function HomePage({ setPage, setActiveDomain }) {
                 alt={d.label}
                 className="domain-card__img"
                 loading="lazy"
+                decoding="async"
               />
               <div className="domain-card__overlay" />
-              <span className="domain-card__arrow">â†—</span>
+              <span className="domain-card__arrow">↗</span>
               <div className="domain-card__content">
                 <div className="mono" style={{ fontSize: 10.5, letterSpacing: "0.2em", color: "var(--gold)", marginBottom: 10, textTransform: "uppercase" }}>
                   {(MARKETS_DATA[d.id] || []).length}+ Reports
@@ -1287,7 +1288,7 @@ function HomePage({ setPage, setActiveDomain }) {
                   {d.label}
                 </div>
                 <div style={{ fontSize: 12.5, color: "var(--cream-dim)", lineHeight: 1.55, opacity: 0.78 }}>
-                  {d.desc.substring(0, 70)}â€¦
+                  {d.desc.substring(0, 70)}…
                 </div>
               </div>
             </button>
@@ -1332,12 +1333,12 @@ function HomePage({ setPage, setActiveDomain }) {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18 }}>
           {[
-            { icon: "â—‰", title: "Unmatched accuracy", desc: "Three-layer verification across primary, secondary, and expert panels." },
-            { icon: "âŒ", title: "Real-time intelligence", desc: "Continuous tracking of developments, M&A, and regulatory shifts." },
-            { icon: "âœ·", title: "Global coverage", desc: "120+ countries with region-specific analysts and local expertise." },
-            { icon: "âœ¦", title: "AI-powered insights", desc: "Advanced ML for forecasting, trend ID, and competitive analysis." },
-            { icon: "â—", title: "Custom research", desc: "Bespoke studies, from rapid snapshots to deep strategic engagements." },
-            { icon: "â¬¡", title: "Trusted & confidential", desc: "Serving 78% of Fortune 500 with enterprise-grade data security." },
+            { icon: "◉", title: "Unmatched accuracy", desc: "Three-layer verification across primary, secondary, and expert panels." },
+            { icon: "⌁", title: "Real-time intelligence", desc: "Continuous tracking of developments, M&A, and regulatory shifts." },
+            { icon: "✷", title: "Global coverage", desc: "120+ countries with region-specific analysts and local expertise." },
+            { icon: "✦", title: "AI-powered insights", desc: "Advanced ML for forecasting, trend ID, and competitive analysis." },
+            { icon: "◐", title: "Custom research", desc: "Bespoke studies, from rapid snapshots to deep strategic engagements." },
+            { icon: "⬡", title: "Trusted & confidential", desc: "Serving 78% of Fortune 500 with enterprise-grade data security." },
           ].map((f, i) => (
             <div key={i} className={`service-card reveal reveal-delay-${(i % 8) + 1}`}>
               <div className="service-icon-box">{f.icon}</div>
@@ -1355,7 +1356,7 @@ function HomePage({ setPage, setActiveDomain }) {
   );
 }
 
-// â”€â”€â”€ DOMAIN PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── DOMAIN PAGE ─────────────────────────────────────────────────────────────
 
 function DomainPage({ domainId, setSelectedMarket }) {
   const domain = DOMAINS.find((d) => d.id === domainId);
@@ -1435,9 +1436,9 @@ function DomainPage({ domainId, setSelectedMarket }) {
       >
         <div style={{ position: "relative", zIndex: 1, maxWidth: 800 }}>
           <span className="section-label" style={{ marginBottom: 18 }}>Sector coverage</span>
-          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2.4rem, 5vw, 3.6rem)", fontWeight: 600, margin: "0 0 14px", lineHeight: 1.1, letterSpacing: "-0.02em" }}>
-            {domain?.label}
-          </h2>
+          <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2.4rem, 5vw, 3.6rem)", fontWeight: 600, margin: "0 0 14px", lineHeight: 1.1, letterSpacing: "-0.02em" }}>
+            {domain?.label} Market Research Reports
+          </h1>
           <p style={{ fontSize: 15.5, color: "var(--text-muted)", margin: "0 0 24px", lineHeight: 1.75, maxWidth: 620 }}>
             {domain?.desc}
           </p>
@@ -1446,7 +1447,7 @@ function DomainPage({ domainId, setSelectedMarket }) {
               {[
                 { label: "Domain focus", val: details.tagline },
                 { label: "Analyst coverage", val: details.analystFocus },
-                { label: "Priority themes", val: details.highlights.join(" Â· ") },
+                { label: "Priority themes", val: details.highlights.join(" · ") },
               ].map((c) => (
                 <div key={c.label} style={{ background: "rgba(5,14,26,0.55)", border: "1px solid var(--border)", borderRadius: 10, padding: "14px 16px" }}>
                   <div className="mono" style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.2em", color: "var(--gold)", marginBottom: 8 }}>{c.label}</div>
@@ -1462,7 +1463,7 @@ function DomainPage({ domainId, setSelectedMarket }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, marginBottom: 24, flexWrap: "wrap" }}>
         <div className="mono" style={{ fontSize: 12, color: "var(--text-muted)", letterSpacing: "0.1em" }}>
           <strong style={{ color: "var(--cream)", fontWeight: 500 }}>{filtered.length}</strong> reports
-          <span style={{ color: "var(--text-faint)" }}> Â· showing {visibleMarkets.length} on page {currentPage + 1} of {totalPages}</span>
+          <span style={{ color: "var(--text-faint)" }}> · showing {visibleMarkets.length} on page {currentPage + 1} of {totalPages}</span>
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
           <div style={{ display: "flex", gap: 6 }}>
@@ -1492,7 +1493,7 @@ function DomainPage({ domainId, setSelectedMarket }) {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search reportsâ€¦"
+            placeholder="Search reports…"
             className="field-input"
             style={{ width: 240, padding: "9px 14px" }}
           />
@@ -1519,13 +1520,13 @@ function DomainPage({ domainId, setSelectedMarket }) {
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 500, color: "var(--cream)" }}>{m.value}</div>
               </div>
               <div>
-                <div className="mono" style={{ fontSize: 10, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.18em", marginBottom: 6 }}>CAGR Â· {FORECAST_PERIOD_LABEL}</div>
+                <div className="mono" style={{ fontSize: 10, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.18em", marginBottom: 6 }}>CAGR · {FORECAST_PERIOD_LABEL}</div>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 500, color: parseFloat(m.cagr) > 10 ? "var(--gold)" : "var(--cream)" }}>{m.cagr}</div>
               </div>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div className="mono" style={{ fontSize: 10.5, color: "var(--text-faint)", letterSpacing: "0.1em" }}>BASE Â· {m.year}</div>
-              <div style={{ fontSize: 12, color: "var(--gold)", fontWeight: 500 }}>View report â†’</div>
+              <div className="mono" style={{ fontSize: 10.5, color: "var(--text-faint)", letterSpacing: "0.1em" }}>BASE · {m.year}</div>
+              <div style={{ fontSize: 12, color: "var(--gold)", fontWeight: 500 }}>View report →</div>
             </div>
           </div>
         ))}
@@ -1539,7 +1540,7 @@ function DomainPage({ domainId, setSelectedMarket }) {
             className="btn-ghost"
             style={{ padding: "10px 20px", fontSize: 13, opacity: currentPage === 0 ? 0.4 : 1, cursor: currentPage === 0 ? "not-allowed" : "pointer" }}
           >
-            â† Previous
+            ← Previous
           </button>
           <span className="mono" style={{ fontSize: 12, color: "var(--text-muted)", letterSpacing: "0.12em" }}>
             {currentPage + 1} / {totalPages}
@@ -1550,7 +1551,7 @@ function DomainPage({ domainId, setSelectedMarket }) {
             className="btn-ghost"
             style={{ padding: "10px 20px", fontSize: 13, opacity: currentPage >= totalPages - 1 ? 0.4 : 1, cursor: currentPage >= totalPages - 1 ? "not-allowed" : "pointer" }}
           >
-            Next â†’
+            Next →
           </button>
         </div>
       )}
@@ -1558,7 +1559,7 @@ function DomainPage({ domainId, setSelectedMarket }) {
   );
 }
 
-// â”€â”€â”€ MAIN APP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── MAIN APP ─────────────────────────────────────────────────────────────────
 
 export default function App() {
   const [page, setPage] = useState(() => pageFromHash(window.location.hash));
@@ -1626,16 +1627,17 @@ export default function App() {
     <div style={{ background: "var(--navy)", minHeight: "100vh", color: "var(--cream)" }}>
       {/* Announcement */}
       <div style={{ background: "var(--navy-2)", borderBottom: "1px solid var(--border)", color: "var(--text-muted)", fontSize: 11.5, padding: "8px 0", textAlign: "center", letterSpacing: "0.04em", fontFamily: "'JetBrains Mono', monospace" }}>
-        InsightAxis Â· Trusted by 12,000+ organizations Â· 2026 Global Market Outlook now live
+        InsightAxis · Trusted by 12,000+ organizations · 2026 Global Market Outlook now live
       </div>
 
       {/* Navbar */}
       <header className={`navbar${scrolled ? " scrolled" : ""}`}>
         <div className="navbar__inner">
-          <button
-            onClick={() => setPage("home")}
-            aria-label="InsightAxis home"
-            style={{ display: "flex", alignItems: "center", gap: 14, background: "transparent", border: "none", cursor: "pointer", padding: 0 }}
+          <a
+            href="#home"
+            onClick={(e) => { e.preventDefault(); setPage("home"); }}
+            aria-label="InsightAxis Intelligence — home"
+            style={{ display: "flex", alignItems: "center", gap: 14, background: "transparent", border: "none", cursor: "pointer", padding: 0, textDecoration: "none" }}
           >
             <LogoMark />
             <div style={{ textAlign: "left" }}>
@@ -1643,41 +1645,53 @@ export default function App() {
                 InsightAxis
               </div>
               <div className="mono" style={{ fontSize: 9.5, color: "var(--text-muted)", letterSpacing: "0.22em", textTransform: "uppercase", marginTop: 2 }}>
-                Research & Intelligence
+                Market Intelligence
               </div>
             </div>
-          </button>
+          </a>
 
-          <nav style={{ display: "flex", gap: 4 }}>
+          <nav style={{ display: "flex", gap: 4 }} aria-label="Primary">
             {navItems.map((n) => {
               const isActive = page === n.id || (n.id === "domains" && isDomainPage(page));
               return (
-                <button
+                <a
                   key={n.id}
-                  onClick={() => { setPage(n.id); if (n.id === "domains") setActiveDomain(null); }}
+                  href={`#${n.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage(n.id);
+                    if (n.id === "domains") setActiveDomain(null);
+                  }}
                   className={`nav-link${isActive ? " active" : ""}`}
+                  aria-current={isActive ? "page" : undefined}
                 >
                   {n.label}
-                </button>
+                </a>
               );
             })}
           </nav>
 
-          <button onClick={() => setPage("contact")} className="nav-cta">
+          <a
+            href="#contact"
+            onClick={(e) => { e.preventDefault(); setPage("contact"); }}
+            className="nav-cta"
+          >
             Request a report
-          </button>
+          </a>
         </div>
 
         {/* Domain sub-nav */}
         {(page === "domains" || isDomainPage(page)) && (
           <div style={{ background: "rgba(10,24,40,0.7)", borderTop: "1px solid var(--border)", overflowX: "auto" }}>
-            <div style={{ display: "flex", gap: 6, padding: "10px 32px", maxWidth: 1240, margin: "0 auto" }}>
+            <nav aria-label="Research domains" style={{ display: "flex", gap: 6, padding: "10px 32px", maxWidth: 1240, margin: "0 auto" }}>
               {DOMAINS.map((d) => {
                 const isActive = activeDomain === d.id || page === d.id;
                 return (
-                  <button
+                  <a
                     key={d.id}
-                    onClick={() => handleDomainSelect(d.id)}
+                    href={`#${d.id}`}
+                    onClick={(e) => { e.preventDefault(); handleDomainSelect(d.id); }}
+                    aria-current={isActive ? "page" : undefined}
                     className="mono"
                     style={{
                       background: isActive ? "var(--gold)" : "transparent",
@@ -1692,18 +1706,20 @@ export default function App() {
                       cursor: "pointer",
                       whiteSpace: "nowrap",
                       transition: "all 200ms ease",
+                      textDecoration: "none",
                     }}
                   >
                     {d.label}
-                  </button>
+                  </a>
                 );
               })}
-            </div>
+            </nav>
           </div>
         )}
       </header>
 
       {/* Main content */}
+      <main id="main-content">
       {isHomePage ? (
         <HomePage setPage={setPage} setActiveDomain={setActiveDomain} />
       ) : (
@@ -1732,9 +1748,9 @@ export default function App() {
               <DomainsListSEO />
               <div className="reveal" style={{ marginBottom: 48, textAlign: "center" }}>
                 <span className="section-label" style={{ justifyContent: "center", marginBottom: 18 }}>All sectors</span>
-                <h2 style={{ fontSize: "clamp(2.4rem, 5vw, 3.6rem)", fontWeight: 600, margin: "0 0 14px", lineHeight: 1.1 }}>
+                <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 3.6rem)", fontWeight: 600, margin: "0 0 14px", lineHeight: 1.1 }}>
                   Research <em style={{ color: "var(--gold)", fontStyle: "italic" }}>coverage</em>
-                </h2>
+                </h1>
                 <p style={{ fontSize: 15.5, color: "var(--text-muted)", maxWidth: 620, margin: "0 auto", lineHeight: 1.75 }}>
                   Select an industry vertical to explore available market research reports.
                 </p>
@@ -1754,9 +1770,10 @@ export default function App() {
                       alt={d.label}
                       className="domain-card__img"
                       loading="lazy"
+                      decoding="async"
                     />
                     <div className="domain-card__overlay" />
-                    <span className="domain-card__arrow">â†—</span>
+                    <span className="domain-card__arrow">↗</span>
                     <div className="domain-card__content">
                       <div className="mono" style={{ fontSize: 10.5, letterSpacing: "0.2em", color: "var(--gold)", marginBottom: 10, textTransform: "uppercase" }}>
                         {(MARKETS_DATA[d.id] || []).length}+ Reports
@@ -1780,6 +1797,7 @@ export default function App() {
           {page === "contact" && <ContactPage />}
         </div>
       )}
+      </main>
 
       {/* Footer */}
       <footer style={{ background: "var(--navy)", borderTop: "1px solid var(--border)", color: "var(--text-muted)" }}>
@@ -1793,7 +1811,7 @@ export default function App() {
                 </div>
               </div>
               <p style={{ fontSize: 13.5, lineHeight: 1.8, color: "var(--text-muted)", margin: "0 0 24px", maxWidth: 360 }}>
-                Global market intelligence delivering comprehensive research across 10 industry sectors â€” empowering strategic decisions worldwide.
+                Global market intelligence delivering comprehensive research across 10 industry sectors — empowering strategic decisions worldwide.
               </p>
               <div style={{ display: "flex", gap: 10 }}>
                 {SOCIAL_LINKS.map((s) => (
@@ -1834,10 +1852,10 @@ export default function App() {
           </div>
           <div style={{ borderTop: "1px solid var(--border)", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
             <div className="mono" style={{ fontSize: 11, color: "var(--text-faint)", letterSpacing: "0.08em" }}>
-              Â© 2026 InsightAxis Research. All rights reserved.
+              © 2026 InsightAxis Intelligence. All rights reserved.
             </div>
             <div className="mono" style={{ fontSize: 11, color: "var(--text-faint)", letterSpacing: "0.08em" }}>
-              Privacy Â· Terms Â· Cookies Â· ISO 27001 Â· GDPR
+              Privacy · Terms · Cookies · ISO 27001 · GDPR
             </div>
           </div>
         </div>

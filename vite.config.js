@@ -4,7 +4,7 @@ import { MARKET_SEEDS } from "./src/data/marketSeeds.js";
 import { buildExpandedCatalog } from "./src/marketCatalog.js";
 import { slugify } from "./src/utils/slugify.js";
 
-const SITE_URL = "https://insightaxis.com";
+const SITE_URL = "https://insightaxis-intelligence.com";
 
 // Domain id → human-readable label (kept in sync with DOMAINS in src/App.jsx).
 const DOMAIN_LABELS = {
@@ -28,24 +28,29 @@ function buildSitemapXml() {
     urls.push({ loc, lastmod: today, changefreq, priority });
   };
 
+  // Phase 1 (current): only the homepage resolves to real HTML. Submitting
+  // sub-routes now would have Google crawl 2,000+ URLs that all return the
+  // same SPA shell — a soft-404 minefield.
   pushUrl(`${SITE_URL}/`, "1.0", "daily");
-  pushUrl(`${SITE_URL}/about`, "0.7", "monthly");
-  pushUrl(`${SITE_URL}/domains`, "0.9", "weekly");
-  pushUrl(`${SITE_URL}/generate`, "0.8", "weekly");
-  pushUrl(`${SITE_URL}/contact`, "0.6", "monthly");
 
-  Object.keys(DOMAIN_LABELS).forEach((domainId) => {
-    pushUrl(`${SITE_URL}/domains/${domainId}`, "0.8", "weekly");
-  });
-
-  const catalog = buildExpandedCatalog(MARKET_SEEDS);
-  Object.values(catalog).forEach((reports) => {
-    reports.forEach((report) => {
-      const slug = slugify(report.name);
-      if (!slug) return;
-      pushUrl(`${SITE_URL}/markets/${slug}`, "0.7", "monthly");
-    });
-  });
+  // TODO: re-enable after Phase 3 routing ships (React Router + host rewrites)
+  // pushUrl(`${SITE_URL}/about`, "0.7", "monthly");
+  // pushUrl(`${SITE_URL}/domains`, "0.9", "weekly");
+  // pushUrl(`${SITE_URL}/generate`, "0.8", "weekly");
+  // pushUrl(`${SITE_URL}/contact`, "0.6", "monthly");
+  //
+  // Object.keys(DOMAIN_LABELS).forEach((domainId) => {
+  //   pushUrl(`${SITE_URL}/domains/${domainId}`, "0.8", "weekly");
+  // });
+  //
+  // const catalog = buildExpandedCatalog(MARKET_SEEDS);
+  // Object.values(catalog).forEach((reports) => {
+  //   reports.forEach((report) => {
+  //     const slug = slugify(report.name);
+  //     if (!slug) return;
+  //     pushUrl(`${SITE_URL}/markets/${slug}`, "0.7", "monthly");
+  //   });
+  // });
 
   const body = urls
     .map(

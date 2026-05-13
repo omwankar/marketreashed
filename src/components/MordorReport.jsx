@@ -11,7 +11,7 @@ import { slugify } from "../utils/slugify.js";
 // CONFIG
 // ─────────────────────────────────────────────────────────────────
 
-const BRAND = "InsightAxis Research";
+const BRAND = "InsightAxis Intelligence";
 const GEMINI_MODEL = "gemini-2.0-flash";
 const REGION_OPTIONS = ["North America", "Europe", "Asia-Pacific", "Latin America", "Middle East & Africa"];
 const AUDIENCE_OPTIONS = ["Investors", "Enterprises", "Startups", "Consultants", "Government"];
@@ -1122,7 +1122,7 @@ function Toc({ data, sections }) {
         "10.3 List of Abbreviations",
         "10.4 Glossary of Terms",
         "10.5 References & Data Sources",
-        "10.6 About InsightAxis Research",
+        "10.6 About InsightAxis Intelligence",
       ],
     },
   ];
@@ -1243,9 +1243,9 @@ export function MordorReportForm({ initialTopic = "", onGenerated }) {
     <div style={{ maxWidth: 880, margin: "0 auto", padding: "60px 0 80px" }}>
       <div className="reveal" style={{ textAlign: "center", marginBottom: 44 }}>
         <span className="section-label" style={{ justifyContent: "center", marginBottom: 18 }}>Report Builder</span>
-        <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 600, margin: "0 0 14px", lineHeight: 1.15 }}>
+        <h1 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 600, margin: "0 0 14px", lineHeight: 1.15 }}>
           Build a <em style={{ color: "var(--gold)", fontStyle: "italic" }}>sample</em> research report
-        </h2>
+        </h1>
         <p style={{ fontSize: 15, color: "var(--text-muted)", margin: "0 auto", maxWidth: 640, lineHeight: 1.75 }}>
           Configure the scope below — we'll generate market sizing, drivers, segment analysis, geography breakdown, competitive landscape, and a full TOC.
         </p>

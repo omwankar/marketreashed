@@ -6,7 +6,7 @@
 //     title: "...",
 //     description: "...",
 //     path: "/about",                // route path appended to SITE_URL
-//     image: "https://insightaxis.com/og-image.png",  // optional override
+//     image: "https://insightaxis-intelligence.com/og-image.png",  // optional override
 //     jsonLd: [{ "@context": "https://schema.org", "@type": "Article", ... }],
 //   });
 //
@@ -20,10 +20,10 @@
 
 import { useEffect } from "react";
 
-export const SITE_URL = "https://insightaxis.com";
-export const SITE_NAME = "InsightAxis Research";
+export const SITE_URL = "https://insightaxis-intelligence.com";
+export const SITE_NAME = "InsightAxis Intelligence";
 export const OG_IMAGE_URL = `${SITE_URL}/og-image.png`;
-export const TWITTER_HANDLE = "@InsightAxis";
+export const TWITTER_HANDLE = "@InsightAxisIntel";
 
 const META_BINDINGS = [
   { selector: 'meta[name="description"]', attr: "content", key: "description" },
