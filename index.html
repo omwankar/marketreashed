@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#050E1A" />
+
+    <!-- Primary SEO -->
+    <title>Market Research Reports & Industry Analysis | InsightAxis</title>
+    <meta
+      name="description"
+      content="Professional market research reports covering 250+ industries. Instant analysis with market size, forecasts, competitive landscape, and growth trends."
+    />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="author" content="InsightAxis Research" />
+
+    <!-- Canonical (dynamic per-route updates handled in src/hooks/useSEO.js) -->
+    <link rel="canonical" href="https://insightaxis.com/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://insightaxis.com/" />
+    <meta property="og:site_name" content="InsightAxis Research" />
+    <meta property="og:title" content="InsightAxis — Market Research & Industry Reports" />
+    <meta
+      property="og:description"
+      content="Professional market research reports covering 250+ industries. Instant analysis with market size, forecasts, competitive landscape and growth trends."
+    />
+    <meta property="og:image" content="https://insightaxis.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="InsightAxis Research — Market Research & Industry Reports" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@InsightAxis" />
+    <meta name="twitter:title" content="InsightAxis — Market Research Reports" />
+    <meta name="twitter:description" content="Instant market research reports for 250+ industries." />
+    <meta name="twitter:image" content="https://insightaxis.com/og-image.png" />
+    <meta name="twitter:image:alt" content="InsightAxis Research" />
+
+    <!-- Icons -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Webmaster verification (replace placeholder values with real codes) -->
+    <meta name="google-site-verification" content="YOUR_GSC_CODE" />
+    <meta name="msvalidate.01" content="YOUR_BING_CODE" />
+
+    <!-- Performance: preconnect to font + image hosts; preload hero -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link
+      rel="preload"
+      as="image"
+      href="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=85"
+      fetchpriority="high"
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Organization schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "InsightAxis Research",
+        "alternateName": "InsightAxis",
+        "url": "https://insightaxis.com",
+        "logo": "https://insightaxis.com/favicon.svg",
+        "description": "Professional market research reports for 250+ industries worldwide, covering market size, forecasts, competitive landscape, and growth trends.",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Hinjewadi Phase 2",
+          "addressLocality": "Pune",
+          "postalCode": "411057",
+          "addressCountry": "IN"
+        },
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "customer service",
+          "availableLanguage": ["English"],
+          "areaServed": "Worldwide"
+        }
+      }
+    </script>
+
+    <!-- WebSite schema + Sitelinks Search box -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "InsightAxis Research",
+        "url": "https://insightaxis.com",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://insightaxis.com/search?q={search_term}"
+          },
+          "query-input": "required name=search_term"
+        }
+      }
+    </script>
+
+    <!-- Google Analytics 4 (replace G-XXXXXXXXXX with your real Measurement ID) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag("js", new Date());
+      gtag("config", "G-XXXXXXXXXX", { anonymize_ip: true });
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <p style="font-family: sans-serif; padding: 24px; color: #1A2333; background: #F5F0E8;">
+        InsightAxis Research requires JavaScript to deliver its interactive market research reports.
+        Please enable JavaScript in your browser to continue.
+      </p>
+    </noscript>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

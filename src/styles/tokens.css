@@ -1,0 +1,51 @@
+:root {
+  --ink-950: #060d1a;
+  --ink-900: #0a1628;
+  --ink-800: #0f2240;
+  --ink-700: #142d57;
+  --ink-600: #1b3a6e;
+  --ink-500: #245094;
+  --ink-400: #3a6db5;
+  --ink-300: #6494cc;
+  --ink-200: #a2bfe0;
+  --ink-100: #d0e0f0;
+  --ink-50: #edf3fa;
+
+  --gold-500: #b8862a;
+  --gold-400: #d4a035;
+  --gold-300: #e8bc60;
+  --gold-200: #f2d48c;
+  --gold-100: #faf0d0;
+
+  --stone-900: #1a1814;
+  --stone-700: #3d3a33;
+  --stone-500: #6b6860;
+  --stone-300: #b0ada6;
+  --stone-100: #e8e6e2;
+  --stone-50: #f6f5f3;
+
+  --surface: #ffffff;
+  --surface-raised: #f8f7f5;
+  --surface-sunken: #f0eee9;
+  --border-soft: rgba(15, 34, 64, 0.08);
+  --border-mid: rgba(15, 34, 64, 0.15);
+  --border-strong: rgba(15, 34, 64, 0.25);
+
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-md: 17px;
+  --text-lg: 20px;
+  --text-xl: 26px;
+  --text-2xl: 34px;
+  --text-3xl: 48px;
+  --text-4xl: 64px;
+  --text-hero: 80px;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 150ms;
+  --dur-base: 280ms;
+  --dur-slow: 500ms;
+  --dur-enter: 700ms;
+}

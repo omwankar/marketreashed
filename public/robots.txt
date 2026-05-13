@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Block crawling of build artifacts and any internal previews
+Disallow: /assets/
+Disallow: /*.json$
+
+# Reference our sitemap for full URL discovery
+Sitemap: https://insightaxis.com/sitemap.xml

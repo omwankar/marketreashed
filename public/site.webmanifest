@@ -1,0 +1,24 @@
+{
+  "name": "InsightAxis Research",
+  "short_name": "InsightAxis",
+  "description": "Professional market research reports for 250+ industries.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#050E1A",
+  "theme_color": "#050E1A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
