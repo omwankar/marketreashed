@@ -20,37 +20,52 @@ const DOMAIN_LABELS = {
   finance: "Financial Services",
 };
 
+// Phase 3 (current): full sitemap. React Router serves real URLs for every
+// route and the host SPA-fallback (Netlify _redirects, Vercel rewrites,
+// public/404.html) ensures direct hits on deep URLs return the app shell
+// instead of a hard 404. The dynamic `useSEO` hook then sets per-route
+// metadata (title, description, canonical, JSON-LD).
 function buildSitemapXml() {
   const today = new Date().toISOString().slice(0, 10);
   const urls = [];
+  const seen = new Set();
 
   const pushUrl = (loc, priority, changefreq = "weekly") => {
+    if (seen.has(loc)) return;
+    seen.add(loc);
     urls.push({ loc, lastmod: today, changefreq, priority });
   };
 
-  // Phase 1 (current): only the homepage resolves to real HTML. Submitting
-  // sub-routes now would have Google crawl 2,000+ URLs that all return the
-  // same SPA shell — a soft-404 minefield.
+  // Top-level pages
   pushUrl(`${SITE_URL}/`, "1.0", "daily");
+  pushUrl(`${SITE_URL}/domains`, "0.9", "weekly");
+  pushUrl(`${SITE_URL}/generate`, "0.8", "weekly");
+  pushUrl(`${SITE_URL}/about`, "0.7", "monthly");
+  pushUrl(`${SITE_URL}/contact`, "0.6", "monthly");
 
-  // TODO: re-enable after Phase 3 routing ships (React Router + host rewrites)
-  // pushUrl(`${SITE_URL}/about`, "0.7", "monthly");
-  // pushUrl(`${SITE_URL}/domains`, "0.9", "weekly");
-  // pushUrl(`${SITE_URL}/generate`, "0.8", "weekly");
-  // pushUrl(`${SITE_URL}/contact`, "0.6", "monthly");
-  //
-  // Object.keys(DOMAIN_LABELS).forEach((domainId) => {
-  //   pushUrl(`${SITE_URL}/domains/${domainId}`, "0.8", "weekly");
-  // });
-  //
-  // const catalog = buildExpandedCatalog(MARKET_SEEDS);
-  // Object.values(catalog).forEach((reports) => {
-  //   reports.forEach((report) => {
-  //     const slug = slugify(report.name);
-  //     if (!slug) return;
-  //     pushUrl(`${SITE_URL}/markets/${slug}`, "0.7", "monthly");
-  //   });
-  // });
+  // Domain landing pages (10)
+  Object.keys(DOMAIN_LABELS).forEach((domainId) => {
+    pushUrl(`${SITE_URL}/domains/${domainId}`, "0.85", "weekly");
+  });
+
+  // Market detail pages (~2,000 — global, regional, and country editions
+  // for every seed × domain combination). Each is a unique long-tail SEO
+  // target like "{country} {industry} market size 2031".
+  const catalog = buildExpandedCatalog(MARKET_SEEDS);
+  Object.values(catalog).forEach((reports) => {
+    reports.forEach((report) => {
+      const slug = slugify(report.name);
+      if (!slug) return;
+      // Country / regional editions are slightly lower priority than
+      // global reports — Google still indexes them but signals intent.
+      const priority = report.geoScope === "Global"
+        ? "0.75"
+        : report.geoScope === "Regional"
+          ? "0.65"
+          : "0.55";
+      pushUrl(`${SITE_URL}/markets/${slug}`, priority, "monthly");
+    });
+  });
 
   const body = urls
     .map(

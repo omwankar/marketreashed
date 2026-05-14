@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, follow" />
+    <title>Loading… | InsightAxis Intelligence</title>
+    <!--
+      GitHub Pages / static host SPA fallback. When a deep URL is hit
+      (e.g. /domains/healthcare) and the host can't find a matching file,
+      it serves this 404 page. The script below rewrites the URL to /?p=...
+      and redirects to the SPA shell, which restores the original path via
+      history.replaceState before React Router mounts.
+
+      For Netlify / Vercel, _redirects and vercel.json already handle this
+      with a proper 200 status. This file is a defensive fallback for
+      static-only hosts (GitHub Pages, S3 + CloudFront without rewrites).
+    -->
+    <script>
+      (function () {
+        var segmentCount = 0;
+        var l = window.location;
+        l.replace(
+          l.protocol + "//" + l.hostname + (l.port ? ":" + l.port : "") +
+          l.pathname.split("/").slice(0, 1 + segmentCount).join("/") +
+          "/?p=/" +
+          l.pathname.slice(1).split("/").slice(segmentCount).join("/").replace(/&/g, "~and~") +
+          (l.search ? "&q=" + l.search.slice(1).replace(/&/g, "~and~") : "") +
+          l.hash
+        );
+      })();
+    </script>
+  </head>
+  <body>
+    <p style="font-family: sans-serif; padding: 24px; color: #1A2333; background: #F5F0E8;">
+      Redirecting… If this page does not redirect, <a href="/">return to InsightAxis home</a>.
+    </p>
+  </body>
+</html>

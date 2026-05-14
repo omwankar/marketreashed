@@ -321,7 +321,7 @@ function BarChart({ data, height = 280, currency = "USD Billion" }) {
   const innerW = width - padL - padR;
   const innerH = height - padT - padB;
   const step = innerW / data.length;
-  const barW = step * 0.5;
+  const barW = Math.min(step * 0.5, 88);
 
   const ticks = 5;
   const tickStep = max / ticks;
@@ -439,42 +439,96 @@ function ConcentrationGauge({ value }) {
   );
 }
 
-function HeatmapWorld({ regions }) {
+function HeatmapWorld({ regions, dominantName }) {
   const colorFor = (intensity) => intensity === "High" ? C.primary : intensity === "Medium" ? C.accent : C.accentLight;
+  const dominant = dominantName
+    || (regions.slice().sort((a, b) => (b.share || 0) - (a.share || 0))[0]?.name);
   // Stylized world strip — 5 abstract region blocks, not a literal map.
   return (
     <div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 16 }}>
-        {regions.map((r) => (
-          <div key={r.name} style={{ background: "#fff", border: `1px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
-            <div style={{ height: 8, background: colorFor(r.intensity) }} />
-            <div style={{ padding: "14px 14px 12px" }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: C.primary, marginBottom: 6 }}>{r.name}</div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
-                <span style={{ fontSize: 18, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: C.text }}>{r.share}%</span>
-                <span style={{ fontSize: 11, color: C.textMuted, fontFamily: "'JetBrains Mono', monospace" }}>{r.cagr}% CAGR</span>
+        {regions.map((r) => {
+          const isDominant = r.name === dominant;
+          return (
+            <div
+              key={r.name}
+              style={{
+                background: "#fff",
+                border: `1px solid ${isDominant ? C.accent : C.border}`,
+                borderRadius: 10,
+                overflow: "hidden",
+                boxShadow: isDominant ? "0 6px 16px rgba(26,111,232,0.12)" : "none",
+                position: "relative",
+              }}
+            >
+              <div style={{ height: 8, background: colorFor(r.intensity) }} />
+              <div style={{ padding: "14px 14px 12px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, marginBottom: 6 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: C.primary }}>{r.name}</div>
+                  {isDominant && (
+                    <span style={{
+                      fontSize: 8.5,
+                      fontFamily: "'JetBrains Mono', monospace",
+                      letterSpacing: "0.16em",
+                      textTransform: "uppercase",
+                      color: C.accent,
+                      background: `${C.accent}15`,
+                      border: `1px solid ${C.accent}40`,
+                      borderRadius: 999,
+                      padding: "2px 6px",
+                      fontWeight: 600,
+                    }}>Dominant</span>
+                  )}
+                </div>
+                {isDominant ? (
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+                    <span style={{ fontSize: 18, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: C.text }}>{r.share}%</span>
+                    <span style={{ fontSize: 11, color: C.textMuted, fontFamily: "'JetBrains Mono', monospace" }}>{r.cagr}% CAGR</span>
+                  </div>
+                ) : (
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: 32,
+                    marginBottom: 8,
+                    borderRadius: 6,
+                    background: `repeating-linear-gradient(135deg, ${C.surfaceAlt} 0 6px, ${C.surfaceSub} 6px 12px)`,
+                    border: `1px dashed ${C.borderStrong}`,
+                    color: C.textFaint,
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 10,
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                  }}>
+                    Locked
+                  </div>
+                )}
+                <span style={{
+                  display: "inline-block",
+                  fontSize: 9.5,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  color: colorFor(r.intensity),
+                  background: `${colorFor(r.intensity)}15`,
+                  borderRadius: 999,
+                  padding: "3px 8px",
+                  border: `1px solid ${colorFor(r.intensity)}40`,
+                }}>{r.intensity}</span>
               </div>
-              <span style={{
-                display: "inline-block",
-                fontSize: 9.5,
-                fontFamily: "'JetBrains Mono', monospace",
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: colorFor(r.intensity),
-                background: `${colorFor(r.intensity)}15`,
-                borderRadius: 999,
-                padding: "3px 8px",
-                border: `1px solid ${colorFor(r.intensity)}40`,
-              }}>{r.intensity}</span>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
-      <div style={{ display: "flex", gap: 18, alignItems: "center", fontSize: 11, color: C.textMuted, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+      <div style={{ display: "flex", gap: 18, alignItems: "center", fontSize: 11, color: C.textMuted, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", flexWrap: "wrap" }}>
         <span>Intensity</span>
         <span style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: C.primary }} /> High</span>
         <span style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: C.accent }} /> Medium</span>
         <span style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: C.accentLight }} /> Low</span>
+        <span style={{ marginLeft: "auto", color: C.textFaint, textTransform: "none", letterSpacing: "0.04em", fontStyle: "italic" }}>
+          Region-level share &amp; CAGR available in full report
+        </span>
       </div>
     </div>
   );
@@ -512,17 +566,157 @@ const ChartCaption = ({ children }) => (
 );
 
 // ─────────────────────────────────────────────────────────────────
+// SNAPSHOT DASHBOARD — compact KPI tiles shown near top of report
+// ─────────────────────────────────────────────────────────────────
+
+function SnapshotDashboard({ marketSize, regions = [], playersCount = 0 }) {
+  const dominant = regions.slice().sort((a, b) => (b.share || 0) - (a.share || 0))[0];
+  const fastest = regions.slice().sort((a, b) => (b.cagr || 0) - (a.cagr || 0))[0];
+  const tiles = [
+    {
+      label: `Forecast Size · ${marketSize.forecastYear}`,
+      value: `$${marketSize.forecastValue}`,
+      suffix: "B",
+      accent: C.primary,
+      hint: `from $${marketSize.baseValue}B in ${marketSize.baseYear}`,
+    },
+    {
+      label: "Projected CAGR",
+      value: `${marketSize.cagr}`,
+      suffix: "%",
+      accent: C.accent,
+      hint: `${marketSize.studyPeriod} study period`,
+    },
+    {
+      label: "Largest Market",
+      value: marketSize.largestMarket || dominant?.name || "—",
+      suffix: dominant ? ` · ${dominant.share}%` : "",
+      accent: C.green,
+      hint: "Dominant share of global revenue",
+      compact: true,
+    },
+    {
+      label: "Fastest Growing",
+      value: marketSize.fastestGrowingMarket || fastest?.name || "—",
+      suffix: fastest ? ` · ${fastest.cagr}%` : "",
+      accent: C.alert,
+      hint: "Highest forecast CAGR region",
+      compact: true,
+    },
+    {
+      label: "Concentration",
+      value: marketSize.marketConcentration || "Medium",
+      suffix: "",
+      accent: C.primaryLight,
+      hint: "Top 5 players · combined share",
+      compact: true,
+    },
+    {
+      label: "Profiled Players",
+      value: `${playersCount}`,
+      suffix: "+",
+      accent: C.text,
+      hint: "Industry leaders + extended profiles",
+    },
+  ];
+
+  return (
+    <section
+      aria-label="Market snapshot dashboard"
+      style={{
+        background: `linear-gradient(180deg, ${C.surfaceAlt}, #fff)`,
+        border: `1px solid ${C.border}`,
+        borderRadius: 14,
+        padding: "22px 24px 24px",
+        marginBottom: 36,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
+        <div>
+          <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: C.accent, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 4 }}>
+            At a glance
+          </div>
+          <div style={{ fontSize: 17, fontWeight: 700, color: C.primary, letterSpacing: "-0.005em" }}>
+            Market snapshot dashboard
+          </div>
+        </div>
+        <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: C.textFaint, letterSpacing: "0.08em" }}>
+          Updated · {new Date().toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+        </div>
+      </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+          gap: 12,
+        }}
+      >
+        {tiles.map((t) => (
+          <div
+            key={t.label}
+            style={{
+              background: "#fff",
+              border: `1px solid ${C.border}`,
+              borderLeft: `3px solid ${t.accent}`,
+              borderRadius: 10,
+              padding: "12px 14px 14px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+              minHeight: 92,
+            }}
+          >
+            <div style={{
+              fontSize: 10.5,
+              fontFamily: "'JetBrains Mono', monospace",
+              color: C.textMuted,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+            }}>
+              {t.label}
+            </div>
+            <div style={{
+              display: "flex",
+              alignItems: "baseline",
+              gap: 4,
+              fontFamily: "'DM Sans', sans-serif",
+              color: t.accent,
+              fontWeight: 700,
+              lineHeight: 1.1,
+              fontSize: t.compact ? 16 : 22,
+              wordBreak: "break-word",
+            }}>
+              <span>{t.value}</span>
+              {t.suffix && (
+                <span style={{ fontSize: t.compact ? 13 : 14, color: C.textMuted, fontWeight: 600 }}>
+                  {t.suffix}
+                </span>
+              )}
+            </div>
+            <div style={{ fontSize: 11, color: C.textFaint, lineHeight: 1.45 }}>
+              {t.hint}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
 // MAIN REPORT
 // ─────────────────────────────────────────────────────────────────
 
-export default function MordorReport({ data, onClose }) {
+export default function MordorReport({ data, onClose, mode = "modal", backTo }) {
   const reportRef = useRef(null);
   const [openFaq, setOpenFaq] = useState(null);
+  const isPageMode = mode === "page";
 
   useEffect(() => {
+    if (isPageMode) return undefined;
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
-  }, []);
+  }, [isPageMode]);
 
   // ── SEO: per-report metadata + Report/FAQPage/BreadcrumbList JSON-LD ───
   const marketName = (data.industry || data.title || "Market").replace(/\s*market\s*$/i, "");
@@ -576,7 +770,6 @@ export default function MordorReport({ data, onClose }) {
   const ms = data.marketSize;
   const barData = [
     { label: "Base", year: ms.baseYear, value: ms.baseValue },
-    { label: "Current", year: ms.currentYear, value: ms.currentValue },
     { label: "Forecast", year: ms.forecastYear, value: ms.forecastValue },
   ];
 
@@ -609,36 +802,46 @@ export default function MordorReport({ data, onClose }) {
     w.document.close();
   };
 
-  return (
+  const reportInner = (
     <div
+      onClick={(e) => e.stopPropagation()}
       style={{
-        position: "fixed", inset: 0, zIndex: 1000, background: "rgba(5,14,26,0.85)",
-        backdropFilter: "blur(12px)", overflowY: "auto",
+        maxWidth: 1100,
+        margin: isPageMode ? "0 auto" : "30px auto",
+        background: C.surface,
+        color: C.text,
+        borderRadius: 14,
+        overflow: "hidden",
+        boxShadow: isPageMode ? "0 12px 40px rgba(0,0,0,0.3)" : "0 40px 100px rgba(0,0,0,0.5)",
       }}
-      onClick={onClose}
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: 1100, margin: "30px auto", background: C.surface, color: C.text, borderRadius: 14, overflow: "hidden", boxShadow: "0 40px 100px rgba(0,0,0,0.5)" }}
-      >
-        {/* TOP CONTROL BAR */}
-        <div style={{ position: "sticky", top: 0, zIndex: 10, background: C.primary, color: "#fff", padding: "14px 28px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", minWidth: 0 }}>
-            <span style={{ fontSize: 10.5, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.22em", textTransform: "uppercase", opacity: 0.7 }}>
-              {BRAND} · Sample Report
-            </span>
-            <span style={{ width: 1, height: 16, background: "rgba(255,255,255,0.2)" }} />
-            <span style={{ fontSize: 12, opacity: 0.85 }}>Last updated: {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={handlePrint} style={{ background: C.alert, color: "#fff", border: "none", borderRadius: 6, padding: "8px 16px", fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>
-              Export PDF
-            </button>
+      {/* TOP CONTROL BAR */}
+      <div style={{ position: "sticky", top: 0, zIndex: 10, background: C.primary, color: "#fff", padding: "14px 28px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", minWidth: 0 }}>
+          <span style={{ fontSize: 10.5, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.22em", textTransform: "uppercase", opacity: 0.7 }}>
+            {BRAND} · Sample Report
+          </span>
+          <span style={{ width: 1, height: 16, background: "rgba(255,255,255,0.2)" }} />
+          <span style={{ fontSize: 12, opacity: 0.85 }}>Last updated: {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={handlePrint} style={{ background: C.alert, color: "#fff", border: "none", borderRadius: 6, padding: "8px 16px", fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>
+            Export PDF
+          </button>
+          {isPageMode && backTo ? (
+            <a
+              href={backTo}
+              style={{ background: "rgba(255,255,255,0.1)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 6, padding: "8px 14px", fontSize: 12.5, cursor: "pointer", textDecoration: "none", fontWeight: 500 }}
+            >
+              ← Back
+            </a>
+          ) : (
             <button onClick={onClose} aria-label="Close report" style={{ background: "rgba(255,255,255,0.1)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 6, padding: "8px 14px", fontSize: 14, cursor: "pointer" }}>
               ✕
             </button>
-          </div>
+          )}
         </div>
+      </div>
 
         {/* PRINTED REPORT BODY */}
         <div ref={reportRef} style={{ padding: "48px 56px 64px" }}>
@@ -665,6 +868,13 @@ export default function MordorReport({ data, onClose }) {
               </span>
             </div>
           </header>
+
+          {/* SNAPSHOT DASHBOARD */}
+          <SnapshotDashboard
+            marketSize={ms}
+            regions={data.geography?.regions || []}
+            playersCount={(ms.majorPlayers?.length || 0) + (data.competitive?.extendedProfiles?.length || 0)}
+          />
 
           {/* MARKET SIZE & SHARE */}
           <section style={{ marginBottom: 44 }}>
@@ -694,7 +904,7 @@ export default function MordorReport({ data, onClose }) {
                   <tbody>
                     {[
                       ["Study period", ms.studyPeriod],
-                      [`Market size (${ms.currentYear})`, `USD ${ms.currentValue} Billion`],
+                      [`Market size (${ms.baseYear})`, `USD ${ms.baseValue} Billion`],
                       [`Market size (${ms.forecastYear})`, `USD ${ms.forecastValue} Billion`],
                       ["CAGR", `${ms.cagr}%`],
                       ["Fastest growing market", ms.fastestGrowingMarket],
@@ -843,7 +1053,7 @@ export default function MordorReport({ data, onClose }) {
           {/* GEOGRAPHY */}
           <section style={{ marginBottom: 44 }}>
             <SectionHeader id="geography" eyebrow="06" title="Geography Analysis" />
-            <HeatmapWorld regions={data.geography.regions} />
+            <HeatmapWorld regions={data.geography.regions} dominantName={ms.largestMarket} />
             <div style={{ display: "grid", gap: 22, marginTop: 28 }}>
               <div>
                 <h3 style={{ fontSize: 16, fontWeight: 700, color: C.primary, margin: "0 0 8px" }}>Largest region</h3>
@@ -982,6 +1192,21 @@ export default function MordorReport({ data, onClose }) {
           </div>
         </div>
       </div>
+  );
+
+  if (isPageMode) {
+    return reportInner;
+  }
+
+  return (
+    <div
+      style={{
+        position: "fixed", inset: 0, zIndex: 1000, background: "rgba(5,14,26,0.85)",
+        backdropFilter: "blur(12px)", overflowY: "auto",
+      }}
+      onClick={onClose}
+    >
+      {reportInner}
     </div>
   );
 }

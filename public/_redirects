@@ -1,0 +1,5 @@
+# Netlify SPA fallback: serve the React shell for any unknown path.
+# Without this, deep links like /domains/healthcare or /markets/global-... return 404
+# on first hit (Google can't crawl them). The 200 status ensures crawlers see content,
+# not a redirect — perfect for client-side routing.
+/*    /index.html   200

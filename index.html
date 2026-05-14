@@ -48,6 +48,32 @@
     <!-- <meta name="google-site-verification" content="REAL_GSC_CODE" /> -->
     <!-- <meta name="msvalidate.01" content="REAL_BING_CODE" /> -->
 
+    <!-- Single-page-app deep-link restore (paired with public/404.html).
+         When a static host (e.g. GitHub Pages) bounces a deep URL through
+         404.html, the request lands here with `?p=/the/original/path`.
+         We rewrite history before React mounts so React Router sees the
+         intended URL. No-op when there is no `p` query parameter. -->
+    <script>
+      (function () {
+        var url = window.location;
+        var params = new URLSearchParams(url.search);
+        var deepPath = params.get("p");
+        if (!deepPath) return;
+        params.delete("p");
+        var restoredSearch = params.toString();
+        var restoredQuery = params.get("q") ? "?" + params.get("q").replace(/~and~/g, "&") : "";
+        var hash = url.hash || "";
+        window.history.replaceState(
+          null,
+          "",
+          url.pathname.replace(/[^/]+$/, "").replace(/\/$/, "") +
+            deepPath.replace(/~and~/g, "&") +
+            restoredQuery +
+            hash
+        );
+      })();
+    </script>
+
     <!-- Performance: preconnect to font + image hosts; preload hero -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -90,13 +116,48 @@
       }
     </script>
 
-    <!-- WebSite schema -->
+    <!-- WebSite schema + SearchAction (enables Google sitelinks search box) -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "InsightAxis Intelligence",
-        "url": "https://insightaxis-intelligence.com"
+        "alternateName": "InsightAxis",
+        "url": "https://insightaxis-intelligence.com",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://insightaxis-intelligence.com/domains?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+
+    <!-- SiteNavigationElement schema: gives Google the primary nav links so
+         it can surface them as sitelinks under our main result. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "Primary navigation",
+        "itemListElement": [
+          { "@type": "SiteNavigationElement", "position": 1, "name": "Research Domains", "url": "https://insightaxis-intelligence.com/domains" },
+          { "@type": "SiteNavigationElement", "position": 2, "name": "Generate Sample Report", "url": "https://insightaxis-intelligence.com/generate" },
+          { "@type": "SiteNavigationElement", "position": 3, "name": "About", "url": "https://insightaxis-intelligence.com/about" },
+          { "@type": "SiteNavigationElement", "position": 4, "name": "Contact", "url": "https://insightaxis-intelligence.com/contact" },
+          { "@type": "SiteNavigationElement", "position": 5, "name": "Healthcare Market Research", "url": "https://insightaxis-intelligence.com/domains/healthcare" },
+          { "@type": "SiteNavigationElement", "position": 6, "name": "Technology Market Research", "url": "https://insightaxis-intelligence.com/domains/technology" },
+          { "@type": "SiteNavigationElement", "position": 7, "name": "Food & Beverage Market Research", "url": "https://insightaxis-intelligence.com/domains/fnb" },
+          { "@type": "SiteNavigationElement", "position": 8, "name": "Industrial Market Research", "url": "https://insightaxis-intelligence.com/domains/industrial" },
+          { "@type": "SiteNavigationElement", "position": 9, "name": "Energy & Utilities Market Research", "url": "https://insightaxis-intelligence.com/domains/energy" },
+          { "@type": "SiteNavigationElement", "position": 10, "name": "Automotive Market Research", "url": "https://insightaxis-intelligence.com/domains/automotive" },
+          { "@type": "SiteNavigationElement", "position": 11, "name": "Chemicals Market Research", "url": "https://insightaxis-intelligence.com/domains/chemicals" },
+          { "@type": "SiteNavigationElement", "position": 12, "name": "Financial Services Market Research", "url": "https://insightaxis-intelligence.com/domains/finance" },
+          { "@type": "SiteNavigationElement", "position": 13, "name": "FMCG Market Research", "url": "https://insightaxis-intelligence.com/domains/fmcg" },
+          { "@type": "SiteNavigationElement", "position": 14, "name": "Consumer Goods Market Research", "url": "https://insightaxis-intelligence.com/domains/consumer" }
+        ]
       }
     </script>
 
@@ -113,10 +174,36 @@
     <a href="#main-content" class="skip-link">Skip to content</a>
     <div id="root"></div>
     <noscript>
-      <p style="font-family: sans-serif; padding: 24px; color: #1A2333; background: #F5F0E8;">
-        InsightAxis Intelligence requires JavaScript to deliver its interactive market research reports.
-        Please enable JavaScript in your browser to continue.
-      </p>
+      <div style="font-family: 'Helvetica Neue', Arial, sans-serif; padding: 32px; color: #1A2333; background: #F5F0E8; line-height: 1.7;">
+        <h1 style="font-size: 28px; color: #0B3D5C; margin: 0 0 12px;">InsightAxis Intelligence — Market Research Reports</h1>
+        <p style="font-size: 15px; max-width: 700px;">
+          Professional market research and industry analysis across 10 verticals — covering market size, share, CAGR, key players, and forecasts through 2031.
+          The interactive site requires JavaScript, but every research domain has a dedicated page that can be opened directly:
+        </p>
+        <h2 style="font-size: 18px; color: #0B3D5C; margin: 24px 0 8px;">Research Domains</h2>
+        <ul style="font-size: 14.5px; columns: 2; column-gap: 32px; max-width: 720px;">
+          <li><a href="/domains/healthcare">Healthcare Market Research</a></li>
+          <li><a href="/domains/technology">Technology Market Research</a></li>
+          <li><a href="/domains/fnb">Food &amp; Beverage Market Research</a></li>
+          <li><a href="/domains/industrial">Industrial Market Research</a></li>
+          <li><a href="/domains/energy">Energy &amp; Utilities Market Research</a></li>
+          <li><a href="/domains/automotive">Automotive Market Research</a></li>
+          <li><a href="/domains/chemicals">Chemicals Market Research</a></li>
+          <li><a href="/domains/finance">Financial Services Market Research</a></li>
+          <li><a href="/domains/fmcg">FMCG Market Research</a></li>
+          <li><a href="/domains/consumer">Consumer Goods Market Research</a></li>
+        </ul>
+        <h2 style="font-size: 18px; color: #0B3D5C; margin: 24px 0 8px;">More from InsightAxis</h2>
+        <ul style="font-size: 14.5px;">
+          <li><a href="/domains">All research domains</a></li>
+          <li><a href="/generate">Generate a free sample report</a></li>
+          <li><a href="/about">About InsightAxis Intelligence</a></li>
+          <li><a href="/contact">Contact our analyst team</a></li>
+        </ul>
+        <p style="font-size: 13px; color: #5A6678; margin-top: 24px;">
+          Please enable JavaScript for the full interactive experience including dynamic charts, filters, and the sample-report builder.
+        </p>
+      </div>
     </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>

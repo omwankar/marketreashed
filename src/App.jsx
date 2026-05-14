@@ -1,16 +1,32 @@
 ﻿import { useState, useRef, useEffect, useMemo } from "react";
+import {
+  Routes,
+  Route,
+  Link,
+  NavLink,
+  useNavigate,
+  useLocation,
+  useParams,
+  Navigate,
+} from "react-router-dom";
 import emailjs from "@emailjs/browser";
 import { buildExpandedCatalog } from "./marketCatalog.js";
 import { MARKET_SEEDS } from "./data/marketSeeds.js";
 import { useScrollReveal } from "./hooks/useScrollReveal.js";
 import { useCountUp } from "./hooks/useCountUp.js";
-import { useSEO, buildBreadcrumbSchema } from "./hooks/useSEO.js";
+import {
+  useSEO,
+  buildBreadcrumbSchema,
+  SITE_URL,
+  SITE_NAME,
+} from "./hooks/useSEO.js";
 import {
   getDomainImage,
   getMarketDomainId,
   HERO_IMAGE,
   ABOUT_IMAGE,
 } from "./constants/visualAssets.js";
+import { slugify } from "./utils/slugify.js";
 import MordorReport, {
   MordorReportForm,
   buildReportForMarket,
@@ -179,16 +195,31 @@ const DOMAIN_PAGE_DETAILS = {
 
 const DOMAIN_IDS = new Set(DOMAINS.map((domain) => domain.id));
 
-function isDomainPage(page) {
-  return DOMAIN_IDS.has(page);
+function isDomainId(value) {
+  return DOMAIN_IDS.has(value);
 }
 
-const APP_PAGES = new Set(["home", "domains", "generate", "about", "contact", ...DOMAIN_IDS]);
+// Route helpers used by both Layout chrome (active link state, breadcrumbs)
+// and individual route components.
+function getPageType(pathname) {
+  if (pathname === "/") return "home";
+  if (pathname === "/domains") return "domains";
+  if (pathname.startsWith("/domains/")) return "domain";
+  if (pathname.startsWith("/markets/")) return "market";
+  if (pathname === "/generate") return "generate";
+  if (pathname === "/about") return "about";
+  if (pathname === "/contact") return "contact";
+  return "other";
+}
 
-function pageFromHash(hash) {
-  const value = hash.replace(/^#/, "");
-  if (!value || value === "home") return "home";
-  return APP_PAGES.has(value) ? value : "home";
+function getDomainIdFromPath(pathname) {
+  const match = pathname.match(/^\/domains\/([^/]+)$/);
+  return match ? match[1] : null;
+}
+
+function getMarketSlugFromPath(pathname) {
+  const match = pathname.match(/^\/markets\/([^/]+)$/);
+  return match ? match[1] : null;
 }
 
 const DEFAULT_METHODOLOGY = [
@@ -224,35 +255,54 @@ const FOOTER_COLUMNS = [
   {
     title: "Research",
     links: [
-      { label: "All Domains", page: "domains" },
-      { label: "Healthcare", page: "healthcare" },
-      { label: "Technology", page: "technology" },
-      { label: "F&B", page: "fnb" },
-      { label: "Industrial", page: "industrial" },
+      { label: "All Domains", to: "/domains" },
+      { label: "Healthcare", to: "/domains/healthcare" },
+      { label: "Technology", to: "/domains/technology" },
+      { label: "F&B", to: "/domains/fnb" },
+      { label: "Industrial", to: "/domains/industrial" },
     ],
   },
   {
     title: "Services",
     links: [
-      { label: "Custom Research", page: "generate" },
-      { label: "Competitive Intel", page: "generate" },
-      { label: "Due Diligence", page: "contact" },
-      { label: "Consulting", page: "contact" },
+      { label: "Custom Research", to: "/generate" },
+      { label: "Competitive Intel", to: "/generate" },
+      { label: "Due Diligence", to: "/contact" },
+      { label: "Consulting", to: "/contact" },
     ],
   },
   {
     title: "Company",
     links: [
-      { label: "About Us", page: "about" },
-      { label: "Methodology", page: "about" },
-      { label: "Careers", page: "about" },
-      { label: "Press", page: "about" },
-      { label: "Contact", page: "contact" },
+      { label: "About Us", to: "/about" },
+      { label: "Methodology", to: "/about" },
+      { label: "Careers", to: "/about" },
+      { label: "Press", to: "/about" },
+      { label: "Contact", to: "/contact" },
     ],
   },
 ];
 
 const MARKETS_DATA = buildExpandedCatalog(MARKET_SEEDS);
+
+// Pre-built slug → market lookup, used by /markets/:slug route.
+// Built once at module load (a few thousand entries — fast).
+const MARKETS_BY_SLUG = (() => {
+  const map = new Map();
+  Object.entries(MARKETS_DATA).forEach(([domainId, reports]) => {
+    reports.forEach((report) => {
+      const slug = slugify(report.name);
+      if (!slug || map.has(slug)) return;
+      map.set(slug, { ...report, domainId });
+    });
+  });
+  return map;
+})();
+
+function findMarketBySlug(slug) {
+  if (!slug) return null;
+  return MARKETS_BY_SLUG.get(slug) || null;
+}
 const MARKET_REPORT_DATA = {
   "fnb-1": {
     name: "Plant-Based Food Market",
@@ -834,24 +884,50 @@ function DomainsListSEO() {
   useSEO({
     title: "Research Domains | F&B, Healthcare, Tech & More | InsightAxis",
     description:
-      "Browse market research reports across 10 industry domains including Food & Beverage, Healthcare, Technology, Energy, Industrial, Automotive, Chemicals, and Financial Services.",
+      "Browse market research reports across 10 industry domains: Food & Beverage, Healthcare, Technology, Energy, Industrial, Automotive, Chemicals, Financial Services, FMCG, and Consumer Goods. Each domain hub aggregates global, regional, and country-level reports with sizing, share, and forecasts.",
     path: "/domains",
-    jsonLd: buildBreadcrumbSchema([
-      { name: "Home", url: "/" },
-      { name: "Domains", url: "/domains" },
-    ]),
+    jsonLd: [
+      buildBreadcrumbSchema([
+        { name: "Home", url: "/" },
+        { name: "Research Domains", url: "/domains" },
+      ]),
+      {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: "Research Domains",
+        url: `${SITE_URL}/domains`,
+        description:
+          "Industry-organized market research coverage spanning 10 verticals and 2,000+ reports.",
+        hasPart: DOMAINS.map((d) => ({
+          "@type": "WebPage",
+          name: `${d.label} Market Research`,
+          url: `${SITE_URL}/domains/${d.id}`,
+          about: { "@type": "Thing", name: d.label },
+        })),
+      },
+    ],
   });
   return null;
 }
 
-function GenerateSampleTab({ onReportReady }) {
+function GenerateSampleTab() {
+  const [report, setReport] = useState(null);
   useSEO({
-    title: "Generate Market Research Report | InsightAxis",
+    title: "Generate Custom Market Research Report (Free Sample) | InsightAxis",
     description:
-      "Generate a custom market research report instantly. Choose your industry, geographies and segmentation � and get a complete analysis with market size, forecasts, and competitive landscape.",
+      "Generate a free sample market research report in seconds. Configure industry, geographies, segmentation, and forecast horizon — the builder returns market size, CAGR, drivers, restraints, competitive landscape, and key player profiles.",
     path: "/generate",
+    jsonLd: buildBreadcrumbSchema([
+      { name: "Home", url: "/" },
+      { name: "Generate Sample Report", url: "/generate" },
+    ]),
   });
-  return <MordorReportForm onGenerated={onReportReady} />;
+  return (
+    <>
+      <MordorReportForm onGenerated={setReport} />
+      {report && <MordorReport data={report} onClose={() => setReport(null)} />}
+    </>
+  );
 }
 
 // ─── CONTACT PAGE ────────────────────────────────────────────────────────────
@@ -1154,12 +1230,39 @@ function HomeStat({ num, suf, label }) {
   );
 }
 
-function HomePage({ setPage, setActiveDomain }) {
+function HomePage() {
   useSEO({
-    title: "Market Research Reports & Industry Analysis | InsightAxis",
+    title: "Market Research Reports & Industry Analysis | InsightAxis Intelligence",
     description:
-      "Access 250+ professional market research reports. Industry analysis covering market size, forecasts, competitive landscape, and growth trends for global industries.",
+      "Free market research reports across 10 industries and 2,000+ markets. Get market size, CAGR, key players, and forecasts to 2031 — global, regional, and country editions. Healthcare, Technology, F&B, Industrial, Energy, Automotive, Chemicals, Finance, FMCG, Consumer Goods.",
     path: "/",
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: SITE_NAME,
+        url: SITE_URL,
+        potentialAction: {
+          "@type": "SearchAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: `${SITE_URL}/domains?q={search_term_string}`,
+          },
+          "query-input": "required name=search_term_string",
+        },
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: "Research domains covered",
+        itemListElement: DOMAINS.map((d, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          url: `${SITE_URL}/domains/${d.id}`,
+          name: `${d.label} Market Research`,
+        })),
+      },
+    ],
   });
   const marqueeItems = [
     ...DOMAINS.map((d) => d.label),
@@ -1207,8 +1310,8 @@ function HomePage({ setPage, setActiveDomain }) {
               InsightAxis Intelligence delivers comprehensive market intelligence across {DOMAINS.length} industry verticals — spanning global, regional, and country-level coverage with custom advisory built around your decisions.
             </p>
             <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-              <button onClick={() => setPage("domains")} className="btn-gold">Explore markets →</button>
-              <button onClick={() => setPage("generate")} className="btn-ghost">Generate a sample report</button>
+              <Link to="/domains" className="btn-gold" style={{ textDecoration: "none", display: "inline-block" }}>Explore markets →</Link>
+              <Link to="/generate" className="btn-ghost" style={{ textDecoration: "none", display: "inline-block" }}>Generate a sample report</Link>
             </div>
           </div>
         </div>
@@ -1259,16 +1362,16 @@ function HomePage({ setPage, setActiveDomain }) {
               Curated coverage across global, regional, and country-level editions.
             </p>
           </div>
-          <button onClick={() => setPage("domains")} className="btn-ghost">View all →</button>
+          <Link to="/domains" className="btn-ghost" style={{ textDecoration: "none", display: "inline-block" }}>View all →</Link>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
           {DOMAINS.map((d, i) => (
-            <button
+            <Link
               key={d.id}
-              onClick={() => { setActiveDomain(d.id); setPage(d.id); }}
+              to={`/domains/${d.id}`}
               className={`domain-card reveal reveal-delay-${(i % 10) + 1}`}
-              style={{ background: "transparent" }}
+              style={{ background: "transparent", textDecoration: "none", color: "inherit" }}
               aria-label={d.label}
             >
               <img
@@ -1284,14 +1387,14 @@ function HomePage({ setPage, setActiveDomain }) {
                 <div className="mono" style={{ fontSize: 10.5, letterSpacing: "0.2em", color: "var(--gold)", marginBottom: 10, textTransform: "uppercase" }}>
                   {(MARKETS_DATA[d.id] || []).length}+ Reports
                 </div>
-                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 500, color: "var(--cream)", marginBottom: 6, lineHeight: 1.15 }}>
+                <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 500, color: "var(--cream)", margin: "0 0 6px", lineHeight: 1.15 }}>
                   {d.label}
-                </div>
+                </h3>
                 <div style={{ fontSize: 12.5, color: "var(--cream-dim)", lineHeight: 1.55, opacity: 0.78 }}>
                   {d.desc.substring(0, 70)}…
                 </div>
               </div>
-            </button>
+            </Link>
           ))}
         </div>
       </section>
@@ -1358,21 +1461,47 @@ function HomePage({ setPage, setActiveDomain }) {
 
 // ─── DOMAIN PAGE ─────────────────────────────────────────────────────────────
 
-function DomainPage({ domainId, setSelectedMarket }) {
+function DomainPage({ domainId }) {
   const domain = DOMAINS.find((d) => d.id === domainId);
   const details = DOMAIN_PAGE_DETAILS[domainId];
   const markets = MARKETS_DATA[domainId] || [];
 
   const domainLabel = domain ? domain.label : "Research Domain";
+  const domainDesc = domain ? domain.desc : "Industry research coverage";
+  const featuredItems = markets.slice(0, 20).map((m, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    url: `${SITE_URL}/markets/${slugify(m.name)}`,
+    name: m.name,
+  }));
+
   useSEO({
-    title: `${domainLabel} Market Research Reports | InsightAxis`,
-    description: `Comprehensive ${domainLabel.toLowerCase()} market research reports covering market size, key players, growth trends, and forecasts through 2031. Browse ${markets.length}+ ${domainLabel.toLowerCase()} reports across global, regional, and country editions.`,
+    title: `${domainLabel} Market Research Reports & Industry Analysis | InsightAxis`,
+    description: `${domainLabel} market research — size, share, CAGR, leading companies, and ${FORECAST_PERIOD_LABEL} forecasts. ${markets.length}+ ${domainLabel.toLowerCase()} reports across global, regional, and country editions. ${domainDesc}`,
     path: `/domains/${domainId}`,
-    jsonLd: buildBreadcrumbSchema([
-      { name: "Home", url: "/" },
-      { name: "Domains", url: "/domains" },
-      { name: domainLabel, url: `/domains/${domainId}` },
-    ]),
+    jsonLd: [
+      buildBreadcrumbSchema([
+        { name: "Home", url: "/" },
+        { name: "Research Domains", url: "/domains" },
+        { name: domainLabel, url: `/domains/${domainId}` },
+      ]),
+      {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: `${domainLabel} Market Research`,
+        description: `${domainLabel} market research reports and industry analysis`,
+        url: `${SITE_URL}/domains/${domainId}`,
+        isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
+        about: { "@type": "Thing", name: domainLabel },
+      },
+      featuredItems.length > 0 && {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: `${domainLabel} Market Reports`,
+        numberOfItems: markets.length,
+        itemListElement: featuredItems,
+      },
+    ].filter(Boolean),
   });
   const [search, setSearch] = useState("");
   const [geoFilter, setGeoFilter] = useState("All");
@@ -1503,17 +1632,17 @@ function DomainPage({ domainId, setSelectedMarket }) {
       {/* Cards */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 18 }}>
         {visibleMarkets.map((m, idx) => (
-          <div
+          <Link
             key={m.id}
-            onClick={() => setSelectedMarket(m)}
+            to={`/markets/${slugify(m.name)}`}
             className={`report-card reveal reveal-delay-${(idx % 10) + 1}`}
-            role="button"
-            tabIndex={0}
+            style={{ textDecoration: "none", color: "inherit", display: "block" }}
+            aria-label={`Open ${m.name} report`}
           >
             <div style={geoBadgeStyle(m.geoScope)}>{m.geoScope}</div>
-            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 500, color: "var(--cream)", marginBottom: 18, lineHeight: 1.25 }}>
+            <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 500, color: "var(--cream)", margin: "0 0 18px", lineHeight: 1.25 }}>
               {m.name}
-            </div>
+            </h3>
             <div style={{ display: "flex", gap: 18, marginBottom: 18, paddingBottom: 16, borderBottom: "1px solid var(--border)" }}>
               <div>
                 <div className="mono" style={{ fontSize: 10, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.18em", marginBottom: 6 }}>Market size</div>
@@ -1528,7 +1657,7 @@ function DomainPage({ domainId, setSelectedMarket }) {
               <div className="mono" style={{ fontSize: 10.5, color: "var(--text-faint)", letterSpacing: "0.1em" }}>BASE · {m.year}</div>
               <div style={{ fontSize: 12, color: "var(--gold)", fontWeight: 500 }}>View report →</div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -1559,36 +1688,113 @@ function DomainPage({ domainId, setSelectedMarket }) {
   );
 }
 
-// ─── MAIN APP ─────────────────────────────────────────────────────────────────
+// ─── MARKET DETAIL PAGE (Route: /markets/:slug) ───────────────────────────────
+// Dedicated indexable page for every market in the catalog. This is the most
+// SEO-valuable surface: each URL is a unique long-tail keyword target like
+// "{geo} {industry} market size 2031".
 
-export default function App() {
-  const [page, setPage] = useState(() => pageFromHash(window.location.hash));
-  const [activeDomain, setActiveDomain] = useState(() => {
-    const initialPage = pageFromHash(window.location.hash);
-    return isDomainPage(initialPage) ? initialPage : null;
+function MarketDetailPage() {
+  const { slug } = useParams();
+  const market = useMemo(() => findMarketBySlug(slug), [slug]);
+  const reportData = useMemo(
+    () => (market ? buildReportForMarket(market) : null),
+    [market],
+  );
+
+  if (!market || !reportData) {
+    return <NotFoundPage requestedPath={`/markets/${slug || ""}`} />;
+  }
+
+  const domain = DOMAINS.find((d) => d.id === market.domainId);
+  const domainLabel = domain?.label || "Research";
+
+  return (
+    <div style={{ padding: "32px 0 0" }}>
+      {/* Breadcrumb */}
+      <div
+        className="mono"
+        style={{
+          fontSize: 11,
+          color: "var(--text-muted)",
+          marginBottom: 14,
+          display: "flex",
+          gap: 8,
+          alignItems: "center",
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          flexWrap: "wrap",
+        }}
+      >
+        <Link to="/" style={{ color: "var(--gold)", textDecoration: "none" }}>Home</Link>
+        <span style={{ color: "var(--text-faint)" }}>/</span>
+        <Link to="/domains" style={{ color: "var(--gold)", textDecoration: "none" }}>Research</Link>
+        <span style={{ color: "var(--text-faint)" }}>/</span>
+        <Link to={`/domains/${market.domainId}`} style={{ color: "var(--gold)", textDecoration: "none" }}>{domainLabel}</Link>
+        <span style={{ color: "var(--text-faint)" }}>/</span>
+        <span style={{ color: "var(--cream-dim)" }}>{market.name}</span>
+      </div>
+
+      <MordorReport data={reportData} mode="page" backTo={`/domains/${market.domainId}`} />
+    </div>
+  );
+}
+
+// ─── 404 NOT FOUND ────────────────────────────────────────────────────────────
+
+function NotFoundPage({ requestedPath }) {
+  useSEO({
+    title: "Page Not Found (404) | InsightAxis Intelligence",
+    description: "The requested page could not be found. Browse our market research domains or search for a report.",
+    path: "/404",
   });
-  const [selectedMarket, setSelectedMarket] = useState(null);
-  const [mordorReport, setMordorReport] = useState(null);
-  const [scrolled, setScrolled] = useState(false);
-
-  useScrollReveal();
 
   useEffect(() => {
-    const syncFromHash = () => {
-      const nextPage = pageFromHash(window.location.hash);
-      setPage(nextPage);
-      setActiveDomain(isDomainPage(nextPage) ? nextPage : null);
-    };
-    window.addEventListener("hashchange", syncFromHash);
-    return () => window.removeEventListener("hashchange", syncFromHash);
+    // Hint to bots that this is a real 404, even on static hosts that return
+    // the SPA shell with a 200.
+    if (typeof document !== "undefined") {
+      let robots = document.head.querySelector('meta[name="robots"]');
+      if (!robots) {
+        robots = document.createElement("meta");
+        robots.setAttribute("name", "robots");
+        document.head.appendChild(robots);
+      }
+      const prev = robots.getAttribute("content");
+      robots.setAttribute("content", "noindex, follow");
+      return () => {
+        if (prev) robots.setAttribute("content", prev);
+        else robots.setAttribute("content", "index, follow");
+      };
+    }
   }, []);
 
-  useEffect(() => {
-    const nextHash = page === "home" ? "" : `#${page}`;
-    if (window.location.hash !== nextHash) {
-      window.history.replaceState(null, "", nextHash || `${window.location.pathname}${window.location.search}`);
-    }
-  }, [page]);
+  return (
+    <div style={{ maxWidth: 720, margin: "0 auto", padding: "100px 32px 120px", textAlign: "center" }}>
+      <span className="section-label" style={{ justifyContent: "center", marginBottom: 24 }}>404</span>
+      <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 600, margin: "0 0 18px", lineHeight: 1.15 }}>
+        We couldn't find that page.
+      </h1>
+      <p style={{ fontSize: 15, color: "var(--text-muted)", lineHeight: 1.75, margin: "0 0 32px" }}>
+        {requestedPath
+          ? `"${requestedPath}" doesn't match any market or page in our catalog.`
+          : "The link you followed may be outdated, or the page may have moved."}
+        {" "}Try the research index or generate a custom report.
+      </p>
+      <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
+        <Link to="/domains" className="btn-gold" style={{ textDecoration: "none", display: "inline-block" }}>Browse research →</Link>
+        <Link to="/generate" className="btn-ghost" style={{ textDecoration: "none", display: "inline-block" }}>Generate a sample report</Link>
+      </div>
+    </div>
+  );
+}
+
+// ─── MAIN APP ─────────────────────────────────────────────────────────────────
+
+function NavBar() {
+  const location = useLocation();
+  const [scrolled, setScrolled] = useState(false);
+  const pageType = getPageType(location.pathname);
+  const activeDomainId = getDomainIdFromPath(location.pathname);
+  const showDomainSubNav = pageType === "domains" || pageType === "domain" || pageType === "market";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -1598,271 +1804,352 @@ export default function App() {
   }, []);
 
   const navItems = [
-    { id: "home", label: "Home" },
-    { id: "domains", label: "Research" },
-    { id: "generate", label: "Generate" },
-    { id: "about", label: "About" },
-    { id: "contact", label: "Contact" },
+    { to: "/", label: "Home", match: (t) => t === "home" },
+    { to: "/domains", label: "Research", match: (t) => t === "domains" || t === "domain" || t === "market" },
+    { to: "/generate", label: "Generate", match: (t) => t === "generate" },
+    { to: "/about", label: "About", match: (t) => t === "about" },
+    { to: "/contact", label: "Contact", match: (t) => t === "contact" },
   ];
 
-  const handleDomainSelect = (domainId) => {
-    setActiveDomain(domainId);
-    setPage(domainId);
-  };
+  return (
+    <header className={`navbar${scrolled ? " scrolled" : ""}`}>
+      <div className="navbar__inner">
+        <Link
+          to="/"
+          aria-label="InsightAxis Intelligence — home"
+          style={{ display: "flex", alignItems: "center", gap: 14, background: "transparent", border: "none", cursor: "pointer", padding: 0, textDecoration: "none" }}
+        >
+          <LogoMark />
+          <div style={{ textAlign: "left" }}>
+            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 600, color: "var(--cream)", letterSpacing: "-0.01em", lineHeight: 1 }}>
+              InsightAxis
+            </div>
+            <div className="mono" style={{ fontSize: 9.5, color: "var(--text-muted)", letterSpacing: "0.22em", textTransform: "uppercase", marginTop: 2 }}>
+              Market Intelligence
+            </div>
+          </div>
+        </Link>
 
-  const handleMarketSelect = (market) => {
-    setMordorReport(buildReportForMarket(market));
-  };
+        <nav style={{ display: "flex", gap: 4 }} aria-label="Primary">
+          {navItems.map((n) => {
+            const isActive = n.match(pageType);
+            return (
+              <Link
+                key={n.to}
+                to={n.to}
+                className={`nav-link${isActive ? " active" : ""}`}
+                aria-current={isActive ? "page" : undefined}
+              >
+                {n.label}
+              </Link>
+            );
+          })}
+        </nav>
 
-  const handleFooterNavigate = (targetPage) => {
-    if (isDomainPage(targetPage)) setActiveDomain(targetPage);
-    else if (targetPage === "domains") setActiveDomain(null);
-    setPage(targetPage);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+        <Link to="/contact" className="nav-cta">
+          Request a report
+        </Link>
+      </div>
 
-  const isHomePage = page === "home";
+      {showDomainSubNav && (
+        <div style={{ background: "rgba(10,24,40,0.7)", borderTop: "1px solid var(--border)", overflowX: "auto" }}>
+          <nav aria-label="Research domains" style={{ display: "flex", gap: 6, padding: "10px 32px", maxWidth: 1240, margin: "0 auto" }}>
+            {DOMAINS.map((d) => {
+              const isActive = activeDomainId === d.id;
+              return (
+                <Link
+                  key={d.id}
+                  to={`/domains/${d.id}`}
+                  aria-current={isActive ? "page" : undefined}
+                  className="mono"
+                  style={{
+                    background: isActive ? "var(--gold)" : "transparent",
+                    color: isActive ? "var(--navy)" : "var(--cream-dim)",
+                    border: `1px solid ${isActive ? "var(--gold)" : "transparent"}`,
+                    borderRadius: 999,
+                    padding: "6px 14px",
+                    fontSize: 11,
+                    fontWeight: 500,
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    transition: "all 200ms ease",
+                    textDecoration: "none",
+                  }}
+                >
+                  {d.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      )}
+    </header>
+  );
+}
+
+function Breadcrumb() {
+  const location = useLocation();
+  const pageType = getPageType(location.pathname);
+  if (pageType === "home" || pageType === "market") return null;
+  const domainId = getDomainIdFromPath(location.pathname);
+  const domain = domainId ? DOMAINS.find((d) => d.id === domainId) : null;
+
+  return (
+    <div className="mono" style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 8, display: "flex", gap: 8, alignItems: "center", letterSpacing: "0.12em", textTransform: "uppercase" }}>
+      <Link to="/" style={{ color: "var(--gold)", textDecoration: "none" }}>Home</Link>
+      {(pageType === "domains" || pageType === "domain") && (
+        <>
+          <span style={{ color: "var(--text-faint)" }}>/</span>
+          {pageType === "domains" ? (
+            <span style={{ color: "var(--cream-dim)" }}>Research</span>
+          ) : (
+            <>
+              <Link to="/domains" style={{ color: "var(--gold)", textDecoration: "none" }}>Research</Link>
+              <span style={{ color: "var(--text-faint)" }}>/</span>
+              <span style={{ color: "var(--cream-dim)" }}>{domain?.label}</span>
+            </>
+          )}
+        </>
+      )}
+      {(pageType === "generate" || pageType === "about" || pageType === "contact") && (
+        <>
+          <span style={{ color: "var(--text-faint)" }}>/</span>
+          <span style={{ color: "var(--cream-dim)" }}>
+            {pageType === "generate" ? "Generate" : pageType === "about" ? "About" : "Contact"}
+          </span>
+        </>
+      )}
+    </div>
+  );
+}
+
+function DomainsListPage() {
+  return (
+    <div style={{ padding: "32px 0 80px" }}>
+      <DomainsListSEO />
+      <div className="reveal" style={{ marginBottom: 48, textAlign: "center" }}>
+        <span className="section-label" style={{ justifyContent: "center", marginBottom: 18 }}>All sectors</span>
+        <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 3.6rem)", fontWeight: 600, margin: "0 0 14px", lineHeight: 1.1 }}>
+          Research <em style={{ color: "var(--gold)", fontStyle: "italic" }}>coverage</em>
+        </h1>
+        <p style={{ fontSize: 15.5, color: "var(--text-muted)", maxWidth: 620, margin: "0 auto", lineHeight: 1.75 }}>
+          Select an industry vertical to explore available market research reports covering market size, share, key players, and forecasts.
+        </p>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18 }}>
+        {DOMAINS.map((d, i) => (
+          <Link
+            key={d.id}
+            to={`/domains/${d.id}`}
+            className={`domain-card reveal reveal-delay-${(i % 10) + 1}`}
+            style={{ background: "transparent", textDecoration: "none", color: "inherit" }}
+            aria-label={d.label}
+          >
+            <img
+              src={getDomainImage(d.id)}
+              alt={d.label}
+              className="domain-card__img"
+              loading="lazy"
+              decoding="async"
+            />
+            <div className="domain-card__overlay" />
+            <span className="domain-card__arrow">{"\u2197"}</span>
+            <div className="domain-card__content">
+              <div className="mono" style={{ fontSize: 10.5, letterSpacing: "0.2em", color: "var(--gold)", marginBottom: 10, textTransform: "uppercase" }}>
+                {(MARKETS_DATA[d.id] || []).length}+ Reports
+              </div>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 500, color: "var(--cream)", margin: "0 0 6px", lineHeight: 1.15 }}>
+                {d.label}
+              </h2>
+              <div style={{ fontSize: 13, color: "var(--cream-dim)", lineHeight: 1.55, opacity: 0.78 }}>
+                {d.desc}
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DomainRoute() {
+  const { domainId } = useParams();
+  if (!isDomainId(domainId)) {
+    return <NotFoundPage requestedPath={`/domains/${domainId || ""}`} />;
+  }
+  return <DomainPage domainId={domainId} />;
+}
+
+function Footer() {
+  return (
+    <footer style={{ background: "var(--navy)", borderTop: "1px solid var(--border)", color: "var(--text-muted)" }}>
+      <div style={{ maxWidth: 1240, margin: "0 auto", padding: "64px 32px 32px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, marginBottom: 48 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18 }}>
+              <LogoMark size={36} />
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 600, color: "var(--cream)" }}>
+                InsightAxis<span style={{ color: "var(--gold)" }}>.</span>
+              </div>
+            </div>
+            <p style={{ fontSize: 13.5, lineHeight: 1.8, color: "var(--text-muted)", margin: "0 0 24px", maxWidth: 360 }}>
+              Global market intelligence delivering comprehensive research across 10 industry sectors — empowering strategic decisions worldwide.
+            </p>
+            <div style={{ display: "flex", gap: 10 }}>
+              {SOCIAL_LINKS.map((s) => (
+                <SocialIcon key={s.label} label={s.label} path={s.path} />
+              ))}
+            </div>
+          </div>
+          {FOOTER_COLUMNS.map((col, i) => (
+            <div key={i}>
+              <div className="mono" style={{ fontSize: 11, fontWeight: 500, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: 16 }}>
+                {col.title}
+              </div>
+              {col.links.map((link) => (
+                <Link
+                  key={link.label}
+                  to={link.to}
+                  style={{
+                    display: "block",
+                    padding: "6px 0",
+                    fontSize: 13.5,
+                    color: "var(--text-muted)",
+                    textDecoration: "none",
+                    transition: "color 180ms ease",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = "var(--cream)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div style={{ borderTop: "1px solid var(--border)", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+          <div className="mono" style={{ fontSize: 11, color: "var(--text-faint)", letterSpacing: "0.08em" }}>
+            © 2026 InsightAxis Intelligence. All rights reserved.
+          </div>
+          <div className="mono" style={{ fontSize: 11, color: "var(--text-faint)", letterSpacing: "0.08em" }}>
+            Privacy · Terms · Cookies · ISO 27001 · GDPR
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function ScrollToTopOnRouteChange() {
+  const location = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+  }, [location.pathname]);
+  return null;
+}
+
+// Legacy hash-URL bridge: if a visitor lands on `/#about`, `/#fnb`, etc.
+// (links from before the multi-page migration), redirect once to the
+// equivalent clean URL so existing inbound traffic doesn't 404.
+function LegacyHashRedirect() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const hash = window.location.hash.replace(/^#/, "");
+    if (!hash || hash === "home") return;
+    const knownTopLevel = new Set(["domains", "generate", "about", "contact"]);
+    let target = null;
+    if (knownTopLevel.has(hash)) target = `/${hash}`;
+    else if (isDomainId(hash)) target = `/domains/${hash}`;
+    if (target) navigate(target, { replace: true });
+  }, [navigate]);
+  return null;
+}
+
+export default function App() {
+  useScrollReveal();
 
   return (
     <div style={{ background: "var(--navy)", minHeight: "100vh", color: "var(--cream)" }}>
-      {/* Announcement */}
+      <ScrollToTopOnRouteChange />
+      <LegacyHashRedirect />
+
+      {/* Announcement bar */}
       <div style={{ background: "var(--navy-2)", borderBottom: "1px solid var(--border)", color: "var(--text-muted)", fontSize: 11.5, padding: "8px 0", textAlign: "center", letterSpacing: "0.04em", fontFamily: "'JetBrains Mono', monospace" }}>
         InsightAxis · Trusted by 12,000+ organizations · 2026 Global Market Outlook now live
       </div>
 
-      {/* Navbar */}
-      <header className={`navbar${scrolled ? " scrolled" : ""}`}>
-        <div className="navbar__inner">
-          <a
-            href="#home"
-            onClick={(e) => { e.preventDefault(); setPage("home"); }}
-            aria-label="InsightAxis Intelligence — home"
-            style={{ display: "flex", alignItems: "center", gap: 14, background: "transparent", border: "none", cursor: "pointer", padding: 0, textDecoration: "none" }}
-          >
-            <LogoMark />
-            <div style={{ textAlign: "left" }}>
-              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 600, color: "var(--cream)", letterSpacing: "-0.01em", lineHeight: 1 }}>
-                InsightAxis
-              </div>
-              <div className="mono" style={{ fontSize: 9.5, color: "var(--text-muted)", letterSpacing: "0.22em", textTransform: "uppercase", marginTop: 2 }}>
-                Market Intelligence
-              </div>
-            </div>
-          </a>
+      <NavBar />
 
-          <nav style={{ display: "flex", gap: 4 }} aria-label="Primary">
-            {navItems.map((n) => {
-              const isActive = page === n.id || (n.id === "domains" && isDomainPage(page));
-              return (
-                <a
-                  key={n.id}
-                  href={`#${n.id}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setPage(n.id);
-                    if (n.id === "domains") setActiveDomain(null);
-                  }}
-                  className={`nav-link${isActive ? " active" : ""}`}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  {n.label}
-                </a>
-              );
-            })}
-          </nav>
-
-          <a
-            href="#contact"
-            onClick={(e) => { e.preventDefault(); setPage("contact"); }}
-            className="nav-cta"
-          >
-            Request a report
-          </a>
-        </div>
-
-        {/* Domain sub-nav */}
-        {(page === "domains" || isDomainPage(page)) && (
-          <div style={{ background: "rgba(10,24,40,0.7)", borderTop: "1px solid var(--border)", overflowX: "auto" }}>
-            <nav aria-label="Research domains" style={{ display: "flex", gap: 6, padding: "10px 32px", maxWidth: 1240, margin: "0 auto" }}>
-              {DOMAINS.map((d) => {
-                const isActive = activeDomain === d.id || page === d.id;
-                return (
-                  <a
-                    key={d.id}
-                    href={`#${d.id}`}
-                    onClick={(e) => { e.preventDefault(); handleDomainSelect(d.id); }}
-                    aria-current={isActive ? "page" : undefined}
-                    className="mono"
-                    style={{
-                      background: isActive ? "var(--gold)" : "transparent",
-                      color: isActive ? "var(--navy)" : "var(--cream-dim)",
-                      border: `1px solid ${isActive ? "var(--gold)" : "transparent"}`,
-                      borderRadius: 999,
-                      padding: "6px 14px",
-                      fontSize: 11,
-                      fontWeight: 500,
-                      letterSpacing: "0.12em",
-                      textTransform: "uppercase",
-                      cursor: "pointer",
-                      whiteSpace: "nowrap",
-                      transition: "all 200ms ease",
-                      textDecoration: "none",
-                    }}
-                  >
-                    {d.label}
-                  </a>
-                );
-              })}
-            </nav>
-          </div>
-        )}
-      </header>
-
-      {/* Main content */}
       <main id="main-content">
-      {isHomePage ? (
-        <HomePage setPage={setPage} setActiveDomain={setActiveDomain} />
-      ) : (
-        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 32px" }}>
-          {/* Breadcrumb */}
-          <div className="mono" style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 8, display: "flex", gap: 8, alignItems: "center", letterSpacing: "0.12em", textTransform: "uppercase" }}>
-            <span onClick={() => setPage("home")} style={{ cursor: "pointer", color: "var(--gold)" }}>Home</span>
-            {isDomainPage(page) && (
-              <>
-                <span style={{ color: "var(--text-faint)" }}>/</span>
-                <span onClick={() => { setPage("domains"); setActiveDomain(null); }} style={{ cursor: "pointer", color: "var(--gold)" }}>Research</span>
-                <span style={{ color: "var(--text-faint)" }}>/</span>
-                <span>{DOMAINS.find((d) => d.id === page)?.label}</span>
-              </>
-            )}
-            {!isDomainPage(page) && page !== "home" && (
-              <>
-                <span style={{ color: "var(--text-faint)" }}>/</span>
-                <span>{page}</span>
-              </>
-            )}
-          </div>
-
-          {page === "domains" && (
-            <div style={{ padding: "32px 0 80px" }}>
-              <DomainsListSEO />
-              <div className="reveal" style={{ marginBottom: 48, textAlign: "center" }}>
-                <span className="section-label" style={{ justifyContent: "center", marginBottom: 18 }}>All sectors</span>
-                <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 3.6rem)", fontWeight: 600, margin: "0 0 14px", lineHeight: 1.1 }}>
-                  Research <em style={{ color: "var(--gold)", fontStyle: "italic" }}>coverage</em>
-                </h1>
-                <p style={{ fontSize: 15.5, color: "var(--text-muted)", maxWidth: 620, margin: "0 auto", lineHeight: 1.75 }}>
-                  Select an industry vertical to explore available market research reports.
-                </p>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/domains"
+            element={
+              <div style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 32px" }}>
+                <Breadcrumb />
+                <DomainsListPage />
               </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18 }}>
-                {DOMAINS.map((d, i) => (
-                  <button
-                    key={d.id}
-                    onClick={() => handleDomainSelect(d.id)}
-                    className={`domain-card reveal reveal-delay-${(i % 10) + 1}`}
-                    style={{ background: "transparent" }}
-                    aria-label={d.label}
-                  >
-                    <img
-                      src={getDomainImage(d.id)}
-                      alt={d.label}
-                      className="domain-card__img"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    <div className="domain-card__overlay" />
-                    <span className="domain-card__arrow">{"\u2197"}</span>
-                    <div className="domain-card__content">
-                      <div className="mono" style={{ fontSize: 10.5, letterSpacing: "0.2em", color: "var(--gold)", marginBottom: 10, textTransform: "uppercase" }}>
-                        {(MARKETS_DATA[d.id] || []).length}+ Reports
-                      </div>
-                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 500, color: "var(--cream)", marginBottom: 6, lineHeight: 1.15 }}>
-                        {d.label}
-                      </div>
-                      <div style={{ fontSize: 13, color: "var(--cream-dim)", lineHeight: 1.55, opacity: 0.78 }}>
-                        {d.desc}
-                      </div>
-                    </div>
-                  </button>
-                ))}
+            }
+          />
+          <Route
+            path="/domains/:domainId"
+            element={
+              <div style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 32px" }}>
+                <Breadcrumb />
+                <DomainRoute />
               </div>
+            }
+          />
+          <Route
+            path="/markets/:slug"
+            element={
+              <div style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 32px" }}>
+                <MarketDetailPage />
+              </div>
+            }
+          />
+          <Route
+            path="/generate"
+            element={
+              <div style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 32px" }}>
+                <Breadcrumb />
+                <GenerateSampleTab />
+              </div>
+            }
+          />
+          <Route
+            path="/about"
+            element={
+              <div style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 32px" }}>
+                <Breadcrumb />
+                <AboutPage />
+              </div>
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+              <div style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 32px" }}>
+                <Breadcrumb />
+                <ContactPage />
+              </div>
+            }
+          />
+          {/* Backward-compat: old hash routes occasionally come in as path */}
+          <Route path="/home" element={<Navigate to="/" replace />} />
+          <Route path="*" element={
+            <div style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 32px" }}>
+              <NotFoundPage />
             </div>
-          )}
-
-          {isDomainPage(page) && <DomainPage domainId={page} setSelectedMarket={handleMarketSelect} />}
-          {page === "generate" && <GenerateSampleTab onReportReady={setMordorReport} />}
-          {page === "about" && <AboutPage />}
-          {page === "contact" && <ContactPage />}
-        </div>
-      )}
+          } />
+        </Routes>
       </main>
 
-      {/* Footer */}
-      <footer style={{ background: "var(--navy)", borderTop: "1px solid var(--border)", color: "var(--text-muted)" }}>
-        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "64px 32px 32px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, marginBottom: 48 }}>
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18 }}>
-                <LogoMark size={36} />
-                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 600, color: "var(--cream)" }}>
-                  InsightAxis<span style={{ color: "var(--gold)" }}>.</span>
-                </div>
-              </div>
-              <p style={{ fontSize: 13.5, lineHeight: 1.8, color: "var(--text-muted)", margin: "0 0 24px", maxWidth: 360 }}>
-                Global market intelligence delivering comprehensive research across 10 industry sectors — empowering strategic decisions worldwide.
-              </p>
-              <div style={{ display: "flex", gap: 10 }}>
-                {SOCIAL_LINKS.map((s) => (
-                  <SocialIcon key={s.label} label={s.label} path={s.path} />
-                ))}
-              </div>
-            </div>
-            {FOOTER_COLUMNS.map((col, i) => (
-              <div key={i}>
-                <div className="mono" style={{ fontSize: 11, fontWeight: 500, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: 16 }}>
-                  {col.title}
-                </div>
-                {col.links.map((link) => (
-                  <button
-                    key={link.label}
-                    type="button"
-                    onClick={() => handleFooterNavigate(link.page)}
-                    style={{
-                      display: "block",
-                      width: "100%",
-                      background: "transparent",
-                      border: "none",
-                      padding: "6px 0",
-                      textAlign: "left",
-                      fontSize: 13.5,
-                      color: "var(--text-muted)",
-                      cursor: "pointer",
-                      transition: "color 180ms ease",
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.color = "var(--cream)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
-                  >
-                    {link.label}
-                  </button>
-                ))}
-              </div>
-            ))}
-          </div>
-          <div style={{ borderTop: "1px solid var(--border)", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-            <div className="mono" style={{ fontSize: 11, color: "var(--text-faint)", letterSpacing: "0.08em" }}>
-              © 2026 InsightAxis Intelligence. All rights reserved.
-            </div>
-            <div className="mono" style={{ fontSize: 11, color: "var(--text-faint)", letterSpacing: "0.08em" }}>
-              Privacy · Terms · Cookies · ISO 27001 · GDPR
-            </div>
-          </div>
-        </div>
-      </footer>
-
-      {selectedMarket && <MarketReport market={selectedMarket} onClose={() => setSelectedMarket(null)} />}
-      {mordorReport && <MordorReport data={mordorReport} onClose={() => setMordorReport(null)} />}
+      <Footer />
     </div>
   );
 }
