@@ -42,6 +42,8 @@ function buildSitemapXml() {
   pushUrl(`${SITE_URL}/generate`, "0.8", "weekly");
   pushUrl(`${SITE_URL}/about`, "0.7", "monthly");
   pushUrl(`${SITE_URL}/contact`, "0.6", "monthly");
+  pushUrl(`${SITE_URL}/privacy`, "0.3", "yearly");
+  pushUrl(`${SITE_URL}/terms`, "0.3", "yearly");
 
   // Domain landing pages (10)
   Object.keys(DOMAIN_LABELS).forEach((domainId) => {

@@ -17,6 +17,7 @@ import { useCountUp } from "./hooks/useCountUp.js";
 import {
   useSEO,
   buildBreadcrumbSchema,
+  buildFaqSchema,
   SITE_URL,
   SITE_NAME,
 } from "./hooks/useSEO.js";
@@ -145,51 +146,164 @@ const DOMAIN_PAGE_DETAILS = {
     tagline: "Nutrition, ingredients, and consumption trends",
     highlights: ["Plant-based innovation", "Functional beverages", "Food safety and regulation"],
     analystFocus: "Pricing, distribution, and ingredient supply chains",
+    intro: "The global food and beverage (F&B) industry is one of the largest consumer markets in the world, valued in the trillions of dollars and shaped by rapidly evolving consumer preferences, ingredient innovation, sustainability mandates, and channel disruption. Our food and beverage market research reports cover packaged food, beverages, dairy and dairy alternatives, plant-based proteins, functional ingredients, foodservice, and supply-chain technology across global, regional, and country-level editions.",
+    body: "Our F&B coverage tracks how rising health and wellness awareness, ingredient transparency, and clean-label preferences are reshaping product portfolios at major food manufacturers and challenger brands alike. We size sub-categories from snack foods and ready-to-eat meals to plant-based food, functional beverages, and probiotics, profiling leading players and their go-to-market strategies. Each report includes market size in USD, CAGR forecasts through 2031, regional share breakdowns, distribution-channel analysis, regulatory landscape, and competitive intensity benchmarks. Buy-side, strategy, and product teams use our F&B intelligence for entry decisions, M&A diligence, pricing studies, and category planning.",
+    segments: ["Plant-based food & dairy alternatives", "Functional and fortified beverages", "Packaged & ready-to-eat meals", "Nutraceuticals & dietary supplements", "Food ingredients & flavors", "Foodservice & quick-commerce"],
+    drivers: ["Health and wellness premiumization", "Clean-label and traceability demand", "Sustainability and packaging reform", "Digital and quick-commerce distribution", "Emerging-market urbanization"],
+    challenges: ["Input cost volatility (proteins, oils, grains)", "Evolving food-safety and labeling regulation", "Private-label encroachment and price sensitivity", "Cold-chain and shelf-life constraints"],
+    faqs: [
+      { q: "How large is the global food and beverage market?", a: "The global food and beverage market is a multi-trillion-dollar industry. Major sub-categories like packaged food, non-alcoholic beverages, and meat & poultry each exceed USD 500 billion individually. Our reports size each sub-category at global, regional, and country level with forecasts through 2031." },
+      { q: "Which F&B segments are growing fastest?", a: "Plant-based food, functional beverages, dairy alternatives, probiotics, and sports nutrition consistently grow at double-digit CAGRs, outpacing the broader F&B average of 4-6%. Drivers include health awareness, ingredient innovation, and direct-to-consumer channel expansion." },
+      { q: "What does an F&B market research report from InsightAxis include?", a: "Each report includes market size in USD, volume where applicable, CAGR forecasts through 2031, segmentation by product type, distribution channel, and geography, profiles of leading manufacturers, competitive share analysis, recent strategic developments, drivers and restraints, regulatory landscape, and a structured table of contents covering 10 sections." },
+      { q: "Do you cover country-level F&B markets like India, United States, or China?", a: "Yes. We publish country editions for major economies including the United States, China, India, Germany, United Kingdom, Japan, Brazil, France, Canada, Australia, and others. Country reports include local distribution dynamics, regulatory specifics, and demand drivers." },
+    ],
+    related: ["consumer", "fmcg", "healthcare", "chemicals"],
   },
   consumer: {
     tagline: "Retail, lifestyle, and durable goods intelligence",
     highlights: ["Omnichannel retail", "Premiumization", "Sustainability-led demand"],
     analystFocus: "Brand positioning, channel mix, and consumer sentiment",
+    intro: "The consumer goods sector spans apparel, footwear, luxury, home appliances, consumer electronics, personal care, and lifestyle categories — a USD 5+ trillion universe where brand equity, channel mix, and consumer sentiment determine winners. Our consumer goods market research reports help brand teams, investors, and retailers size sub-categories, benchmark competitors, and identify whitespace across global, regional, and country markets.",
+    body: "Consumer goods markets are being reshaped by omnichannel retail, direct-to-consumer commerce, premiumization, sustainability claims, and the rise of private-label competition. Our research covers Apparel & Fashion, Footwear, Luxury Goods, Home Appliances, Consumer Electronics, Beauty & Personal Care, Toys & Games, and Home Furnishings — with sizing, share, segmentation, leading brand profiles, and 2031 forecasts. Reports support brand strategy, portfolio prioritization, pricing studies, channel design, M&A diligence, and investor screening across consumer durables and non-durables.",
+    segments: ["Apparel, footwear & fashion accessories", "Consumer electronics & home appliances", "Luxury goods & premium lifestyle", "Beauty, personal care & wellness", "Home furnishings & decor", "Toys, games & hobbies"],
+    drivers: ["Omnichannel and direct-to-consumer growth", "Premiumization in emerging markets", "Sustainability and circular consumption", "Personalization through data and AI", "Influencer and creator-led commerce"],
+    challenges: ["Inflation and discretionary spend compression", "Inventory volatility post-pandemic", "Counterfeit and grey-market pressure", "Supply chain resilience and lead times"],
+    faqs: [
+      { q: "What categories do your consumer goods reports cover?", a: "We cover apparel and fashion, footwear, luxury goods, home appliances, consumer electronics, beauty and personal care, home furnishings, toys, and other lifestyle categories — globally and by region/country." },
+      { q: "How fast is the consumer goods market growing?", a: "The aggregate consumer goods market grows 4-6% CAGR with significant sub-category variation. Luxury, beauty, and premium electronics outperform with 6-9% growth, while mature appliance categories grow closer to 3-5%. Our reports detail growth by segment and geography." },
+      { q: "Can I get a country-specific consumer goods report?", a: "Yes — country editions include United States, China, India, Germany, United Kingdom, Japan, Brazil, France, Canada, and other major markets with local channel mix, brand share, and demand drivers." },
+    ],
+    related: ["fmcg", "fnb", "technology", "automotive"],
   },
   fmcg: {
     tagline: "Fast-moving categories and shelf-level competition",
     highlights: ["Personal care", "Household essentials", "Private label growth"],
     analystFocus: "SKU velocity, trade promotions, and category leadership",
+    intro: "The fast-moving consumer goods (FMCG) industry covers high-velocity, low-cost categories sold through modern trade, traditional trade, and e-commerce — including personal care, household essentials, oral care, hair care, skin care, baby care, and OTC products. Our FMCG market research reports size sub-categories, benchmark brand share, decode trade-promotion dynamics, and forecast category growth through 2031.",
+    body: "FMCG is defined by SKU velocity, shelf presence, distribution depth, and continuous innovation. We track how multinational majors and regional challengers compete on pricing, claims, packaging, and channel mix as private-label penetration rises in mature markets and modern trade expands in emerging ones. Reports cover Personal Care, Hair Care, Skin Care, Oral Care, Beauty Cosmetics, Household Cleaners, Laundry Care, Baby Care, Feminine Hygiene, OTC Pharmaceuticals, and Tobacco Products — with country-level depth and competitive benchmarking.",
+    segments: ["Personal care & beauty (hair, skin, oral)", "Household cleaners & laundry care", "Baby care & feminine hygiene", "OTC and consumer healthcare", "Tobacco and adjacent categories", "Pet care and home fragrance"],
+    drivers: ["Premium and naturals positioning", "E-commerce and quick-commerce penetration", "Emerging-market modern-trade formation", "Sustainability and packaging reduction", "Data-led pricing and trade promotion"],
+    challenges: ["Private-label market-share erosion", "Raw material and freight inflation", "Regulatory complexity (claims, ingredients)", "Channel fragmentation and last-mile costs"],
+    faqs: [
+      { q: "What's the difference between FMCG and consumer goods research?", a: "FMCG covers high-velocity, low-cost everyday-use categories (personal care, household, OTC), while consumer goods is a broader umbrella that also includes durables like appliances, electronics, and apparel. Both are sized in our reports." },
+      { q: "How do FMCG categories grow vs the broader economy?", a: "Most FMCG categories grow at 3-6% CAGR, with premium beauty, natural personal care, and pet care growing 7-10%. Growth is driven by premiumization, distribution depth in emerging markets, and e-commerce." },
+      { q: "Do your FMCG reports include private-label analysis?", a: "Yes — every FMCG report includes private-label penetration by region and channel, competitive impact on national brands, and pricing benchmarks against branded alternatives." },
+    ],
+    related: ["consumer", "fnb", "healthcare", "chemicals"],
   },
   healthcare: {
     tagline: "Pharma, medtech, and digital health coverage",
     highlights: ["Therapeutic innovation", "Diagnostics", "Healthcare IT adoption"],
     analystFocus: "Regulatory pathways, reimbursement, and clinical adoption",
+    intro: "The global healthcare and life sciences industry is one of the largest and fastest-evolving sectors in the world. Our healthcare market research reports cover pharmaceuticals, biotechnology, medical devices, diagnostics, digital health, healthcare IT, hospitals & clinics, pharmacy retail, and clinical services — globally and across regional and country markets. Reports support pharma commercial teams, medtech strategy, investor due diligence, and health-system planning.",
+    body: "We size therapeutic areas (oncology, cardiology, diabetes, immunology, CNS, infectious disease, rare disease), device categories (imaging, in-vitro diagnostics, surgical robotics, orthopedics, cardiology devices), and adjacent markets like telemedicine, electronic health records, AI in healthcare, and clinical trial services. Each healthcare report includes market size in USD, 2031 CAGR forecast, segmentation by therapy/product/end-user, regulatory pathway analysis (FDA, EMA, PMDA, NMPA), reimbursement dynamics, competitive landscape, pipeline review, and recent M&A or licensing activity.",
+    segments: ["Pharmaceuticals (small molecule & biologics)", "Medical devices & in-vitro diagnostics", "Biotechnology & cell/gene therapy", "Digital health & healthcare IT", "Clinical trials & contract research", "Hospitals, pharmacy retail & home care"],
+    drivers: ["Aging populations and chronic-disease burden", "Therapeutic innovation (biologics, gene therapy, AI)", "Healthcare digitization and telemedicine", "Emerging-market access expansion", "Regulatory acceleration (FDA breakthrough, EMA PRIME)"],
+    challenges: ["Drug pricing and reimbursement pressure", "Patent cliffs and biosimilar erosion", "Clinical trial cost and complexity", "Cybersecurity in connected health"],
+    faqs: [
+      { q: "What healthcare segments do you cover?", a: "We cover pharmaceuticals, biotechnology, medical devices, in-vitro diagnostics, digital health, healthcare IT, hospitals and clinics, retail pharmacy, clinical trial services, and life sciences supply chain — at global, regional, and country level." },
+      { q: "How large is the global healthcare market?", a: "The global healthcare industry exceeds USD 12 trillion, with pharmaceuticals alone over USD 1.6 trillion, medical devices around USD 600 billion, and digital health growing fastest at 15-20% CAGR. Our reports size each segment in detail." },
+      { q: "Do you cover regulatory pathways like FDA, EMA, and PMDA?", a: "Yes — every healthcare report includes a regulatory landscape section covering FDA (US), EMA (Europe), PMDA (Japan), NMPA (China), CDSCO (India), and other relevant authorities, with pathway timelines and recent guidance updates." },
+      { q: "How do I get a custom healthcare market study?", a: "Visit our generate page to specify industry, geographies, and segmentation — or contact our healthcare analysts for fully bespoke studies covering therapeutic-area opportunity sizing, competitive intelligence, market access, and KOL primary research." },
+    ],
+    related: ["technology", "chemicals", "industrial", "fnb"],
   },
   industrial: {
     tagline: "Manufacturing, automation, and industrial services",
     highlights: ["Smart factories", "Industrial IoT", "Supply chain resilience"],
     analystFocus: "Capacity utilization, capex cycles, and aftermarket demand",
+    intro: "Industrial markets — covering manufacturing equipment, factory automation, industrial IoT, robotics, process control, machinery, and industrial services — power the global economy. Our industrial market research reports help OEM strategy teams, private equity, and corporate development teams size capex-driven markets, track competitive shifts, and forecast end-market demand across global, regional, and country editions.",
+    body: "We cover Industrial Automation, Industrial Robotics, Industrial IoT, Factory Equipment, Process Control Systems, Material Handling, Industrial Machinery, Industrial Services (MRO, calibration, inspection), HVAC, and Power & Electrical Equipment. Each industrial report sizes the market in USD, models 2031 CAGR by segment and geography, profiles leading OEMs (ABB, Siemens, Schneider Electric, Rockwell, Mitsubishi, Honeywell, etc.), and analyzes end-market exposure (automotive, F&B, pharma, semiconductors, oil & gas, utilities).",
+    segments: ["Industrial automation & process control", "Industrial robotics & cobots", "Industrial IoT and digital factory", "Material handling & logistics automation", "Industrial machinery & capital equipment", "Industrial services & MRO"],
+    drivers: ["Smart manufacturing and Industry 4.0", "Labor shortages and automation ROI", "Supply-chain regionalization and reshoring", "Energy efficiency and electrification", "Sustainability reporting and traceability"],
+    challenges: ["Capex cyclicality and order volatility", "Skilled labor and integration cost", "Interoperability and legacy system inertia", "Geopolitical and tariff exposure"],
+    faqs: [
+      { q: "Do you cover industrial automation and Industry 4.0?", a: "Yes — our industrial automation reports cover PLCs, DCS, SCADA, MES, industrial software, robotics, and connectivity, with sizing by region and end-market and CAGR forecasts through 2031." },
+      { q: "Which industrial OEMs do you profile?", a: "Reports profile global majors including ABB, Siemens, Schneider Electric, Rockwell Automation, Mitsubishi Electric, Honeywell, Emerson, Fanuc, Yaskawa, KUKA, and Bosch Rexroth, plus regional specialists relevant to each market." },
+      { q: "Can I get an industrial market report for a specific country?", a: "Yes — country editions are available for the United States, China, Germany, Japan, India, South Korea, France, and other major industrial economies, with local capex drivers and supplier landscapes." },
+    ],
+    related: ["technology", "energy", "automotive", "chemicals"],
   },
   technology: {
     tagline: "Software, semiconductors, and emerging tech markets",
     highlights: ["Cloud and AI", "Cybersecurity", "Enterprise digitization"],
     analystFocus: "Product roadmaps, monetization models, and ecosystem shifts",
+    intro: "Technology is the highest-growth research domain we cover — spanning cloud computing, artificial intelligence, cybersecurity, semiconductors, enterprise software, SaaS, fintech infrastructure, edge computing, IoT, AR/VR, and quantum. Our technology market research reports give product, strategy, and investment teams a structured view of TAM, competitive intensity, ecosystem dynamics, and 2031 forecasts — covering both established and emerging technology markets.",
+    body: "We track how AI infrastructure, generative AI applications, hyperscale cloud, cybersecurity, and semiconductor supply chains are reshaping the technology economy. Reports cover Cloud Computing (IaaS, PaaS, SaaS), Cybersecurity, Artificial Intelligence (foundation models, MLOps, vision, NLP), Semiconductors (logic, memory, foundry, packaging), Enterprise Software, Developer Tools, Edge & 5G, IoT Platforms, and Emerging Tech (AR/VR, Web3, quantum). Each report includes market size, CAGR through 2031, vendor share, ecosystem maps, and customer-adoption benchmarks.",
+    segments: ["Cloud infrastructure, platform & SaaS", "Cybersecurity (network, endpoint, identity, cloud)", "Artificial intelligence & machine learning", "Semiconductors (logic, memory, foundry)", "Enterprise software & developer tools", "Edge, 5G, IoT and emerging tech"],
+    drivers: ["Generative AI and AI infrastructure capex", "Cloud-native and platform consolidation", "Cybersecurity threat escalation", "Semiconductor sovereignty and reshoring", "Enterprise productivity and automation"],
+    challenges: ["AI compute supply constraints (GPUs)", "Cyber-regulatory complexity (DORA, NIS2, CMMC)", "Geopolitical chip-export controls", "SaaS commoditization in mature segments"],
+    faqs: [
+      { q: "Do you cover AI and generative AI markets?", a: "Yes — we have dedicated reports on AI infrastructure, foundation models, generative AI applications, MLOps, AI accelerators, AI in healthcare, AI in finance, and vertical AI agents, with TAM sizing and 2031 CAGR forecasts." },
+      { q: "What technology vendors are profiled?", a: "Coverage includes hyperscalers (AWS, Azure, GCP), enterprise software majors (Microsoft, Oracle, SAP, Salesforce, ServiceNow), cybersecurity leaders (Palo Alto, CrowdStrike, Fortinet, Cisco, Zscaler), and AI-native challengers (NVIDIA, OpenAI, Anthropic, Databricks, Snowflake, and others)." },
+      { q: "How often are technology reports updated?", a: "Technology evolves rapidly — our flagship technology reports are reviewed quarterly and reissued with updated vendor share, forecast adjustments, and new entrants. Subscribers receive update alerts on major revisions." },
+      { q: "Do you cover semiconductor and AI chip markets?", a: "Yes — we cover logic, memory, foundry, advanced packaging, AI accelerators, automotive semiconductors, and the broader semiconductor equipment market, with capacity, capex, and end-market sizing through 2031." },
+    ],
+    related: ["industrial", "automotive", "finance", "healthcare"],
   },
   energy: {
     tagline: "Power, renewables, and energy transition markets",
     highlights: ["Renewables scale-up", "Grid modernization", "Storage and hydrogen"],
     analystFocus: "Policy incentives, project pipelines, and asset utilization",
+    intro: "The energy and utilities sector is being remade by the energy transition — renewables scale-up, battery storage, hydrogen, grid modernization, and electrification of transport and heat. Our energy and utilities market research reports cover power generation, transmission and distribution, oil & gas, renewables, storage, hydrogen, EV charging, and utility services across global and country markets, with policy and project-pipeline analysis.",
+    body: "We track how solar PV, wind (onshore and offshore), battery storage (Li-ion and emerging chemistries), green hydrogen, and EV charging infrastructure are scaling alongside continued oil & gas demand and refining capacity. Reports cover Solar PV, Wind Energy, Hydroelectric, Geothermal, Bioenergy, Battery Energy Storage (BESS), Hydrogen Economy, EV Charging, Power Transmission & Distribution, Smart Grid, Nuclear, Oil & Gas Upstream/Midstream/Downstream, and LNG. Each report sizes the market in USD and capacity, models 2031 forecasts, profiles developers, OEMs, and EPCs, and analyzes policy incentives (IRA, RePowerEU, etc.).",
+    segments: ["Solar PV, wind, hydro, geothermal", "Battery storage and grid-scale BESS", "Hydrogen, fuel cells, and carbon capture", "EV charging and electrification", "Power T&D and smart grid", "Oil, gas, LNG and downstream refining"],
+    drivers: ["Net-zero policy and incentives (IRA, RePowerEU)", "Renewables LCOE parity with fossils", "Battery cost declines and storage scale-up", "Electrification of transport and heat", "Energy security and supply diversification"],
+    challenges: ["Grid interconnection and permitting bottlenecks", "Critical-mineral supply (lithium, cobalt, copper)", "Capital costs and rising interest rates", "Skilled-labor gap in clean-energy projects"],
+    faqs: [
+      { q: "Do you cover renewables and the energy transition?", a: "Yes — comprehensive coverage of solar PV, onshore and offshore wind, battery energy storage, green hydrogen, EV charging, smart grid, and carbon capture, with capacity, capex, and 2031 forecasts." },
+      { q: "What about oil, gas, and LNG?", a: "We continue to cover conventional energy: oil & gas upstream, midstream, downstream, LNG liquefaction and regas, refining, and petrochemicals — with the same depth and forecasts through 2031." },
+      { q: "Do reports cover specific country energy markets?", a: "Yes — country editions for the US, China, India, Germany, UK, Japan, Australia, Brazil, Saudi Arabia, and others, with local policy, project pipelines, and supplier ecosystems." },
+    ],
+    related: ["industrial", "chemicals", "automotive", "technology"],
   },
   automotive: {
     tagline: "Vehicles, components, and mobility ecosystems",
     highlights: ["Electrification", "Connected mobility", "Aftermarket services"],
     analystFocus: "OEM strategies, supplier concentration, and fleet demand",
+    intro: "The automotive industry is undergoing its biggest transformation in a century — electrification, software-defined vehicles, autonomous driving, connected services, and new mobility business models. Our automotive market research reports cover passenger vehicles, commercial vehicles, two-wheelers, electric vehicles, automotive components, aftermarket services, mobility services, and EV infrastructure across global, regional, and country editions.",
+    body: "We size every layer of the automotive value chain: OEMs, Tier-1 and Tier-2 suppliers, battery makers, semiconductor suppliers, automotive software, EV charging, autonomous driving, and aftermarket parts and services. Reports cover Passenger Cars, Light Commercial Vehicles, Heavy Trucks & Buses, Two-Wheelers & Three-Wheelers, Electric Vehicles (BEV, PHEV, HEV, FCEV), Automotive Components, EV Batteries, ADAS & Autonomous, Automotive Software, Automotive Semiconductors, Aftermarket, and Mobility-as-a-Service. Each report includes volume and value sizing, OEM share, 2031 forecasts, and regulatory landscape.",
+    segments: ["Passenger vehicles & light commercial", "Electric vehicles (BEV, PHEV, HEV, FCEV)", "Heavy trucks, buses & two-wheelers", "Components, batteries, and electronics", "ADAS, autonomous & connected services", "Aftermarket, dealerships & mobility services"],
+    drivers: ["EV adoption and government incentives", "Software-defined and connected vehicles", "ADAS regulation and safety standards", "Charging infrastructure scale-up", "Premium and SUV product mix"],
+    challenges: ["EV demand softening in some markets", "Battery raw-material price volatility", "Chinese OEM expansion and pricing", "Legacy OEM transition cost and stranded ICE assets"],
+    faqs: [
+      { q: "Do you cover the global EV market?", a: "Yes — extensive EV coverage including BEV, PHEV, HEV, FCEV, EV batteries, charging infrastructure, OEM strategies, battery supply chain, and policy incentives, with country-level depth for US, China, EU, India, and others." },
+      { q: "What automotive OEMs and suppliers are profiled?", a: "Reports profile global OEMs (Toyota, Volkswagen, Stellantis, GM, Ford, Hyundai-Kia, BMW, Mercedes, Tesla, BYD, NIO, Li Auto) and major Tier-1 suppliers (Bosch, Continental, ZF, Magna, Aptiv, Denso, Valeo, Forvia)." },
+      { q: "Do you cover autonomous driving and ADAS markets?", a: "Yes — we size ADAS, autonomous vehicles, sensor stacks (camera, radar, LiDAR), and automotive AI software, with regulatory and competitive analysis through 2031." },
+    ],
+    related: ["industrial", "technology", "energy", "chemicals"],
   },
   chemicals: {
     tagline: "Materials, specialty chemicals, and industrial inputs",
     highlights: ["Sustainable chemistry", "Polymers", "Agrochemical demand"],
     analystFocus: "Feedstock volatility, capacity additions, and end-market pull",
+    intro: "The chemicals and materials industry is the backbone of modern manufacturing — supplying polymers, specialty chemicals, advanced materials, agrochemicals, paints & coatings, adhesives, and industrial gases to virtually every other sector. Our chemicals market research reports size sub-categories, model capacity and demand, and forecast through 2031 with feedstock, regulatory, and end-market analysis across global and regional editions.",
+    body: "We cover Petrochemicals, Polymers & Plastics, Specialty Chemicals, Paints & Coatings, Adhesives & Sealants, Agrochemicals & Fertilizers, Industrial Gases, Catalysts, Electronic Chemicals, Lubricants, and Advanced Materials (composites, biomaterials, sustainable polymers). Each report sizes the market, models capacity additions, profiles leading producers (BASF, Dow, LyondellBasell, Saudi Aramco, SABIC, Mitsubishi Chemical, Covestro, Linde, Air Liquide, Syngenta, Bayer, etc.), and tracks sustainability and circular-economy trends.",
+    segments: ["Petrochemicals & polymers", "Specialty and performance chemicals", "Paints, coatings, adhesives & sealants", "Agrochemicals, fertilizers, biotech crops", "Industrial gases, catalysts, electronic chemicals", "Advanced materials & sustainable chemistry"],
+    drivers: ["Sustainability and circular materials", "Specialty premium over commodity", "Agriculture intensification and food security", "Electric vehicle and battery materials demand", "Lightweighting and high-performance composites"],
+    challenges: ["Feedstock and energy price volatility", "Carbon-pricing and ESG regulatory burden", "Global overcapacity in commodity polymers", "PFAS, microplastic, and chemical-safety regulation"],
+    faqs: [
+      { q: "What chemicals sub-categories do you cover?", a: "Petrochemicals, commodity and engineering polymers, specialty chemicals, paints and coatings, adhesives, agrochemicals, fertilizers, industrial gases, catalysts, electronic chemicals, lubricants, and advanced materials." },
+      { q: "Do you cover sustainable and bio-based chemicals?", a: "Yes — dedicated coverage of bio-based polymers, recycled feedstocks, green hydrogen-derived chemicals, carbon-capture utilization, and circular chemistry, including capacity buildout and policy incentives." },
+      { q: "Which chemical companies are profiled?", a: "Major producers profiled include BASF, Dow, LyondellBasell, ExxonMobil, Saudi Aramco / SABIC, Mitsubishi Chemical, Sumitomo, Covestro, Evonik, Solvay, Lanxess, Linde, Air Liquide, Syngenta, Bayer, Corteva, and others by sub-category." },
+    ],
+    related: ["industrial", "energy", "automotive", "healthcare"],
   },
   finance: {
     tagline: "Banking, insurance, and capital markets intelligence",
     highlights: ["Digital banking", "Fintech disruption", "Risk and compliance"],
     analystFocus: "Fee income, regulatory change, and customer acquisition costs",
+    intro: "Financial services is one of the largest and most regulated industries in the world. Our financial services market research reports cover retail and corporate banking, insurance (life, P&C, health), capital markets, asset and wealth management, fintech, payments, embedded finance, and regtech — with global, regional, and country editions for the major economies.",
+    body: "We track digital transformation, embedded finance, open banking, instant payments, real-time AML, AI in underwriting and fraud, and the rapid expansion of fintech and neobank challengers across all major economies. Reports cover Retail Banking, Corporate Banking, Insurance (Life, P&C, Health), Reinsurance, Asset Management, Wealth Management, Payments, BNPL, Cards, Fintech Lending, Insurtech, Crypto & Digital Assets, Regtech, and Capital Markets Technology. Each report sizes the market in revenue and AUM, models 2031 forecasts, profiles leading institutions, and analyzes regulatory regimes.",
+    segments: ["Retail and corporate banking", "Life, P&C and health insurance", "Asset and wealth management", "Payments, cards and embedded finance", "Fintech, insurtech, regtech", "Capital markets technology and crypto"],
+    drivers: ["Digital banking and core modernization", "Embedded finance and open banking", "AI in underwriting, fraud and CX", "Aging-population insurance demand", "Crypto and tokenized assets normalization"],
+    challenges: ["Rising regulatory and compliance burden", "Cybersecurity and fraud escalation", "Margin compression in payments", "Bank-fintech competition for primary relationships"],
+    faqs: [
+      { q: "What financial services markets do you cover?", a: "Retail banking, corporate and SME banking, insurance (life, P&C, health, reinsurance), capital markets, asset and wealth management, payments, cards, BNPL, fintech, insurtech, regtech, and crypto/digital assets — globally and by country." },
+      { q: "Do you cover fintech and digital banking?", a: "Yes — fintech is a major focus area. We size neobanks, embedded finance, open banking, payments, BNPL, fintech lending, insurtech, regtech, wealthtech, and crypto markets with detailed competitive and regulatory analysis." },
+      { q: "What about country-specific banking reports?", a: "Country editions are available for the United States, United Kingdom, EU, China, India, Brazil, Japan, Singapore, UAE, and other major financial centers, with local regulatory and competitive context." },
+    ],
+    related: ["technology", "consumer", "healthcare", "energy"],
   },
 };
 
@@ -1262,8 +1376,43 @@ function HomePage() {
           name: `${d.label} Market Research`,
         })),
       },
+      {
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        name: SITE_NAME,
+        url: SITE_URL,
+        description:
+          "Market research, custom studies, competitive intelligence, and advisory across 10 industry verticals worldwide.",
+        areaServed: "Worldwide",
+        serviceType: RESEARCH_SERVICES.map((s) => s.title),
+        hasOfferCatalog: {
+          "@type": "OfferCatalog",
+          name: "Research services",
+          itemListElement: RESEARCH_SERVICES.map((s) => ({
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: s.title,
+              description: s.desc,
+            },
+          })),
+        },
+      },
     ],
   });
+
+  // Featured markets — one anchor per domain. Hand-picked top sellers/highly
+  // searched markets to give Google a strong internal-link path from the
+  // homepage to deep pages on the first crawl.
+  const featuredMarkets = useMemo(() => {
+    const picks = [];
+    DOMAINS.forEach((d) => {
+      const list = MARKETS_DATA[d.id] || [];
+      const top = list.find((m) => m.geoScope === "Global") || list[0];
+      if (top) picks.push({ ...top, domainLabel: d.label, domainId: d.id });
+    });
+    return picks;
+  }, []);
   const marqueeItems = [
     ...DOMAINS.map((d) => d.label),
     "Global Coverage",
@@ -1399,6 +1548,64 @@ function HomePage() {
         </div>
       </section>
 
+      {/* FEATURED MARKETS — one top report per domain. Cross-links from the
+          homepage to deep pages give Google a strong internal-link signal
+          on the first crawl and lift discovery of long-tail market URLs. */}
+      <section style={{ maxWidth: 1240, margin: "0 auto", padding: "60px 32px" }}>
+        <div className="reveal" style={{ marginBottom: 32, display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16 }}>
+          <div>
+            <span className="section-label" style={{ marginBottom: 14 }}>Featured reports</span>
+            <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 600, margin: "12px 0 8px", lineHeight: 1.15 }}>
+              Most-searched <em style={{ color: "var(--gold)", fontStyle: "italic" }}>market reports</em>
+            </h2>
+            <p style={{ fontSize: 15, color: "var(--text-muted)", margin: 0, maxWidth: 540 }}>
+              Top global reports across every coverage domain — sized, segmented, and forecast through 2031.
+            </p>
+          </div>
+          <Link to="/domains" className="btn-ghost" style={{ textDecoration: "none", display: "inline-block" }}>All reports →</Link>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
+          {featuredMarkets.map((m, i) => (
+            <Link
+              key={m.id}
+              to={`/markets/${slugify(m.name)}`}
+              className={`reveal reveal-delay-${(i % 8) + 1}`}
+              style={{
+                background: "var(--card-bg)",
+                border: "1px solid var(--border)",
+                borderRadius: 12,
+                padding: "20px 22px",
+                textDecoration: "none",
+                color: "inherit",
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+                transition: "border-color 180ms ease, transform 180ms ease",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border-gold)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.transform = "translateY(0)"; }}
+            >
+              <div className="mono" style={{ fontSize: 10, color: "var(--gold)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
+                {m.domainLabel}
+              </div>
+              <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 19, fontWeight: 500, color: "var(--cream)", margin: 0, lineHeight: 1.25 }}>
+                {m.name}
+              </h3>
+              <div style={{ display: "flex", gap: 14, marginTop: "auto", paddingTop: 12, borderTop: "1px solid var(--border)" }}>
+                <div>
+                  <div className="mono" style={{ fontSize: 9.5, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.16em", marginBottom: 3 }}>Size</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, color: "var(--cream)", fontWeight: 500 }}>{m.value}</div>
+                </div>
+                <div>
+                  <div className="mono" style={{ fontSize: 9.5, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.16em", marginBottom: 3 }}>CAGR</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, color: "var(--gold)", fontWeight: 500 }}>{m.cagr}</div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* SERVICES */}
       <section style={{ maxWidth: 1240, margin: "0 auto", padding: "80px 32px" }}>
         <div className="reveal" style={{ marginBottom: 40, textAlign: "center" }}>
@@ -1476,8 +1683,8 @@ function DomainPage({ domainId }) {
   }));
 
   useSEO({
-    title: `${domainLabel} Market Research Reports & Industry Analysis | InsightAxis`,
-    description: `${domainLabel} market research — size, share, CAGR, leading companies, and ${FORECAST_PERIOD_LABEL} forecasts. ${markets.length}+ ${domainLabel.toLowerCase()} reports across global, regional, and country editions. ${domainDesc}`,
+    title: `${domainLabel} Market Research Reports & Industry Analysis ${FORECAST_PERIOD_LABEL} | InsightAxis`,
+    description: `${domainLabel} market research reports — market size, share, CAGR, key players, growth trends, and forecasts through 2031. ${markets.length}+ ${domainLabel.toLowerCase()} market reports covering global, regional, and country-level editions. ${details?.intro ? details.intro.slice(0, 130) : domainDesc}`,
     path: `/domains/${domainId}`,
     jsonLd: [
       buildBreadcrumbSchema([
@@ -1489,7 +1696,7 @@ function DomainPage({ domainId }) {
         "@context": "https://schema.org",
         "@type": "CollectionPage",
         name: `${domainLabel} Market Research`,
-        description: `${domainLabel} market research reports and industry analysis`,
+        description: details?.intro || `${domainLabel} market research reports and industry analysis`,
         url: `${SITE_URL}/domains/${domainId}`,
         isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
         about: { "@type": "Thing", name: domainLabel },
@@ -1501,6 +1708,7 @@ function DomainPage({ domainId }) {
         numberOfItems: markets.length,
         itemListElement: featuredItems,
       },
+      details?.faqs && buildFaqSchema(details.faqs),
     ].filter(Boolean),
   });
   const [search, setSearch] = useState("");
@@ -1684,7 +1892,185 @@ function DomainPage({ domainId }) {
           </button>
         </div>
       )}
+
+      {/* SEO-rich long-form content section. Indexable by Google with FAQ
+          rich-result eligibility, internal links to top markets and related
+          domains. Keep this *below* the report grid so above-the-fold UX
+          stays product-led. */}
+      {details && (
+        <DomainSeoContent
+          domainId={domainId}
+          domainLabel={domainLabel}
+          details={details}
+          markets={markets}
+        />
+      )}
     </div>
+  );
+}
+
+function DomainSeoContent({ domainId, domainLabel, details, markets }) {
+  const sectionTitle = {
+    fontFamily: "'Cormorant Garamond', serif",
+    fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
+    fontWeight: 600,
+    color: "var(--cream)",
+    margin: "0 0 18px",
+    lineHeight: 1.2,
+    letterSpacing: "-0.01em",
+  };
+  const para = {
+    fontSize: 15,
+    color: "var(--text-muted)",
+    lineHeight: 1.85,
+    margin: "0 0 18px",
+    maxWidth: 880,
+  };
+  const subhead = {
+    fontFamily: "'Cormorant Garamond', serif",
+    fontSize: 18,
+    fontWeight: 500,
+    color: "var(--cream)",
+    margin: "0 0 12px",
+  };
+  const card = {
+    background: "var(--card-bg)",
+    border: "1px solid var(--border)",
+    borderRadius: 12,
+    padding: "22px 24px",
+  };
+  const featuredMarkets = markets.slice(0, 12);
+  const related = (details.related || [])
+    .map((id) => DOMAINS.find((d) => d.id === id))
+    .filter(Boolean);
+
+  return (
+    <section
+      aria-label={`About ${domainLabel} market research`}
+      style={{ marginTop: 80, paddingTop: 48, borderTop: "1px solid var(--border)" }}
+    >
+      {/* Intro + body */}
+      <header style={{ marginBottom: 32 }}>
+        <span className="section-label" style={{ marginBottom: 14 }}>Industry overview</span>
+        <h2 style={sectionTitle}>About the {domainLabel.toLowerCase()} market</h2>
+        <p style={para}>{details.intro}</p>
+        <p style={para}>{details.body}</p>
+      </header>
+
+      {/* Segments + drivers + challenges grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16, marginBottom: 48 }}>
+        {[
+          { title: `${domainLabel} segments we cover`, items: details.segments, accent: "var(--gold)" },
+          { title: "Key growth drivers", items: details.drivers, accent: "var(--blue-light)" },
+          { title: "Market challenges", items: details.challenges, accent: "var(--gold-light)" },
+        ].map((block) => (
+          <div key={block.title} style={card}>
+            <div className="mono" style={{ fontSize: 10.5, fontWeight: 500, color: block.accent, textTransform: "uppercase", letterSpacing: "0.18em", marginBottom: 14 }}>
+              {block.title}
+            </div>
+            <ul style={{ margin: 0, paddingLeft: 18, color: "var(--cream-dim)", fontSize: 13.5, lineHeight: 1.8 }}>
+              {block.items.map((item) => <li key={item} style={{ marginBottom: 6 }}>{item}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      {/* Featured reports — internal linking + crawl signal to high-value pages */}
+      {featuredMarkets.length > 0 && (
+        <div style={{ marginBottom: 56 }}>
+          <span className="section-label" style={{ marginBottom: 14 }}>Featured reports</span>
+          <h2 style={sectionTitle}>Top {domainLabel.toLowerCase()} market research reports</h2>
+          <p style={para}>
+            Browse the most-requested {domainLabel.toLowerCase()} reports in our catalog, each with market size, CAGR forecast through 2031, segmentation, and competitive landscape.
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10, marginTop: 18 }}>
+            {featuredMarkets.map((m) => (
+              <Link
+                key={m.id}
+                to={`/markets/${slugify(m.name)}`}
+                style={{
+                  background: "var(--card-bg)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 10,
+                  padding: "12px 14px",
+                  fontSize: 13,
+                  color: "var(--cream-dim)",
+                  textDecoration: "none",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: 10,
+                  transition: "border-color 180ms ease, color 180ms ease",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border-gold)"; e.currentTarget.style.color = "var(--cream)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--cream-dim)"; }}
+              >
+                <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.name}</span>
+                <span className="mono" style={{ fontSize: 10, color: "var(--gold)", letterSpacing: "0.1em", whiteSpace: "nowrap" }}>{m.cagr}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* FAQs — also injected as FAQPage JSON-LD via useSEO */}
+      {Array.isArray(details.faqs) && details.faqs.length > 0 && (
+        <div style={{ marginBottom: 56 }}>
+          <span className="section-label" style={{ marginBottom: 14 }}>Frequently asked questions</span>
+          <h2 style={sectionTitle}>FAQs about {domainLabel.toLowerCase()} market research</h2>
+          <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
+            {details.faqs.map((f) => (
+              <details key={f.q} style={{ ...card, padding: "16px 20px" }}>
+                <summary style={{ ...subhead, cursor: "pointer", listStyle: "none", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, margin: 0 }}>
+                  <span>{f.q}</span>
+                  <span style={{ color: "var(--gold)", fontSize: 22, lineHeight: 1 }}>+</span>
+                </summary>
+                <p style={{ ...para, margin: "12px 0 0", fontSize: 14, color: "var(--cream-dim)" }}>{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Related research domains — internal linking signal */}
+      {related.length > 0 && (
+        <div style={{ marginBottom: 24 }}>
+          <span className="section-label" style={{ marginBottom: 14 }}>Related research</span>
+          <h2 style={sectionTitle}>Explore related research domains</h2>
+          <p style={para}>
+            Many {domainLabel.toLowerCase()} decisions intersect with other industries. Browse adjacent research to triangulate exposure across the value chain.
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14, marginTop: 18 }}>
+            {related.map((d) => (
+              <Link
+                key={d.id}
+                to={`/domains/${d.id}`}
+                style={{
+                  ...card,
+                  textDecoration: "none",
+                  color: "inherit",
+                  display: "block",
+                  transition: "border-color 180ms ease",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border-gold)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
+                aria-label={`${d.label} market research`}
+              >
+                <div className="mono" style={{ fontSize: 10, color: "var(--gold)", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 8 }}>
+                  Research Domain
+                </div>
+                <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 500, color: "var(--cream)", margin: "0 0 6px", lineHeight: 1.2 }}>
+                  {d.label} Market Research
+                </h3>
+                <p style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6, margin: 0 }}>
+                  {d.desc}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -1700,6 +2086,20 @@ function MarketDetailPage() {
     () => (market ? buildReportForMarket(market) : null),
     [market],
   );
+
+  // Related markets: same topic across other geographies + nearby reports
+  // in the same domain. Strong crawl/internal-link signal and improves UX.
+  const related = useMemo(() => {
+    if (!market) return { siblings: [], peers: [] };
+    const all = MARKETS_DATA[market.domainId] || [];
+    const siblings = all.filter(
+      (m) => m.topic === market.topic && m.id !== market.id,
+    ).slice(0, 8);
+    const peers = all
+      .filter((m) => m.geoScope === "Global" && m.id !== market.id && m.topic !== market.topic)
+      .slice(0, 8);
+    return { siblings, peers };
+  }, [market]);
 
   if (!market || !reportData) {
     return <NotFoundPage requestedPath={`/markets/${slug || ""}`} />;
@@ -1735,7 +2135,90 @@ function MarketDetailPage() {
       </div>
 
       <MordorReport data={reportData} mode="page" backTo={`/domains/${market.domainId}`} />
+
+      <RelatedMarkets
+        market={market}
+        domainLabel={domainLabel}
+        siblings={related.siblings}
+        peers={related.peers}
+      />
     </div>
+  );
+}
+
+function RelatedMarkets({ market, domainLabel, siblings, peers }) {
+  const sectionStyle = { marginTop: 48, marginBottom: 24 };
+  const headingStyle = {
+    fontFamily: "'Cormorant Garamond', serif",
+    fontSize: "clamp(1.5rem, 2.5vw, 2rem)",
+    fontWeight: 600,
+    color: "var(--cream)",
+    margin: "0 0 14px",
+    lineHeight: 1.2,
+  };
+  const linkCard = {
+    background: "var(--card-bg)",
+    border: "1px solid var(--border)",
+    borderRadius: 10,
+    padding: "12px 14px",
+    fontSize: 13,
+    color: "var(--cream-dim)",
+    textDecoration: "none",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 10,
+    transition: "border-color 180ms ease, color 180ms ease",
+  };
+  const onEnter = (e) => { e.currentTarget.style.borderColor = "var(--border-gold)"; e.currentTarget.style.color = "var(--cream)"; };
+  const onLeave = (e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--cream-dim)"; };
+
+  if (!siblings.length && !peers.length) return null;
+
+  return (
+    <aside aria-label="Related market research" style={{ marginTop: 56, paddingTop: 40, borderTop: "1px solid var(--border)" }}>
+      {siblings.length > 0 && (
+        <div style={sectionStyle}>
+          <span className="section-label" style={{ marginBottom: 12 }}>Same market, other regions</span>
+          <h2 style={headingStyle}>{market.topic} — global, regional & country editions</h2>
+          <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.7, margin: "0 0 16px", maxWidth: 720 }}>
+            Compare {market.topic.toLowerCase()} sizing, growth, and competitive dynamics across geographies. Each edition tailors segmentation, regulation, and key-player analysis to the regional context.
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
+            {siblings.map((m) => (
+              <Link key={m.id} to={`/markets/${slugify(m.name)}`} style={linkCard} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+                <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.name}</span>
+                <span className="mono" style={{ fontSize: 10, color: "var(--gold)", letterSpacing: "0.1em", whiteSpace: "nowrap" }}>{m.cagr}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {peers.length > 0 && (
+        <div style={sectionStyle}>
+          <span className="section-label" style={{ marginBottom: 12 }}>More in this domain</span>
+          <h2 style={headingStyle}>Other {domainLabel.toLowerCase()} market reports</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
+            {peers.map((m) => (
+              <Link key={m.id} to={`/markets/${slugify(m.name)}`} style={linkCard} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+                <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.name}</span>
+                <span className="mono" style={{ fontSize: 10, color: "var(--gold)", letterSpacing: "0.1em", whiteSpace: "nowrap" }}>{m.cagr}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 28 }}>
+        <Link to={`/domains/${market.domainId}`} className="btn-ghost" style={{ textDecoration: "none", display: "inline-block" }}>
+          All {domainLabel.toLowerCase()} reports →
+        </Link>
+        <Link to="/generate" className="btn-ghost" style={{ textDecoration: "none", display: "inline-block" }}>
+          Generate a custom report →
+        </Link>
+      </div>
+    </aside>
   );
 }
 
@@ -1783,6 +2266,81 @@ function NotFoundPage({ requestedPath }) {
         <Link to="/domains" className="btn-gold" style={{ textDecoration: "none", display: "inline-block" }}>Browse research →</Link>
         <Link to="/generate" className="btn-ghost" style={{ textDecoration: "none", display: "inline-block" }}>Generate a sample report</Link>
       </div>
+    </div>
+  );
+}
+
+// ─── TRUST PAGES (Privacy, Terms, Methodology) ────────────────────────────────
+// Lightweight but real pages — Google E-E-A-T scoring (Experience, Expertise,
+// Authoritativeness, Trust) consistently rewards sites that have proper
+// privacy, terms, and methodology pages reachable from the footer.
+
+function LegalPage({ kind }) {
+  const isPrivacy = kind === "privacy";
+  const title = isPrivacy ? "Privacy Policy" : "Terms of Service";
+  const path = isPrivacy ? "/privacy" : "/terms";
+  useSEO({
+    title: `${title} | InsightAxis Intelligence`,
+    description: isPrivacy
+      ? "InsightAxis Intelligence privacy policy. Learn how we collect, use, and protect personal data when you visit the website or request market research reports."
+      : "Terms of service governing use of InsightAxis Intelligence market research reports, sample reports, and advisory services.",
+    path,
+    jsonLd: buildBreadcrumbSchema([
+      { name: "Home", url: "/" },
+      { name: title, url: path },
+    ]),
+  });
+
+  const para = { fontSize: 14.5, color: "var(--text-muted)", lineHeight: 1.85, margin: "0 0 14px" };
+  const head = { fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 500, color: "var(--cream)", margin: "32px 0 12px", lineHeight: 1.25 };
+
+  return (
+    <div style={{ maxWidth: 820, margin: "0 auto", padding: "60px 0 80px" }}>
+      <div style={{ marginBottom: 36 }}>
+        <span className="section-label" style={{ marginBottom: 18 }}>{isPrivacy ? "Privacy" : "Legal"}</span>
+        <h1 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 600, margin: "0 0 14px", lineHeight: 1.1 }}>{title}</h1>
+        <p className="mono" style={{ fontSize: 11.5, color: "var(--text-faint)", letterSpacing: "0.12em" }}>
+          Effective {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+        </p>
+      </div>
+
+      {isPrivacy ? (
+        <>
+          <p style={para}>
+            InsightAxis Intelligence (&ldquo;we&rdquo;, &ldquo;us&rdquo;) operates the website at {SITE_URL}. This policy describes what personal data we collect when you visit the site, request a sample report, or contact our analyst team — and how we use, store, and protect that data.
+          </p>
+          <h2 style={head}>What we collect</h2>
+          <p style={para}>We collect data you voluntarily provide through forms (name, work email, company, phone, message), and standard server / analytics data (IP address, browser, pages visited, referrer). We do not collect special-category personal data.</p>
+          <h2 style={head}>How we use it</h2>
+          <p style={para}>To respond to research inquiries, deliver requested reports, send relevant updates if you have opted in, and improve the website. We do not sell personal data. We use Google Analytics for aggregated traffic insights — see Google&rsquo;s policies for their data handling.</p>
+          <h2 style={head}>Cookies</h2>
+          <p style={para}>The site uses essential cookies for navigation and analytics cookies (Google Analytics). You can disable non-essential cookies in your browser settings without losing core site functionality.</p>
+          <h2 style={head}>Your rights</h2>
+          <p style={para}>Under GDPR, CCPA, and equivalent laws you can request access to, correction of, or deletion of your personal data. Contact us at the email on the <Link to="/contact" style={{ color: "var(--gold)" }}>contact page</Link> and we will respond within statutory deadlines.</p>
+          <h2 style={head}>Data security</h2>
+          <p style={para}>We hold data on encrypted infrastructure, restrict internal access on a need-to-know basis, and align operationally with ISO 27001 and GDPR. We retain personal data only for as long as required to deliver requested services or to comply with applicable law.</p>
+          <h2 style={head}>Updates to this policy</h2>
+          <p style={para}>We may update this policy when the law or our practices change. Material changes will be highlighted on this page.</p>
+        </>
+      ) : (
+        <>
+          <p style={para}>
+            These terms govern your use of {SITE_URL} and any market research reports, sample reports, or advisory services provided by InsightAxis Intelligence. By using the site you agree to these terms.
+          </p>
+          <h2 style={head}>Use of content</h2>
+          <p style={para}>Reports, charts, data, and analyst commentary are licensed for internal business use of the purchaser. Republication, resale, or systematic redistribution is not permitted without written consent.</p>
+          <h2 style={head}>Sample reports</h2>
+          <p style={para}>Sample and AI-generated reports are illustrative previews intended to demonstrate report format and depth. Data points in samples are indicative and should not be used for investment, regulatory, or operational decisions without engagement with our analyst team for full validation.</p>
+          <h2 style={head}>Forecasts and forward-looking statements</h2>
+          <p style={para}>Market sizes, CAGRs, and forecasts represent analyst best-estimates at the publication date based on the methodology described in each report. Actual outcomes will differ — InsightAxis Intelligence makes no warranty as to specific outcomes.</p>
+          <h2 style={head}>Limitation of liability</h2>
+          <p style={para}>To the maximum extent permitted by law, our aggregate liability for any claim arising from use of the site or our reports is limited to the fees paid for the relevant report or engagement.</p>
+          <h2 style={head}>Governing law</h2>
+          <p style={para}>These terms are governed by the laws of India. Disputes will be resolved in the courts of Pune, Maharashtra, unless mandatory consumer-protection law in your jurisdiction provides otherwise.</p>
+          <h2 style={head}>Contact</h2>
+          <p style={para}>Questions about these terms can be sent through the <Link to="/contact" style={{ color: "var(--gold)" }}>contact page</Link>.</p>
+        </>
+      )}
     </div>
   );
 }
@@ -2034,8 +2592,14 @@ function Footer() {
           <div className="mono" style={{ fontSize: 11, color: "var(--text-faint)", letterSpacing: "0.08em" }}>
             © 2026 InsightAxis Intelligence. All rights reserved.
           </div>
-          <div className="mono" style={{ fontSize: 11, color: "var(--text-faint)", letterSpacing: "0.08em" }}>
-            Privacy · Terms · Cookies · ISO 27001 · GDPR
+          <div className="mono" style={{ fontSize: 11, color: "var(--text-faint)", letterSpacing: "0.08em", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <Link to="/privacy" style={{ color: "var(--text-faint)", textDecoration: "none" }}>Privacy</Link>
+            <span>·</span>
+            <Link to="/terms" style={{ color: "var(--text-faint)", textDecoration: "none" }}>Terms</Link>
+            <span>·</span>
+            <Link to="/privacy" style={{ color: "var(--text-faint)", textDecoration: "none" }}>Cookies</Link>
+            <span>·</span>
+            <span>ISO 27001 · GDPR</span>
           </div>
         </div>
       </div>
@@ -2069,7 +2633,11 @@ function LegacyHashRedirect() {
 }
 
 export default function App() {
-  useScrollReveal();
+  const location = useLocation();
+  // Pass pathname as key so the reveal observer re-runs after every
+  // client-side route change (App itself doesn't re-mount, only <Routes>
+  // children do, so a no-dep useEffect would only fire on initial mount).
+  useScrollReveal({ key: location.pathname });
 
   return (
     <div style={{ background: "var(--navy)", minHeight: "100vh", color: "var(--cream)" }}>
@@ -2136,6 +2704,22 @@ export default function App() {
               <div style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 32px" }}>
                 <Breadcrumb />
                 <ContactPage />
+              </div>
+            }
+          />
+          <Route
+            path="/privacy"
+            element={
+              <div style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 32px" }}>
+                <LegalPage kind="privacy" />
+              </div>
+            }
+          />
+          <Route
+            path="/terms"
+            element={
+              <div style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 32px" }}>
+                <LegalPage kind="terms" />
               </div>
             }
           />
