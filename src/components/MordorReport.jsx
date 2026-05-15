@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   useSEO,
   buildBreadcrumbSchema,
@@ -6,13 +7,72 @@ import {
   buildFaqSchema,
 } from "../hooks/useSEO.js";
 import { slugify } from "../utils/slugify.js";
+import {
+  buildMordorSampleInputFromMarket,
+  buildMordorSampleInputFromTopic,
+} from "../utils/mordorMarketSampleInput.js";
+import { scopeEntriesFromHierarchy, buildSegmentationTableRows } from "../utils/segmentHierarchy.js";
+import { SITE_URL } from "../hooks/useSEO.js";
 
 // ─────────────────────────────────────────────────────────────────
 // CONFIG
 // ─────────────────────────────────────────────────────────────────
 
 const BRAND = "InsightAxis Intelligence";
+const CONTACT_PATH = "/contact";
 const GEMINI_MODEL = "gemini-2.0-flash";
+
+function contactHref(intent) {
+  return intent ? `${CONTACT_PATH}?intent=${encodeURIComponent(intent)}` : CONTACT_PATH;
+}
+
+function contactUrlAbsolute(intent) {
+  return `${SITE_URL}${contactHref(intent)}`;
+}
+
+function printContactCtaBlock() {
+  const buy = contactUrlAbsolute("buy");
+  const request = contactUrlAbsolute("request-access");
+  const contact = contactUrlAbsolute();
+  return `
+    <div class="pdf-contact-ctas" style="margin-top:28px;padding:20px;border:2px solid #E0552E;border-radius:8px;background:#FFF3EE;">
+      <p style="margin:0 0 12px;font-size:14px;font-weight:700;color:#0B3D5C;">Purchase or request the full report</p>
+      <p style="margin:0;font-size:13px;line-height:2;">
+        <a href="${buy}" style="color:#1A6FE8;font-weight:600;text-decoration:underline;margin-right:20px;">Buy Now</a>
+        <a href="${request}" style="color:#1A6FE8;font-weight:600;text-decoration:underline;margin-right:20px;">Request access</a>
+        <a href="${contact}" style="color:#1A6FE8;font-weight:600;text-decoration:underline;">Contact us</a>
+      </p>
+      <p style="margin:10px 0 0;font-size:11px;color:#666;">${contact}</p>
+    </div>`;
+}
+
+const PRINT_CTA_LINK_CSS = `
+  button { display: none; }
+  a.report-cta-link {
+    display: inline-block !important;
+    color: #fff !important;
+    background: #E0552E !important;
+    padding: 10px 18px !important;
+    text-decoration: none !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    font-size: 12.5px !important;
+    margin: 4px 8px 4px 0 !important;
+  }
+  a.report-cta-link-outline {
+    display: inline-block !important;
+    color: #0B3D5C !important;
+    background: transparent !important;
+    border: 1.5px solid #0B3D5C !important;
+    padding: 10px 18px !important;
+    text-decoration: none !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    font-size: 12.5px !important;
+    margin: 4px 8px 4px 0 !important;
+  }
+  .pdf-contact-ctas a { color: #1A6FE8 !important; background: transparent !important; border: none !important; padding: 0 !important; margin-right: 16px !important; }
+`;
 const REGION_OPTIONS = ["North America", "Europe", "Asia-Pacific", "Latin America", "Middle East & Africa"];
 const AUDIENCE_OPTIONS = ["Investors", "Enterprises", "Startups", "Consultants", "Government"];
 const DEFAULT_DIMENSIONS = ["Product Type", "Ingredient / Component", "Form", "Distribution Channel"];
@@ -158,80 +218,187 @@ Respond ONLY with valid JSON (no markdown, no preamble) matching exactly this sh
 }
 
 // Local synthesizer used when the API key is missing or the call fails.
+function pickRegion(regions, index, fallback = "Asia-Pacific") {
+  const r = regions[index] ?? regions[regions.length - 1] ?? regions[0];
+  return r || { name: fallback, share: 0, cagr: 6, intensity: "Medium" };
+}
+
 function buildLocalMordorReport(input) {
-  const { industry, baseYear, forecastEndYear, geographies, dimensions } = input;
+  const {
+    industry,
+    baseYear,
+    forecastEndYear,
+    geographies,
+    dimensions: inputDimensions,
+    segmentRows,
+    segmentationTable: inputSegmentationTable,
+    baseValueBillions,
+    cagrPercent,
+    largestMarket: inputLargestMarket,
+    fastestGrowingMarket: inputFastestGrowingMarket,
+    majorPlayersOverride,
+    worldRegionsOverride,
+    studyNote = "",
+    geographyScopeNote = "",
+    scaleFactor = 1,
+  } = input;
+
   const currentYear = baseYear + 1;
   const seed = industry.length * 7 + baseYear;
-  const baseValue = 18 + (seed % 60);
-  const cagr = 6.5 + (seed % 8);
-  const years = forecastEndYear - currentYear;
-  const forecastValue = +(baseValue * 1.06 * Math.pow(1 + cagr / 100, years)).toFixed(1);
+
+  const useCatalogSizing = baseValueBillions != null && Number.isFinite(Number(baseValueBillions));
+  const baseValue = useCatalogSizing
+    ? Math.max(0.05, +Number(baseValueBillions).toFixed(2))
+    : (18 + (seed % 60));
+
+  const cagr = cagrPercent != null && Number.isFinite(Number(cagrPercent))
+    ? Math.min(40, Math.max(1.5, +Number(cagrPercent)))
+    : (6.5 + (seed % 8));
+
+  const forecastYears = Math.max(1, forecastEndYear - baseYear);
+  const forecastValue = useCatalogSizing
+    ? +(baseValue * (1 + cagr / 100) ** forecastYears).toFixed(1)
+    : +(baseValue * 1.06 * (1 + cagr / 100) ** (forecastEndYear - currentYear)).toFixed(1);
   const currentValue = +(baseValue * 1.06).toFixed(1);
 
-  const segments = dimensions.map((dim, i) => {
-    const leaderShare = 32 + ((seed + i * 7) % 18);
-    const fastestCagr = 9 + ((seed + i * 13) % 11);
-    const leaderName = `${dim.split(/[\s/]+/)[0]} Leader ${String.fromCharCode(65 + i)}`;
-    const fastestName = `${dim.split(/[\s/]+/)[0]} Emerging ${String.fromCharCode(88 - i)}`;
-    return {
-      dimension: dim,
-      headline: `By ${dim}: ${leaderName} Holds the Largest Share`,
-      leader: {
-        name: leaderName,
-        share: leaderShare,
-        paragraph: `${leaderName} leads the ${industry.toLowerCase()} market by ${dim.toLowerCase()} with an estimated ${leaderShare}% share of ${currentYear} revenues. Established distribution, brand trust, and a broad product portfolio give incumbent operators a structural advantage in this segment. Procurement teams favor proven suppliers for compliance, traceability, and scalability — particularly in ${geographies[0] || "North America"} and ${geographies[1] || "Europe"} where regulatory expectations are highest. The leading segment also benefits from premium pricing power: scale enables marketing reinvestment, which in turn supports shelf and digital visibility across major retail and B2B channels. Over the forecast horizon, the leader is expected to defend share through portfolio refresh, sustainable sourcing claims, and selective partnerships that extend reach into adjacent categories. Margin durability remains supported by efficient supply chains, mix management, and selective premiumization that offsets input volatility.`,
-      },
-      fastest: {
-        name: fastestName,
-        cagr: fastestCagr,
-        paragraph: `${fastestName} is the fastest growing ${dim.toLowerCase()} segment in the ${industry.toLowerCase()} market, expanding at an estimated ${fastestCagr}% CAGR through ${forecastEndYear}. Adoption is being pulled by a combination of changing buyer preferences, technology improvements, and incentive programs in priority geographies. Specialty retailers and direct-to-consumer channels are accelerating awareness while category-leading brands invest in claims around clean ingredients, traceable supply chains, and improved performance. Cost-position has improved as production scale increases and value chains formalize, narrowing the price gap with the leading segment. Through ${forecastEndYear}, we expect the segment to continue to outpace the broader category as cross-functional buyers — operations, sustainability, and procurement — converge on the same product specifications, and as private-label entrants accelerate price-elastic adoption in mid-market accounts.`,
-      },
-      subSegments: [
-        `Premium ${dim}`,
-        `Mid-tier ${dim}`,
-        `Value ${dim}`,
-        `Specialty ${dim}`,
-        `Emerging ${dim}`,
-        `Private Label ${dim}`,
-      ],
-    };
-  });
+  const dimensions = Array.isArray(segmentRows) && segmentRows.length
+    ? segmentRows.map((r) => r.dimension)
+    : inputDimensions;
 
-  const regions = REGION_OPTIONS.map((name, i) => {
-    const baseShare = [34, 27, 25, 8, 6][i] || 5;
-    return {
-      name,
-      share: baseShare + ((seed + i * 3) % 4) - 2,
-      intensity: i < 2 ? "High" : i < 3 ? "High" : i < 4 ? "Medium" : "Low",
-      cagr: +(5 + (seed + i * 5) % 9).toFixed(1),
-    };
-  });
+  const segments = Array.isArray(segmentRows) && segmentRows.length
+    ? segmentRows.map((row, i) => {
+        const leaderShare = row.leaderShare ?? (32 + ((seed + i * 7) % 18));
+        const fastestCagr = row.fastestCagr ?? (9 + ((seed + i * 13) % 11));
+        const dim = row.dimension;
+        const leaderName = row.leaderName || row.subSegments?.[0] || `${dim} leader`;
+        const fastestName = row.fastestName || row.subSegments?.[1] || row.subSegments?.[0] || `${dim} growth`;
+        const tree = row.segmentTree || [];
+        return {
+          dimension: dim,
+          segmentTree: tree,
+          headline: `${dim}: ${leaderName} Holds the Largest Share`,
+          leader: {
+            name: leaderName,
+            share: leaderShare,
+            paragraph: `${leaderName} leads the ${industry.toLowerCase()} market on the ${dim.toLowerCase()} axis with an estimated ${leaderShare}% share of addressable revenue in ${currentYear}. Buyers in ${geographies[0] || "North America"} and ${geographies[1] || "Europe"} continue to consolidate spend with suppliers that combine scale, compliance documentation, and predictable fulfillment — reinforcing incumbent positions in this slice of the market. The leader benefits from route-to-market depth, referenceable deployments, and portfolio breadth that supports cross-sell across adjacent ${industry.toLowerCase()} use cases. Over the forecast horizon through ${forecastEndYear}, we expect the leader to defend share through roadmap refresh, selective pricing discipline, and partnerships that extend coverage into faster-growing adjacencies while preserving margin through mix management.`,
+          },
+          fastest: {
+            name: fastestName,
+            cagr: fastestCagr,
+            paragraph: `${fastestName} is the fastest-growing ${dim.toLowerCase()} segment within ${industry.toLowerCase()}, expanding at an estimated ${fastestCagr}% CAGR through ${forecastEndYear}. Adoption is supported by shifting procurement criteria, digital discovery and trial channels, and product iterations that improve performance-to-price versus legacy alternatives. Regional demand pockets — particularly where modern trade, industrial clusters, or enterprise modernization budgets are expanding — are amplifying growth above the category average. Through ${forecastEndYear}, we expect this segment to outpace the broader market as specifications converge across buyers and as mid-market accounts adopt formats previously concentrated among early adopters.`,
+          },
+          subSegments: row.subSegments || [],
+        };
+      })
+    : inputDimensions.map((dim, i) => {
+      const leaderShare = 32 + ((seed + i * 7) % 18);
+      const fastestCagr = 9 + ((seed + i * 13) % 11);
+      const leaderName = `${dim.split(/[\s/]+/)[0]} Leader ${String.fromCharCode(65 + i)}`;
+      const fastestName = `${dim.split(/[\s/]+/)[0]} Emerging ${String.fromCharCode(88 - i)}`;
+      return {
+        dimension: dim,
+        headline: `By ${dim}: ${leaderName} Holds the Largest Share`,
+        leader: {
+          name: leaderName,
+          share: leaderShare,
+          paragraph: `${leaderName} leads the ${industry.toLowerCase()} market by ${dim.toLowerCase()} with an estimated ${leaderShare}% share of ${currentYear} revenues. Established distribution, brand trust, and a broad product portfolio give incumbent operators a structural advantage in this segment. Procurement teams favor proven suppliers for compliance, traceability, and scalability — particularly in ${geographies[0] || "North America"} and ${geographies[1] || "Europe"} where regulatory expectations are highest. The leading segment also benefits from premium pricing power: scale enables marketing reinvestment, which in turn supports shelf and digital visibility across major retail and B2B channels. Over the forecast horizon, the leader is expected to defend share through portfolio refresh, sustainable sourcing claims, and selective partnerships that extend reach into adjacent categories. Margin durability remains supported by efficient supply chains, mix management, and selective premiumization that offsets input volatility.`,
+        },
+        fastest: {
+          name: fastestName,
+          cagr: fastestCagr,
+          paragraph: `${fastestName} is the fastest growing ${dim.toLowerCase()} segment in the ${industry.toLowerCase()} market, expanding at an estimated ${fastestCagr}% CAGR through ${forecastEndYear}. Adoption is being pulled by a combination of changing buyer preferences, technology improvements, and incentive programs in priority geographies. Specialty retailers and direct-to-consumer channels are accelerating awareness while category-leading brands invest in claims around clean ingredients, traceable supply chains, and improved performance. Cost-position has improved as production scale increases and value chains formalize, narrowing the price gap with the leading segment. Through ${forecastEndYear}, we expect the segment to continue to outpace the broader category as cross-functional buyers — operations, sustainability, and procurement — converge on the same product specifications, and as private-label entrants accelerate price-elastic adoption in mid-market accounts.`,
+        },
+        subSegments: [
+          `Premium ${dim}`,
+          `Mid-tier ${dim}`,
+          `Value ${dim}`,
+          `Specialty ${dim}`,
+          `Emerging ${dim}`,
+          `Private Label ${dim}`,
+        ],
+      };
+    });
+
+  const geoSet = new Set(geographies);
+  const isGeoSubset = geoSet.size > 0 && geoSet.size < REGION_OPTIONS.length;
+
+  let regions = Array.isArray(worldRegionsOverride) && worldRegionsOverride.length
+    ? worldRegionsOverride.map((r) => ({ ...r }))
+    : REGION_OPTIONS.map((name, i) => {
+      const baseShare = [34, 27, 25, 8, 6][i] || 5;
+      return {
+        name,
+        share: baseShare + ((seed + i * 3) % 4) - 2,
+        intensity: i < 2 ? "High" : i < 3 ? "High" : i < 4 ? "Medium" : "Low",
+        cagr: +(5 + (seed + i * 5) % 9).toFixed(1),
+      };
+    });
+
+  if (isGeoSubset && !worldRegionsOverride?.length) {
+    regions = regions.filter((r) => geoSet.has(r.name));
+    const sum = regions.reduce((acc, r) => acc + r.share, 0);
+    regions = regions.map((r) => ({
+      ...r,
+      share: sum > 0 ? +((r.share / sum) * 100).toFixed(1) : +(100 / regions.length).toFixed(1),
+    }));
+  }
+
+  if (!regions.length) {
+    const fallbackName = geographies[0] || "North America";
+    regions = [{ name: fallbackName, share: 100, intensity: "High", cagr: +(5 + (seed % 8)).toFixed(1) }];
+  }
+
+  const largestMarket = inputLargestMarket || regions.reduce((a, b) => (a.share >= b.share ? a : b)).name;
+  const fastestGrowingMarket = inputFastestGrowingMarket || regions.reduce((a, b) => (a.cagr >= b.cagr ? a : b)).name;
+  const majorPlayers = Array.isArray(majorPlayersOverride) && majorPlayersOverride.length >= 6
+    ? majorPlayersOverride.slice(0, 8)
+    : [
+      `${industry.split(" ")[0] || "Apex"} Holdings`,
+      "Nexora Corp",
+      "Vantage Group",
+      "Meridian Co.",
+      "Orion Partners",
+      "Summit Brands",
+      "Astral Industries",
+      "Helios Systems",
+    ];
+
+  const topRegion = [...regions].sort((a, b) => b.share - a.share)[0] || regions[0];
+  const fastRegion = [...regions].sort((a, b) => Number(b.cagr) - Number(a.cagr))[0] || regions[0];
+  const regionPrimary = pickRegion(regions, 0, topRegion.name);
+  const regionSecondary = pickRegion(regions, 1, topRegion.name);
+  const regionTertiary = pickRegion(regions, 2, fastRegion.name);
+
+  const hierarchiesForTable = Array.isArray(segmentRows) && segmentRows.length
+    ? segmentRows.map((r) => ({ dimension: r.dimension, segments: r.segmentTree || [] }))
+    : [];
+  const segmentationTable = Array.isArray(inputSegmentationTable) && inputSegmentationTable.length
+    ? inputSegmentationTable
+    : buildSegmentationTableRows(hierarchiesForTable);
+
+  const geoScopeSuffix = isGeoSubset ? ` — ${geographies.join(", ")}` : "";
+  const scopedStudyNote = `${studyNote}${geographyScopeNote ? ` ${geographyScopeNote}` : ""}`;
 
   return {
-    title: `${industry} Market Size & Share Analysis - Growth Trends and Forecast (${currentYear} - ${forecastEndYear})`,
-    executive: `The ${industry.toLowerCase()} market is segmented by ${dimensions.join(", ")}, and Geography (${geographies.join(", ")}). The report sizes the market from ${baseYear} through ${forecastEndYear}, quantifies segment-level share and CAGR, profiles key manufacturers and emerging entrants, and identifies the drivers, restraints, and opportunities expected to shape demand across the forecast horizon.`,
+    title: `${industry} Market Size & Share Analysis - Growth Trends and Forecast (${currentYear} - ${forecastEndYear})${geoScopeSuffix}`,
+    executive: `The ${industry.toLowerCase()} market is segmented by ${dimensions.join(", ")}, with geographic coverage limited to ${geographies.join(", ")}. The report sizes the addressable market in these regions from ${baseYear} through ${forecastEndYear}, quantifies segment-level share and CAGR, profiles key manufacturers and emerging entrants, and identifies the drivers, restraints, and opportunities expected to shape demand across the forecast horizon.${scopedStudyNote}`,
     marketSize: {
       baseYear, currentYear, forecastYear: forecastEndYear,
       baseValue, currentValue, forecastValue,
       cagr: +cagr.toFixed(1),
       studyPeriod: `${baseYear}-${forecastEndYear}`,
-      fastestGrowingMarket: "Asia-Pacific",
-      largestMarket: "North America",
+      fastestGrowingMarket,
+      largestMarket,
       marketConcentration: "Medium",
-      majorPlayers: [
-        `${industry.split(" ")[0] || "Apex"} Holdings`,
-        "Nexora Corp",
-        "Vantage Group",
-        "Meridian Co.",
-        "Orion Partners",
-        "Summit Brands",
-        "Astral Industries",
-        "Helios Systems",
-      ],
+      majorPlayers,
     },
     takeaways: [
-      ...dimensions.slice(0, 4).map((d, i) => `By ${d}: ${segments[i].leader.name} leads with ${segments[i].leader.share}% revenue share in ${currentYear}; ${segments[i].fastest.name} grows at ${segments[i].fastest.cagr}% CAGR through ${forecastEndYear}.`),
-      `By Geography: North America accounts for ~${regions[0].share}% of ${currentYear} revenue; Asia-Pacific is the fastest growing region at ${regions[2].cagr}% CAGR through ${forecastEndYear}.`,
+      ...dimensions.slice(0, 4).map((d, i) => {
+        const seg = segments[i];
+        if (!seg?.leader || !seg?.fastest) return `${d}: segment leaders and growth rates are modeled through ${forecastEndYear}.`;
+        return `${d}: ${seg.leader.name} leads with ${seg.leader.share}% revenue share in ${currentYear}; ${seg.fastest.name} grows at ${seg.fastest.cagr}% CAGR through ${forecastEndYear}.`;
+      }),
+      `By Geography (${geographies.join(", ")}): ${topRegion.name} accounts for ~${topRegion.share}% of modeled revenue within the selected regions; ${fastRegion.name} is the fastest-growing at ${fastRegion.cagr}% CAGR through ${forecastEndYear}.`,
     ],
     drivers: [
       { name: "Rising health & wellness awareness", impact: "+2.8%", region: "Global", timeline: "Short-term", paragraph: `Consumer preference for ${industry.toLowerCase()} products that align with documented health, sustainability, and traceability claims continues to expand. Buyers across ${geographies.slice(0, 2).join(" and ")} are increasingly willing to pay premiums for verified positioning, accelerating premiumization across both retail and foodservice channels. Manufacturers are responding with clean-label reformulations, third-party certifications, and clearer on-pack communication. The shift is reinforced by influencer and social-media discovery, where short-form video amplifies brand stories and seeds adoption in priority urban demographics. As awareness deepens, demand spreads from early adopters into mainstream buyers — pulling private-label entrants into the category and broadening the addressable base. Through ${forecastEndYear}, this driver is expected to remain the single largest contributor to category growth, particularly in mature markets where buyer literacy is highest and where category-leading brands can defend pricing through narrative consistency and packaging investment.` },
@@ -247,23 +414,22 @@ function buildLocalMordorReport(input) {
       { name: "Substitution from adjacent categories", impact: "-0.8%", region: "Global", timeline: "Long-term", paragraph: `Adjacent categories — ranging from functional alternatives to digital experiences — increasingly compete for the same buyer wallet and attention as core ${industry.toLowerCase()} products. Substitution intensifies as adjacent solutions match or exceed on convenience, perceived efficacy, and lifestyle fit, even when not directly equivalent. Brands that frame their narrative narrowly around legacy category cues are most exposed. The restraint is mitigated by R&D investments that extend functional benefits, partnerships with adjacent ecosystems, and clearer differentiation around heritage, trust, and verified outcomes. Through ${forecastEndYear}, expect continued blurring of category boundaries; the operators that recast their proposition around outcomes (e.g. energy, recovery, indulgence) rather than legacy category labels will best defend share against substitutes.` },
     ],
     segments,
+    segmentationTable,
     geography: {
       regions,
-      largestParagraph: `${regions[0].name} remains the largest geographic market for ${industry.toLowerCase()}, accounting for approximately ${regions[0].share}% of global revenues in ${currentYear}. Category maturity, well-developed retail infrastructure, high per-capita consumption, and consistent investment by category-leading brands all reinforce regional leadership. Premiumization and digital channel adoption continue to fund growth even where category penetration is already high; consumers in the region trade up toward verified, sustainable, and clean-label offerings, supporting margin expansion despite slower volume growth. Regulatory clarity and category leadership by brands such as ${segments[0]?.leader.name} or its peers also reduce execution risk for international entrants. Expect ${regions[0].name} to retain leadership through the forecast horizon, with mid-single-digit growth supported by mix and innovation more than by raw volume gains.`,
-      fastestParagraph: `${regions[2].name} is the fastest growing region in the ${industry.toLowerCase()} market, expanding at an estimated ${regions[2].cagr}% CAGR through ${forecastEndYear}. Urbanization, expanding middle-class buyers, modern retail penetration, and aggressive investment by both regional incumbents and global brands are converging to accelerate category formation. Local manufacturing capacity, government incentives for category development, and the rapid adoption of digital channels in priority markets (China, India, Indonesia, Vietnam) compound growth. The region also benefits from a younger consumer base with rapidly evolving brand preferences, supporting trial of newer formats. Expect continued capital inflows, additional regional production capacity, and increased competitive intensity over the forecast horizon as global incumbents consolidate regional positions.`,
-      matureParagraph: `Mature markets — ${regions[0].name} and ${regions[1].name} — exhibit slower volume growth but higher per-capita revenue and stronger premiumization tailwinds. Buyers in these markets prioritize verified claims, sustainable sourcing, and brand provenance, supporting margin expansion through mix even where overall category volumes plateau. Category leadership tends to be entrenched, with M&A and platform extensions serving as the primary route to share gains. Innovation cycles are shorter than in emerging markets but more selective, focused on incremental functional benefits, packaging sustainability, and digital commerce integration. These markets remain commercially attractive due to high absolute revenue contribution, established distribution, and the willingness of consumers to absorb pricing actions in support of trusted brands.`,
-      emergingParagraph: `Emerging markets — across Asia-Pacific, Latin America, and parts of Middle East & Africa — represent the highest growth opportunity for ${industry.toLowerCase()} operators willing to invest in distribution, brand-building, and locally relevant product formats. Per-capita consumption is materially below mature-market levels but is rising as urbanization, modern retail, and digital channel access converge. Local manufacturing, partnerships with regional distributors, and tailored pricing architecture are common entry strategies. Risk factors include regulatory variability, FX exposure, and channel fragmentation, but the long-run reward is access to a structurally larger addressable market. Expect emerging-market revenue mix for category-leading global brands to continue rising over the forecast horizon.`,
+      largestParagraph: `${inputLargestMarket && inputLargestMarket !== topRegion.name ? `This edition highlights ${inputLargestMarket} as the primary geography of interest; within the global benchmark view, ` : ""}${topRegion.name} represents the largest modeled regional revenue pool for ${industry.toLowerCase()}, at approximately ${topRegion.share}% of global share in ${currentYear}. Category maturity, channel depth, and sustained investment by leading suppliers reinforce this concentration pattern. Buyers continue to consolidate spend with partners that combine reliability, compliance documentation, and route-to-market coverage. Premium mix and innovation-led upgrades support margin resilience even where volume growth moderates. Through ${forecastEndYear}, we expect ${topRegion.name} to remain structurally important to global revenue, with growth increasingly driven by mix, services attachment, and portfolio expansion rather than volume alone.`,
+      fastestParagraph: `${fastRegion.name} is the fastest-growing macro region in the modeled ${industry.toLowerCase()} landscape, expanding at an estimated ${fastRegion.cagr}% CAGR through ${forecastEndYear}. Urbanization, infrastructure investment, enterprise modernization budgets, and expanding middle-market adoption are converging to lift growth above the global average. Regional champions and multinational subsidiaries are competing aggressively on price, performance, and localized specifications — accelerating product cycles and channel fragmentation. Digital commerce, distributor consolidation, and public-sector procurement programs are additional tailwinds in several markets. Expect continued capital deployment into capacity, partnerships, and go-to-market expansion across ${fastRegion.name} through the forecast horizon.`,
+      matureParagraph: isGeoSubset
+        ? `Within the selected geographies (${geographies.join(", ")}), mature demand pockets — led by ${regions[0]?.name || topRegion.name}${regions[1] ? ` and ${regions[1].name}` : ""} — exhibit slower volume growth but higher per-capita revenue and stronger premiumization. Buyers prioritize proven performance, compliance, and total cost of ownership. Category leadership remains entrenched where distribution depth and brand equity are highest.`
+        : `Mature markets — typically led by ${regionPrimary.name} and ${regionSecondary.name} in global benchmarks — exhibit slower volume growth but higher per-capita revenue and stronger premiumization tailwinds. Buyers prioritize proven performance, compliance, and total cost of ownership, supporting margin expansion through mix even where volumes plateau. Category leadership tends to be entrenched, with M&A and platform extensions serving as the primary route to share gains.`,
+      emergingParagraph: isGeoSubset
+        ? `Among the selected regions, faster-growth markets such as ${fastRegion.name} represent the primary expansion opportunity for ${industry.toLowerCase()} operators investing in localized assortment, distributor partnerships, and digital discovery. Per-capita consumption and channel modernization continue to lift growth above mature peers in this geography set through ${forecastEndYear}.`
+        : `Emerging markets — across Asia-Pacific, Latin America, and parts of Middle East & Africa — represent a high-growth opportunity set for ${industry.toLowerCase()} operators willing to invest in distribution, localization, and channel partnerships. Per-capita consumption is often below mature-market levels but rising with urbanization and income growth.`,
     },
     competitive: {
-      fragmentationParagraph: `The ${industry.toLowerCase()} market exhibits a ${"medium"} level of fragmentation in ${currentYear}, with the top five operators accounting for an estimated 35-45% of global revenue. Long-tail share is held by regional specialists, private-label manufacturers, and rapidly scaling challenger brands that win in specific channels or sub-segments. Fragmentation is most pronounced in emerging markets and in newer sub-categories where category-leading brands have yet to consolidate share. In contrast, mature sub-categories within ${regions[0].name} and ${regions[1].name} display higher concentration as scale players defend distribution and brand equity through marketing reinvestment and selective acquisitions. The structural trajectory through ${forecastEndYear} points to gradual consolidation as scale, supply chain, and regulatory advantages accrue to larger operators, while specialist challengers continue to harvest premium niches.`,
-      strategiesParagraph: `Category-leading manufacturers compete on a combination of brand equity, distribution depth, R&D investment, sustainability credentials, and selective M&A. Portfolio strategy increasingly emphasizes premium and functional positioning over commodity volume, supported by ESG-aligned messaging and verifiable supply chain claims. Capital deployment is balanced between organic capability (capacity, e-commerce, R&D talent) and acquisition of high-growth challenger brands that extend portfolio reach. Strategic partnerships across the value chain — ingredient suppliers, packaging innovators, and digital commerce platforms — accelerate route-to-market and reduce dependency on legacy retail gatekeepers. Pricing strategies emphasize structured premiumization and channel-specific pack-price architecture, supported by data-driven trade promotion. Through the forecast horizon, expect continued investment in digital commerce capability, supply chain regionalization, and emerging-market footprint expansion as the principal competitive levers.`,
-      industryLeaders: [
-        `${industry.split(" ")[0] || "Apex"} Holdings`,
-        "Nexora Corp",
-        "Vantage Group",
-        "Meridian Co.",
-        "Orion Partners",
-      ],
+      fragmentationParagraph: `The ${industry.toLowerCase()} market exhibits a medium level of fragmentation in ${currentYear}, with the top five operators accounting for an estimated 35-45% of global revenue. Long-tail share is held by regional specialists, private-label manufacturers, and rapidly scaling challenger brands that win in specific channels or sub-segments. Fragmentation is most pronounced in emerging markets and in newer sub-categories where consolidation has not yet run its course. In contrast, mature sub-categories within ${topRegion.name} and ${regionSecondary.name} display higher concentration as scale players defend distribution and brand equity through marketing reinvestment and selective acquisitions. The structural trajectory through ${forecastEndYear} points to gradual consolidation as scale, supply chain, and regulatory advantages accrue to larger operators, while specialist challengers continue to harvest premium niches.`,
+      strategiesParagraph: `Category-leading manufacturers compete on a combination of brand equity, distribution depth, R&D investment, sustainability credentials, and selective M&A. Portfolio strategy increasingly emphasizes premium and functional positioning over commodity volume, supported by ESG-aligned messaging and verifiable supply chain claims. Capital deployment is balanced between organic capability (capacity, e-commerce, R&D talent) and acquisition of high-growth challenger brands that extend portfolio reach. Strategic partnerships across the value chain accelerate route-to-market and reduce dependency on legacy retail gatekeepers. Pricing strategies emphasize structured premiumization and channel-specific pack-price architecture, supported by data-driven trade promotion. Through the forecast horizon, expect continued investment in digital commerce capability, supply chain regionalization, and emerging-market footprint expansion as the principal competitive levers.`,
+      industryLeaders: majorPlayers.slice(0, 5),
       concentration: 0.42,
       extendedProfiles: [
         "Astral Capital", "Summit Brands", "Helios Systems", "Continuum Foods", "Pioneer Labs", "Atlas Solutions",
@@ -272,22 +438,30 @@ function buildLocalMordorReport(input) {
       ],
     },
     developments: [
-      { date: `April ${baseYear}`, company: `${industry.split(" ")[0] || "Apex"} Holdings`, description: `Launched a next-generation ${industry.toLowerCase()} portfolio targeting premium retail accounts in ${regions[0].name}, with verifiable sourcing and an integrated subscription channel. Initial distribution covers 3,000+ doors across modern trade and specialty retail.` },
-      { date: `February ${baseYear}`, company: "Nexora Corp", description: `Announced acquisition of a regional challenger brand to extend Asia-Pacific footprint and accelerate category-leading direct-to-consumer capability. Deal value not disclosed; integration expected to complete within 9 months.` },
-      { date: `December ${baseYear - 1}`, company: "Vantage Group", description: `Opened a new manufacturing facility in ${regions[2].name} to reduce import dependency and support faster product launches in priority emerging markets. Capacity additions expected to support 18-month forecast demand.` },
-      { date: `October ${baseYear - 1}`, company: "Meridian Co.", description: `Partnered with a major quick-commerce platform across ${regions[0].name} to offer 30-minute delivery for category-leading SKUs and accelerate first-party data collection on buyer behavior.` },
+      { date: `April ${baseYear}`, company: majorPlayers[0] || "Apex Holdings", description: `Launched a next-generation ${industry.toLowerCase()} portfolio targeting premium accounts in ${topRegion.name}, with verifiable sourcing and an integrated subscription channel. Initial distribution covers 3,000+ doors across modern trade and specialty channels.` },
+      { date: `February ${baseYear}`, company: majorPlayers[1] || "Nexora Corp", description: `Announced acquisition of a regional challenger brand to extend Asia-Pacific footprint and accelerate category-leading direct-to-consumer capability. Deal value not disclosed; integration expected to complete within 9 months.` },
+      { date: `December ${baseYear - 1}`, company: "Vantage Group", description: `Opened a new manufacturing facility in ${regionTertiary.name} to reduce import dependency and support faster product launches in priority emerging markets. Capacity additions expected to support 18-month forecast demand.` },
+      { date: `October ${baseYear - 1}`, company: "Meridian Co.", description: `Partnered with a major quick-commerce platform across ${regionPrimary.name} to offer 30-minute delivery for category-leading SKUs and accelerate first-party data collection on buyer behavior.` },
       { date: `August ${baseYear - 1}`, company: "Orion Partners", description: `Closed a $180M Series E to fund category expansion, capacity investments, and selective acquisitions across the ${industry.toLowerCase()} portfolio. Strategic investors include two top-tier consumer brands.` },
     ],
     scope: {
-      ...Object.fromEntries(dimensions.map((d, i) => [d, segments[i].subSegments])),
+      ...Object.fromEntries(
+        dimensions.map((d, i) => [
+          d,
+          scopeEntriesFromHierarchy({
+            dimension: d,
+            segments: segments[i].segmentTree || segments[i].subSegments?.map((name) => ({ name })) || [],
+          }),
+        ]),
+      ),
       Geography: geographies,
     },
     faqs: [
-      { q: `What is the projected market value by ${forecastEndYear}?`, a: `The ${industry.toLowerCase()} market is projected to reach approximately USD ${forecastValue.toFixed(1)} billion by ${forecastEndYear}, growing at an estimated ${cagr.toFixed(1)}% CAGR from USD ${currentValue.toFixed(1)} billion in ${currentYear}. Growth is supported by premiumization, distribution expansion, and emerging-market formation.` },
-      { q: `Which region accounts for the largest revenue share?`, a: `${regions[0].name} accounts for approximately ${regions[0].share}% of global ${industry.toLowerCase()} revenues in ${currentYear}, supported by category maturity, retail infrastructure, and consistent brand investment. Expect the region to retain leadership through ${forecastEndYear}, with mid-single-digit growth driven mainly by mix and innovation.` },
-      { q: `Which segment is expected to grow fastest?`, a: `${segments[0].fastest.name} is expected to be among the fastest growing segments at approximately ${segments[0].fastest.cagr}% CAGR through ${forecastEndYear}, supported by changing buyer preferences and accelerating digital channel adoption.` },
-      { q: `Which region is the fastest growing?`, a: `${regions[2].name} is expected to grow at approximately ${regions[2].cagr}% CAGR through ${forecastEndYear}, driven by urbanization, modern retail penetration, and aggressive investment by both regional and global incumbents.` },
-      { q: `Why is the leading segment defending share against challengers?`, a: `Brand equity, distribution depth, scale-driven cost position, and consistent reinvestment in product and marketing all reinforce the leader's position. Challenger brands continue to harvest premium niches but face structural disadvantages in pricing and shelf access.` },
+      { q: `What is the projected market value by ${forecastEndYear}?`, a: `The ${industry.toLowerCase()} market is projected to reach approximately USD ${forecastValue.toFixed(1)} billion by ${forecastEndYear}, growing at an estimated ${cagr.toFixed(1)}% CAGR from approximately USD ${baseValue.toFixed(1)} billion at ${baseYear}. Growth is supported by mix shift, channel expansion, and regional demand formation across the forecast horizon.` },
+      { q: `Which region accounts for the largest revenue share?`, a: `${topRegion.name} accounts for approximately ${topRegion.share}% of modeled global ${industry.toLowerCase()} revenue share in ${currentYear}. ${inputLargestMarket && inputLargestMarket !== topRegion.name ? `This edition emphasizes ${inputLargestMarket} as the focal geography; macro benchmarking uses global region blocks as shown in the report. ` : ""}Expect structural importance to persist through ${forecastEndYear}, with growth increasingly driven by mix, innovation, and services attachment.` },
+      { q: `Which segment is expected to grow fastest?`, a: `${segments[0]?.fastest?.name || "The leading growth segment"} is expected to be among the fastest growing segments at approximately ${segments[0]?.fastest?.cagr ?? cagr}% CAGR through ${forecastEndYear}, supported by changing buyer preferences and accelerating adoption in priority channels.` },
+      { q: `Which region is the fastest growing?`, a: `${fastRegion.name} is expected to grow at approximately ${fastRegion.cagr}% CAGR through ${forecastEndYear}, supported by urbanization, infrastructure and enterprise investment, and competitive intensity among regional champions and multinationals.` },
+      { q: `Why is the leading segment defending share against challengers?`, a: `Brand equity, distribution depth, scale-driven cost position, and consistent reinvestment in product and marketing all reinforce the leader's position. Challenger brands continue to harvest premium niches but face structural disadvantages in pricing and channel access at scale.` },
     ],
   };
 }
@@ -297,7 +471,42 @@ function normalizeReport(payload, fallback) {
   if (!Array.isArray(r.takeaways) || !r.takeaways.length) r.takeaways = fallback.takeaways;
   if (!Array.isArray(r.drivers) || !r.drivers.length) r.drivers = fallback.drivers;
   if (!Array.isArray(r.restraints) || !r.restraints.length) r.restraints = fallback.restraints;
-  if (!Array.isArray(r.segments) || !r.segments.length) r.segments = fallback.segments;
+
+  // Keep topic-correct segmentation structure; let API enrich narrative fields only.
+  if (fallback.segmentationTable?.length) {
+    r.segmentationTable = fallback.segmentationTable;
+  }
+  if (fallback.scope && Object.keys(fallback.scope).length) {
+    r.scope = {
+      ...fallback.scope,
+      Geography: payload.scope?.Geography || fallback.scope.Geography,
+    };
+  }
+  if (fallback.segments?.length) {
+    r.segments = fallback.segments.map((fb, i) => {
+      const api = Array.isArray(payload.segments) ? payload.segments[i] : null;
+      if (!api) return fb;
+      return {
+        ...fb,
+        headline: api.headline || fb.headline,
+        leader: {
+          ...fb.leader,
+          name: fb.leader.name,
+          share: api.leader?.share ?? fb.leader.share,
+          paragraph: api.leader?.paragraph || fb.leader.paragraph,
+        },
+        fastest: {
+          ...fb.fastest,
+          name: fb.fastest.name,
+          cagr: api.fastest?.cagr ?? fb.fastest.cagr,
+          paragraph: api.fastest?.paragraph || fb.fastest.paragraph,
+        },
+      };
+    });
+  } else if (!Array.isArray(r.segments) || !r.segments.length) {
+    r.segments = fallback.segments;
+  }
+
   if (!Array.isArray(r.developments) || !r.developments.length) r.developments = fallback.developments;
   if (!Array.isArray(r.faqs) || !r.faqs.length) r.faqs = fallback.faqs;
   r.marketSize = { ...fallback.marketSize, ...(payload.marketSize || {}) };
@@ -306,7 +515,6 @@ function normalizeReport(payload, fallback) {
   r.competitive = { ...fallback.competitive, ...(payload.competitive || {}) };
   if (!Array.isArray(r.competitive.industryLeaders) || !r.competitive.industryLeaders.length) r.competitive.industryLeaders = fallback.competitive.industryLeaders;
   if (!Array.isArray(r.competitive.extendedProfiles) || !r.competitive.extendedProfiles.length) r.competitive.extendedProfiles = fallback.competitive.extendedProfiles;
-  r.scope = { ...fallback.scope, ...(payload.scope || {}) };
   return r;
 }
 
@@ -399,6 +607,41 @@ function DonutChart({ leader, leaderShare, palette = DONUT_PALETTE }) {
   );
 }
 
+function SegmentationMatrix({ rows }) {
+  if (!rows?.length) return null;
+  let lastCategory = "";
+  return (
+    <div style={{ overflowX: "auto", border: `1px solid ${C.border}`, borderRadius: 8 }} role="region" aria-label="Market segmentation">
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5 }}>
+        <thead>
+          <tr style={{ background: C.surfaceSub, color: C.primary }}>
+            <th style={{ padding: "12px 16px", textAlign: "left", fontWeight: 700, fontSize: 12, width: "32%" }}>Main Category</th>
+            <th style={{ padding: "12px 16px", textAlign: "left", fontWeight: 700, fontSize: 12, width: "28%" }}>Segment</th>
+            <th style={{ padding: "12px 16px", textAlign: "left", fontWeight: 700, fontSize: 12 }}>Sub-segment</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, i) => {
+            const showCategory = row.category !== lastCategory;
+            if (showCategory) lastCategory = row.category;
+            return (
+              <tr key={`${row.category}-${row.segment}-${row.subSegment}-${i}`} style={{ background: i % 2 ? C.surfaceAlt : "#fff" }}>
+                <td style={{ padding: "11px 16px", borderBottom: `1px solid ${C.border}`, fontWeight: showCategory ? 600 : 400, color: C.primary, verticalAlign: "top" }}>
+                  {showCategory ? row.category : ""}
+                </td>
+                <td style={{ padding: "11px 16px", borderBottom: `1px solid ${C.border}`, color: C.text, verticalAlign: "top" }}>{row.segment}</td>
+                <td style={{ padding: "11px 16px", borderBottom: `1px solid ${C.border}`, color: row.subSegment === "—" ? C.textFaint : C.textMuted, verticalAlign: "top" }}>
+                  {row.subSegment}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function ConcentrationGauge({ value }) {
   // value: 0 = fragmented, 1 = consolidated
   const v = Math.min(Math.max(value, 0), 1);
@@ -441,14 +684,18 @@ function ConcentrationGauge({ value }) {
 
 function HeatmapWorld({ regions, dominantName }) {
   const colorFor = (intensity) => intensity === "High" ? C.primary : intensity === "Medium" ? C.accent : C.accentLight;
-  const dominant = dominantName
-    || (regions.slice().sort((a, b) => (b.share || 0) - (a.share || 0))[0]?.name);
+  const dominantResolved = (() => {
+    if (!regions?.length) return null;
+    if (!dominantName) return regions.slice().sort((a, b) => (b.share || 0) - (a.share || 0))[0]?.name;
+    if (regions.some((r) => r.name === dominantName)) return dominantName;
+    return regions.slice().sort((a, b) => (b.share || 0) - (a.share || 0))[0]?.name;
+  })();
   // Stylized world strip — 5 abstract region blocks, not a literal map.
   return (
     <div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.max(1, regions.length)}, 1fr)`, gap: 12, marginBottom: 16 }}>
         {regions.map((r) => {
-          const isDominant = r.name === dominant;
+          const isDominant = r.name === dominantResolved;
           return (
             <div
               key={r.name}
@@ -547,15 +794,48 @@ const SectionHeader = ({ id, eyebrow, title }) => (
   </div>
 );
 
-const CtaBox = ({ label, body, button }) => (
-  <div style={{ background: C.alertSoft, border: `1.5px solid ${C.alert}40`, borderRadius: 10, padding: "16px 18px", display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", justifyContent: "space-between", marginTop: 18 }}>
+function ContactCtaLink({ children, intent, variant = "primary", style: styleExtra = {} }) {
+  const primary = {
+    background: C.alert,
+    color: "#fff",
+    border: "none",
+    borderRadius: 6,
+    padding: "10px 18px",
+    fontSize: 12.5,
+    fontWeight: 600,
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+    textDecoration: "none",
+    display: "inline-block",
+  };
+  const outline = {
+    background: "transparent",
+    color: C.primary,
+    border: `1.5px solid ${C.primary}`,
+    borderRadius: 6,
+    padding: "10px 18px",
+    fontSize: 12.5,
+    fontWeight: 600,
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+    textDecoration: "none",
+    display: "inline-block",
+  };
+  const className = variant === "outline" ? "report-cta-link-outline" : "report-cta-link";
+  return (
+    <Link to={contactHref(intent)} className={className} style={{ ...(variant === "outline" ? outline : primary), ...styleExtra }}>
+      {children}
+    </Link>
+  );
+}
+
+const CtaBox = ({ label, body, button, intent = "request-access" }) => (
+  <div className="cta-box" style={{ background: C.alertSoft, border: `1.5px solid ${C.alert}40`, borderRadius: 10, padding: "16px 18px", display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", justifyContent: "space-between", marginTop: 18 }}>
     <div style={{ flex: 1, minWidth: 220 }}>
       <div style={{ fontSize: 14, fontWeight: 700, color: C.alert, marginBottom: 4 }}>{label}</div>
       <div style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.6 }}>{body}</div>
     </div>
-    <button style={{ background: C.alert, color: "#fff", border: "none", borderRadius: 6, padding: "10px 18px", fontSize: 12.5, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>
-      {button} →
-    </button>
+    <ContactCtaLink intent={intent}>{button} →</ContactCtaLink>
   </div>
 );
 
@@ -758,6 +1038,7 @@ export default function MordorReport({ data, onClose, mode = "modal", backTo }) 
     { id: "key-takeaways", label: "Key Takeaways" },
     { id: "drivers", label: "Drivers" },
     { id: "restraints", label: "Restraints" },
+    { id: "market-segmentation", label: "Market Segmentation" },
     { id: "segment-analysis", label: "Segment Analysis" },
     { id: "geography", label: "Geography Analysis" },
     { id: "competitive", label: "Competitive Landscape" },
@@ -787,14 +1068,14 @@ export default function MordorReport({ data, onClose, mode = "modal", backTo }) 
         th { background: ${C.primary}; color: #fff; padding: 8px; text-align: left; }
         td { padding: 8px; border-bottom: 1px solid ${C.border}; vertical-align: top; }
         tr:nth-child(even) td { background: ${C.surfaceAlt}; }
-        .cta-box { display: none; }
-        button { display: none; }
+        ${PRINT_CTA_LINK_CSS}
         details { margin: 6px 0; }
         summary { font-weight: 600; cursor: pointer; padding: 8px 0; }
         @media print { @page { margin: 18mm; } }
       </style>
     </head><body>${printContent}
-      <p style="margin-top: 30px; color:#888; font-size: 11px; border-top: 1px solid #ddd; padding-top: 8px;">
+      ${printContactCtaBlock()}
+      <p style="margin-top: 12px; color:#888; font-size: 11px; border-top: 1px solid #ddd; padding-top: 8px;">
         © ${new Date().getFullYear()} ${BRAND} — Sample Report — All Rights Reserved
       </p>
       <script>window.onload = () => { window.print(); };</script>
@@ -857,10 +1138,13 @@ export default function MordorReport({ data, onClose, mode = "modal", backTo }) 
               {data.executive}
             </p>
             <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-              <button style={{ background: C.alert, color: "#fff", border: "none", borderRadius: 6, padding: "13px 26px", fontSize: 13.5, fontWeight: 600, cursor: "pointer", letterSpacing: "0.02em" }}>
+              <ContactCtaLink intent="buy" style={{ padding: "13px 26px", fontSize: 13.5, letterSpacing: "0.02em" }}>
                 Buy Now →
-              </button>
-              <button style={{ background: "transparent", color: C.primary, border: `1.5px solid ${C.primary}`, borderRadius: 6, padding: "13px 22px", fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>
+              </ContactCtaLink>
+              <ContactCtaLink intent="request-access" variant="outline" style={{ padding: "13px 22px", fontSize: 13.5 }}>
+                Request access →
+              </ContactCtaLink>
+              <button type="button" onClick={handlePrint} style={{ background: "transparent", color: C.primary, border: `1.5px solid ${C.border}`, borderRadius: 6, padding: "13px 22px", fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>
                 Download sample
               </button>
               <span style={{ fontSize: 11.5, fontFamily: "'JetBrains Mono', monospace", color: C.textFaint, marginLeft: 4 }}>
@@ -1017,9 +1301,18 @@ export default function MordorReport({ data, onClose, mode = "modal", backTo }) 
             </div>
           </section>
 
+          {/* MARKET SEGMENTATION */}
+          <section style={{ marginBottom: 44 }}>
+            <SectionHeader id="market-segmentation" eyebrow="05" title="Market Segmentation" />
+            <p style={{ fontSize: 14, lineHeight: 1.75, color: C.textMuted, margin: "0 0 18px", maxWidth: 820 }}>
+              The market is structured by main category, segment, and sub-segment (where applicable). Distribution channels typically split into on-trade and off-trade, with retail sub-channels nested under off-trade.
+            </p>
+            <SegmentationMatrix rows={data.segmentationTable} />
+          </section>
+
           {/* SEGMENT ANALYSIS */}
           <section style={{ marginBottom: 44 }}>
-            <SectionHeader id="segment-analysis" eyebrow="05" title="Segment Analysis" />
+            <SectionHeader id="segment-analysis" eyebrow="06" title="Segment Analysis" />
             <div style={{ display: "grid", gap: 32 }}>
               {data.segments.map((seg, i) => (
                 <div key={seg.dimension} style={{ borderTop: i > 0 ? `1px solid ${C.border}` : "none", paddingTop: i > 0 ? 28 : 0 }}>
@@ -1052,7 +1345,7 @@ export default function MordorReport({ data, onClose, mode = "modal", backTo }) 
 
           {/* GEOGRAPHY */}
           <section style={{ marginBottom: 44 }}>
-            <SectionHeader id="geography" eyebrow="06" title="Geography Analysis" />
+            <SectionHeader id="geography" eyebrow="07" title="Geography Analysis" />
             <HeatmapWorld regions={data.geography.regions} dominantName={ms.largestMarket} />
             <div style={{ display: "grid", gap: 22, marginTop: 28 }}>
               <div>
@@ -1072,12 +1365,12 @@ export default function MordorReport({ data, onClose, mode = "modal", backTo }) 
                 <p style={{ fontSize: 14, lineHeight: 1.8, color: C.textMuted, margin: 0 }}>{data.geography.emergingParagraph}</p>
               </div>
             </div>
-            <CtaBox label="Get analysis on geographic markets" body="Country-level breakdowns, currency normalization, and regulatory landscape included in full report." button="Request country data" />
+            <CtaBox label="Get analysis on geographic markets" body="Country-level breakdowns, currency normalization, and regulatory landscape included in full report." button="Request country data" intent="country-data" />
           </section>
 
           {/* COMPETITIVE */}
           <section style={{ marginBottom: 44 }}>
-            <SectionHeader id="competitive" eyebrow="07" title="Competitive Landscape" />
+            <SectionHeader id="competitive" eyebrow="08" title="Competitive Landscape" />
             <p style={{ fontSize: 14, lineHeight: 1.8, color: C.textMuted, margin: "0 0 18px" }}>{data.competitive.fragmentationParagraph}</p>
             <p style={{ fontSize: 14, lineHeight: 1.8, color: C.textMuted, margin: "0 0 28px" }}>{data.competitive.strategiesParagraph}</p>
 
@@ -1105,12 +1398,12 @@ export default function MordorReport({ data, onClose, mode = "modal", backTo }) 
               </div>
             </div>
 
-            <CtaBox label="Need more details on market players?" body="Detailed profiles include strategy, product portfolio, recent moves, financials, and SWOT." button="View full profiles" />
+            <CtaBox label="Need more details on market players?" body="Detailed profiles include strategy, product portfolio, recent moves, financials, and SWOT." button="View full profiles" intent="full-report" />
           </section>
 
           {/* DEVELOPMENTS */}
           <section style={{ marginBottom: 44 }}>
-            <SectionHeader id="developments" eyebrow="08" title="Recent Industry Developments" />
+            <SectionHeader id="developments" eyebrow="09" title="Recent Industry Developments" />
             <div style={{ display: "grid", gap: 14 }}>
               {data.developments.map((d, i) => (
                 <div key={i} style={{ display: "grid", gridTemplateColumns: "140px 1fr", gap: 16, padding: "16px 18px", background: C.surfaceAlt, borderRadius: 8, border: `1px solid ${C.border}` }}>
@@ -1126,38 +1419,48 @@ export default function MordorReport({ data, onClose, mode = "modal", backTo }) 
 
           {/* TOC */}
           <section style={{ marginBottom: 44 }}>
-            <SectionHeader id="toc" eyebrow="09" title="Table of Contents" />
+            <SectionHeader id="toc" eyebrow="10" title="Table of Contents" />
             <Toc data={data} sections={sections} />
           </section>
 
           {/* SCOPE */}
           <section style={{ marginBottom: 44 }}>
-            <SectionHeader id="scope" eyebrow="10" title="Report Scope" />
-            <div style={{ overflowX: "auto", border: `1px solid ${C.border}`, borderRadius: 8 }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                <thead>
-                  <tr style={{ background: C.primary, color: "#fff" }}>
-                    <th style={{ padding: "12px 16px", textAlign: "left", fontWeight: 600, fontSize: 11.5, letterSpacing: "0.08em", textTransform: "uppercase", width: "30%" }}>Dimension</th>
-                    <th style={{ padding: "12px 16px", textAlign: "left", fontWeight: 600, fontSize: 11.5, letterSpacing: "0.08em", textTransform: "uppercase" }}>Sub-segments</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(data.scope).map(([dim, items], i) => (
-                    <tr key={dim} style={{ background: i % 2 ? C.surfaceAlt : "#fff" }}>
-                      <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.border}`, fontWeight: 600, color: C.primary, verticalAlign: "top" }}>{dim}</td>
-                      <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.border}`, color: C.text }}>
-                        {(items || []).join(" · ")}
-                      </td>
+            <SectionHeader id="scope" eyebrow="11" title="Report Scope" />
+            {data.segmentationTable?.length ? (
+              <SegmentationMatrix rows={data.segmentationTable} />
+            ) : (
+              <div style={{ overflowX: "auto", border: `1px solid ${C.border}`, borderRadius: 8 }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ background: C.primary, color: "#fff" }}>
+                      <th style={{ padding: "12px 16px", textAlign: "left", fontWeight: 600, fontSize: 11.5, letterSpacing: "0.08em", textTransform: "uppercase", width: "30%" }}>Dimension</th>
+                      <th style={{ padding: "12px 16px", textAlign: "left", fontWeight: 600, fontSize: 11.5, letterSpacing: "0.08em", textTransform: "uppercase" }}>Coverage</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {Object.entries(data.scope).filter(([dim]) => dim !== "Geography").map(([dim, items], i) => (
+                      <tr key={dim} style={{ background: i % 2 ? C.surfaceAlt : "#fff" }}>
+                        <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.border}`, fontWeight: 600, color: C.primary, verticalAlign: "top" }}>{dim}</td>
+                        <td style={{ padding: "12px 16px", borderBottom: `1px solid ${C.border}`, color: C.text }}>
+                          {(items || []).join(" · ")}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {data.scope?.Geography && (
+              <p style={{ fontSize: 13, color: C.textMuted, marginTop: 14, lineHeight: 1.7 }}>
+                <strong style={{ color: C.primary }}>Geography: </strong>
+                {(data.scope.Geography || []).join(", ")}
+              </p>
+            )}
           </section>
 
           {/* FAQs */}
           <section style={{ marginBottom: 44 }}>
-            <SectionHeader id="faqs" eyebrow="11" title="Key Questions Answered" />
+            <SectionHeader id="faqs" eyebrow="12" title="Key Questions Answered" />
             <div style={{ display: "grid", gap: 8 }}>
               {data.faqs.map((f, i) => {
                 const open = openFaq === i;
@@ -1182,7 +1485,14 @@ export default function MordorReport({ data, onClose, mode = "modal", backTo }) 
           </section>
 
           {/* Footer */}
-          <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 18, marginTop: 32, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+          <div className="report-cta-footer" style={{ marginTop: 28, padding: "20px 0", borderTop: `1px solid ${C.border}`, display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+            <ContactCtaLink intent="buy" style={{ padding: "12px 22px", fontSize: 13 }}>Buy Now →</ContactCtaLink>
+            <ContactCtaLink intent="request-access" variant="outline" style={{ padding: "12px 22px", fontSize: 13 }}>Request access →</ContactCtaLink>
+            <Link to={CONTACT_PATH} className="report-cta-link-outline" style={{ padding: "12px 18px", fontSize: 13, color: C.accent, border: `1px solid ${C.accent}`, borderRadius: 6, textDecoration: "none", fontWeight: 600 }}>
+              Contact us
+            </Link>
+          </div>
+          <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 18, marginTop: 16, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
             <div style={{ fontSize: 11, color: C.textFaint, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em" }}>
               © {new Date().getFullYear()} {BRAND} · Sample report · All charts: Source {BRAND}
             </div>
@@ -1420,38 +1730,43 @@ export function MordorReportForm({ initialTopic = "", onGenerated }) {
   const dimensions = useMemo(() => DEFAULT_DIMENSIONS.slice(0, dimCount), [dimCount]);
 
   const toggleGeo = (g) => {
-    setGeographies((prev) => prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]);
+    setGeographies((prev) => {
+      if (prev.includes(g)) {
+        const next = prev.filter((x) => x !== g);
+        return next.length ? next : prev;
+      }
+      return [...prev, g];
+    });
   };
 
-  const handleGenerate = async () => {
+  const handleGenerate = () => {
     const topic = industry.trim();
     if (!topic) return;
+    if (!geographies.length) {
+      setError("Select at least one geography.");
+      return;
+    }
     setLoading(true);
     setError(null);
 
-    const input = {
-      industry: topic,
-      baseYear: Number(baseYear),
-      forecastEndYear: Number(forecastEndYear),
-      geographies,
-      dimensions,
-      audience,
-    };
-
-    const fallback = buildLocalMordorReport(input);
-    let final = fallback;
-
-    try {
-      const text = await generateGeminiText(buildMordorPrompt(input), 6000);
-      const cleaned = text.replace(/```json|```/g, "").trim();
-      const parsed = JSON.parse(cleaned);
-      final = normalizeReport(parsed, fallback);
-    } catch {
-      // silent fallback
-    }
-
-    setLoading(false);
-    onGenerated(final);
+    // Local synthesizer is instant and already applies topic + geography filters.
+    // Skipping blocking Gemini calls (6000-token JSON) — they added 30–60s waits with little benefit.
+    window.requestAnimationFrame(() => {
+      try {
+        const input = buildMordorSampleInputFromTopic(topic, {
+          baseYear: Number(baseYear),
+          forecastEndYear: Number(forecastEndYear),
+          geographies,
+          audience,
+          dimCount,
+        });
+        onGenerated(buildLocalMordorReport(input));
+      } catch (err) {
+        setError(err?.message || "Could not build sample report.");
+      } finally {
+        setLoading(false);
+      }
+    });
   };
 
   const fieldLabel = {
@@ -1472,7 +1787,7 @@ export function MordorReportForm({ initialTopic = "", onGenerated }) {
           Build a <em style={{ color: "var(--gold)", fontStyle: "italic" }}>sample</em> research report
         </h1>
         <p style={{ fontSize: 15, color: "var(--text-muted)", margin: "0 auto", maxWidth: 640, lineHeight: 1.75 }}>
-          Configure the scope below — we'll generate market sizing, drivers, segment analysis, geography breakdown, competitive landscape, and a full TOC.
+          Configure scope and geographies — the sample builds instantly with sizing, segmentation, and regional data matched to your filters.
         </p>
       </div>
 
@@ -1540,6 +1855,12 @@ export function MordorReportForm({ initialTopic = "", onGenerated }) {
               );
             })}
           </div>
+          <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "10px 0 0", lineHeight: 1.6 }}>
+            Sample will cover: <strong style={{ color: "var(--cream-dim)" }}>{geographies.join(", ")}</strong>
+            {geographies.length < REGION_OPTIONS.length
+              ? " — market size and regional shares are scoped to this selection."
+              : " — full global regional model."}
+          </p>
         </div>
 
         {/* Dimensions */}
@@ -1605,11 +1926,11 @@ export function MordorReportForm({ initialTopic = "", onGenerated }) {
             className="btn-gold"
             style={{ opacity: loading || !industry.trim() ? 0.55 : 1, cursor: loading || !industry.trim() ? "not-allowed" : "pointer" }}
           >
-            {loading ? "Generating report…" : "Generate report →"}
+            {loading ? "Building sample…" : "Generate sample →"}
           </button>
           {loading && (
             <span style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em" }}>
-              ⌛ Analyzing market signals · synthesizing 11 sections
+              Applying filters for {geographies.length} region{geographies.length === 1 ? "" : "s"}…
             </span>
           )}
           {error && <span style={{ fontSize: 12, color: "var(--gold-light)" }}>{error}</span>}
@@ -1652,13 +1973,5 @@ export function MordorReportForm({ initialTopic = "", onGenerated }) {
 // ─────────────────────────────────────────────────────────────────
 
 export function buildReportForMarket(market) {
-  const input = {
-    industry: market.name?.replace(/\s+Market$/i, "") || "Industry",
-    baseYear: market.year || 2025,
-    forecastEndYear: (market.year || 2025) + 6,
-    geographies: ["North America", "Europe", "Asia-Pacific", "Latin America", "Middle East & Africa"],
-    dimensions: DEFAULT_DIMENSIONS,
-    audience: "Enterprises",
-  };
-  return buildLocalMordorReport(input);
+  return buildLocalMordorReport(buildMordorSampleInputFromMarket(market));
 }

@@ -65,6 +65,12 @@
   --dur-fast: 180ms;
   --dur-base: 320ms;
   --dur-slow: 600ms;
+
+  /* Modern accents */
+  --accent-glow: rgba(26, 111, 232, 0.35);
+  --ai-glow: rgba(120, 200, 255, 0.12);
+  --gradient-gold: linear-gradient(135deg, #e8b45a 0%, #c8933a 50%, #a87228 100%);
+  --gradient-ai: linear-gradient(135deg, #4da3ff 0%, #1a6fe8 45%, #1152a8 100%);
 }
 
 /* ── Reset ───────────────────────────────────────────────────── */
@@ -196,6 +202,234 @@ h1, h2, h3, h4, .display {
   background-size: 60px 60px;
   pointer-events: none;
   z-index: 1;
+}
+
+.hero-aurora {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 45% at 12% 55%, rgba(26, 111, 232, 0.28), transparent 55%),
+    radial-gradient(ellipse 45% 40% at 88% 25%, rgba(200, 147, 58, 0.18), transparent 50%),
+    radial-gradient(ellipse 35% 30% at 50% 100%, rgba(17, 82, 168, 0.2), transparent 45%);
+}
+
+.hero-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--cream-dim);
+  background: rgba(10, 24, 40, 0.65);
+  border: 1px solid var(--border-strong);
+  backdrop-filter: blur(12px);
+}
+
+.hero-pill--ai {
+  color: #b8dcff;
+  border-color: rgba(77, 163, 255, 0.35);
+  background: rgba(26, 111, 232, 0.15);
+}
+
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 10px;
+  border-radius: 999px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #b8dcff;
+  background: rgba(26, 111, 232, 0.18);
+  border: 1px solid rgba(77, 163, 255, 0.35);
+  box-shadow: 0 0 24px rgba(26, 111, 232, 0.2);
+}
+
+.ai-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4da3ff;
+  animation: ai-pulse 2s ease-in-out infinite;
+}
+
+@keyframes ai-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(77, 163, 255, 0.6); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(77, 163, 255, 0); }
+}
+
+.gradient-text {
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.glass-panel {
+  background: linear-gradient(145deg, rgba(15, 33, 55, 0.85) 0%, rgba(10, 24, 40, 0.65) 100%);
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.feature-card {
+  padding: 28px 26px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: linear-gradient(160deg, rgba(15, 33, 55, 0.6) 0%, rgba(10, 24, 40, 0.4) 100%);
+  transition: transform var(--dur-base) var(--ease-out-expo),
+    border-color var(--dur-base) ease,
+    box-shadow var(--dur-base) ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-gold);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35);
+}
+
+.feature-card--ai {
+  border-color: rgba(77, 163, 255, 0.2);
+  background: linear-gradient(160deg, rgba(26, 111, 232, 0.12) 0%, rgba(10, 24, 40, 0.5) 100%);
+}
+
+.feature-card--ai:hover {
+  border-color: rgba(77, 163, 255, 0.45);
+  box-shadow: 0 20px 48px rgba(26, 111, 232, 0.15);
+}
+
+.step-card {
+  position: relative;
+  padding: 24px 22px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(10, 24, 40, 0.55);
+}
+
+.step-card__num {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 0.2em;
+  margin-bottom: 12px;
+}
+
+.audience-card {
+  padding: 26px 24px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  height: 100%;
+  transition: border-color var(--dur-fast) ease, transform var(--dur-base) var(--ease-out-expo);
+}
+
+.audience-card:hover {
+  border-color: var(--border-gold);
+  transform: translateY(-3px);
+}
+
+.audience-card__who {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.cta-band {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  padding: 56px 48px;
+  border: 1px solid var(--border-gold);
+  background:
+    linear-gradient(135deg, rgba(200, 147, 58, 0.12) 0%, rgba(26, 111, 232, 0.08) 50%, rgba(10, 24, 40, 0.9) 100%);
+  text-align: center;
+}
+
+.cta-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(200, 147, 58, 0.15), transparent 60%);
+  pointer-events: none;
+}
+
+.faq-item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 22px;
+  background: rgba(10, 24, 40, 0.5);
+  transition: border-color var(--dur-fast) ease;
+}
+
+.faq-item:hover {
+  border-color: var(--border-strong);
+}
+
+.faq-item__q {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--cream);
+  margin: 0 0 10px;
+  line-height: 1.35;
+}
+
+.faq-item__a {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.75;
+  margin: 0;
+}
+
+.btn-ai {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 26px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--cream);
+  background: var(--gradient-ai);
+  border: 1px solid rgba(77, 163, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(26, 111, 232, 0.35);
+  transition: transform var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
+}
+
+.btn-ai:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(26, 111, 232, 0.45);
+}
+
+.section-intro {
+  max-width: 640px;
+}
+
+.section-intro--center {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 }
 
 .hero-particles {
@@ -775,7 +1009,8 @@ h1, h2, h3, h4, .display {
 
 /* ── Socials ─────────────────────────────────────────────────── */
 
-.social-btn {
+.social-btn,
+a.social-btn {
   width: 36px;
   height: 36px;
   border-radius: 8px;
@@ -787,6 +1022,7 @@ h1, h2, h3, h4, .display {
   justify-content: center;
   cursor: pointer;
   transition: all var(--dur-fast) ease;
+  text-decoration: none;
 }
 
 .social-btn:hover {

@@ -20,6 +20,7 @@ import {
   buildFaqSchema,
   SITE_URL,
   SITE_NAME,
+  LINKEDIN_COMPANY_URL,
 } from "./hooks/useSEO.js";
 import {
   getDomainImage,
@@ -87,6 +88,31 @@ function MarqueeTicker({ items }) {
   );
 }
 
+function AiBadge({ label = "AI-powered intelligence" }) {
+  return (
+    <span className="ai-badge">
+      <span className="ai-badge__dot" aria-hidden="true" />
+      {label}
+    </span>
+  );
+}
+
+function SectionIntro({ label, title, subtitle, center = false }) {
+  return (
+    <div className={`section-intro${center ? " section-intro--center" : ""}`} style={{ marginBottom: center ? 48 : 40 }}>
+      <span className="section-label" style={center ? { justifyContent: "center" } : undefined}>{label}</span>
+      <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 600, margin: "14px 0 12px", lineHeight: 1.15 }}>
+        {title}
+      </h2>
+      {subtitle && (
+        <p style={{ fontSize: 15.5, color: "var(--text-muted)", margin: 0, lineHeight: 1.75 }}>
+          {subtitle}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function LogoMark({ size = 38 }) {
   return (
     <span
@@ -98,12 +124,28 @@ function LogoMark({ size = 38 }) {
   );
 }
 
-function SocialIcon({ label, path }) {
+function SocialIcon({ label, path, href }) {
+  const icon = (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d={path} />
+    </svg>
+  );
+  if (href) {
+    return (
+      <a
+        href={href}
+        className="social-btn"
+        aria-label={label}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {icon}
+      </a>
+    );
+  }
   return (
     <button type="button" className="social-btn" aria-label={label}>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d={path} />
-      </svg>
+      {icon}
     </button>
   );
 }
@@ -111,6 +153,7 @@ function SocialIcon({ label, path }) {
 const SOCIAL_LINKS = [
   {
     label: "LinkedIn",
+    href: LINKEDIN_COMPANY_URL,
     path:
       "M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.13 1.44-2.13 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z",
   },
@@ -353,14 +396,77 @@ const DEFAULT_DATA_SOURCES = [
 ];
 
 const RESEARCH_SERVICES = [
-  { icon: "\uD83D\uDCD1", title: "Custom Market Reports", desc: "Tailored studies aligned to your geography, segment, and decision timeline." },
-  { icon: "\uD83D\uDCB0", title: "Pricing Analysis", desc: "Benchmark pricing, discount structures, and willingness-to-pay across channels." },
-  { icon: "\uD83C\uDFAF", title: "Competitive Intelligence", desc: "Track competitor moves, share shifts, product launches, and positioning." },
-  { icon: "\uD83D\uDCC8", title: "Market Sizing & Forecasting", desc: "TAM, SAM, SOM models with scenario-based projections through 2035." },
-  { icon: "\uD83E\uDDED", title: "Go-to-Market Strategy", desc: "Channel design, partner mapping, and commercialization roadmaps." },
-  { icon: "\uD83D\uDD0D", title: "Due Diligence Support", desc: "Rapid commercial validation for M&A, investment, and expansion decisions." },
-  { icon: "\uD83C\uDF0D", title: "Regional & Country Studies", desc: "Localized demand, regulation, and competitive landscapes by market." },
-  { icon: "\uD83E\uDDEA", title: "Technology & Innovation Scans", desc: "Emerging technologies, patent activity, and disruption monitoring." },
+  { icon: "\u26A1", title: "AI Report Generator", desc: "Build scoped sample reports in seconds — sizing, segmentation, geography filters, and competitive context.", ai: true },
+  { icon: "\uD83D\uDCD1", title: "Custom Market Reports", desc: "Tailored syndicated or bespoke studies aligned to your geography, segments, and decision timeline." },
+  { icon: "\uD83D\uDCC8", title: "Market Sizing & Forecasting", desc: "TAM, SAM, SOM models with AI-assisted scenario modeling and analyst-validated projections through 2035." },
+  { icon: "\uD83C\uDFAF", title: "Competitive Intelligence", desc: "Track share shifts, product launches, and positioning with continuous monitoring dashboards." },
+  { icon: "\uD83D\uDCB0", title: "Pricing & Channel Analysis", desc: "Benchmark pricing, discount structures, and route-to-market performance across regions." },
+  { icon: "\uD83D\uDD0D", title: "Due Diligence Support", desc: "Rapid commercial validation for M&A, PE, and expansion — primary research plus data room synthesis." },
+  { icon: "\uD83E\uDDED", title: "Go-to-Market Strategy", desc: "Channel design, partner mapping, and commercialization roadmaps backed by demand signals." },
+  { icon: "\uD83C\uDF0D", title: "Regional & Country Studies", desc: "Localized demand, regulation, and competitive landscapes with in-country analyst coverage." },
+];
+
+const AI_PLATFORM_STEPS = [
+  { title: "Define scope", desc: "Enter your industry, base year, forecast horizon, geographies, and segmentation depth." },
+  { title: "AI structures the report", desc: "Our engine applies topic-aware segmentation, regional filters, and consistent market sizing logic." },
+  { title: "Review & engage analysts", desc: "Use the sample to align stakeholders, then request full validation, custom cuts, or advisory." },
+];
+
+const BUYER_SOLUTIONS = [
+  {
+    title: "Market entry & expansion",
+    who: "Strategy & corp dev",
+    desc: "Size addressable demand, map competitors, and prioritize geographies before capital deployment.",
+    link: "/domains",
+  },
+  {
+    title: "Investment & M&A diligence",
+    who: "PE, VC & investment teams",
+    desc: "Commercial validation, growth drivers, and risk framing for deal memos and IC materials.",
+    link: "/contact?intent=request-access",
+  },
+  {
+    title: "Product & portfolio planning",
+    who: "Product & innovation leaders",
+    desc: "Segment-level growth, channel trends, and white-space analysis to guide roadmap bets.",
+    link: "/generate",
+  },
+  {
+    title: "Sales & marketing intelligence",
+    who: "Commercial & GTM teams",
+    desc: "Pricing benchmarks, buyer personas, and competitive battlecards for field enablement.",
+    link: "/contact",
+  },
+];
+
+const AUDIENCE_SEGMENTS = [
+  { title: "Enterprises", desc: "Corporate strategy, product, and commercial teams needing repeatable sector coverage." },
+  { title: "Consultants", desc: "Client-ready frameworks, sizing models, and sector snapshots for proposals and delivery." },
+  { title: "Investors", desc: "Deal screening, sector theses, and portfolio monitoring with forecast transparency." },
+  { title: "Startups", desc: "Fast market context for pitch decks, TAM slides, and investor conversations." },
+];
+
+const HOME_FAQS = [
+  {
+    q: "What market research solutions does InsightAxis provide?",
+    a: "We deliver syndicated market reports, custom studies, competitive intelligence, market sizing and forecasting, due diligence support, and go-to-market advisory across 10+ industry verticals — with AI-assisted sample generation to accelerate scoping.",
+  },
+  {
+    q: "How does the AI report generator work?",
+    a: "You specify industry, years, geographies, and segmentation depth. Our platform instantly produces a structured sample with market size, CAGR, segment tables, regional breakdowns, drivers, and competitive context — then our analysts can validate and extend for full engagements.",
+  },
+  {
+    q: "Are sample reports free?",
+    a: "Yes. Sample reports on the site and via the generator are free to explore format and scope. Licensed full reports and custom research are available through our analyst team.",
+  },
+  {
+    q: "How is AI used alongside human analysts?",
+    a: "AI accelerates structuring, segmentation logic, and first-pass narrative assembly. Every client-facing deliverable follows AXISFRAME™ — combining automated data processing with analyst review, primary research, and forecast validation.",
+  },
+  {
+    q: "Which industries and geographies do you cover?",
+    a: "We cover Food & Beverage, Healthcare, Technology, Industrial, Energy, Automotive, Chemicals, Finance, FMCG, and Consumer Goods — with global, regional, and country-level editions across 120+ markets.",
+  },
 ];
 
 const FORECAST_PERIOD_LABEL = "2026–2035";
@@ -393,6 +499,7 @@ const FOOTER_COLUMNS = [
       { label: "Careers", to: "/about" },
       { label: "Press", to: "/about" },
       { label: "Contact", to: "/contact" },
+      { label: "LinkedIn", href: LINKEDIN_COMPANY_URL, external: true },
     ],
   },
 ];
@@ -787,7 +894,15 @@ function MarketReport({ market, onClose, isGenerated = false }) {
       .watermark{color:#ccc;font-size:12px;text-align:center;margin-top:10px}
       @media print{body{padding:20px}}
     </style></head><body>${printContent}
-    <div class="watermark">© 2025 InsightAxis Intelligence — Sample Report — All Rights Reserved</div>
+    <div style="margin-top:24px;padding:16px;border:2px solid #D4A035;border-radius:8px;background:#faf8f5;">
+      <p style="margin:0 0 10px;font-size:14px;font-weight:700;color:#1B3A5C;">Purchase or request the full report</p>
+      <p style="margin:0;font-size:13px;line-height:2;">
+        <a href="${SITE_URL}/contact?intent=buy" style="color:#1A6FE8;font-weight:600;margin-right:18px;">Buy Now</a>
+        <a href="${SITE_URL}/contact?intent=request-access" style="color:#1A6FE8;font-weight:600;margin-right:18px;">Request access</a>
+        <a href="${SITE_URL}/contact" style="color:#1A6FE8;font-weight:600;">Contact us</a>
+      </p>
+    </div>
+    <div class="watermark">© ${new Date().getFullYear()} InsightAxis Intelligence — Sample Report — All Rights Reserved</div>
     <script>window.onload=()=>{window.print();}</script></body></html>`);
     w.document.close();
   };
@@ -1113,6 +1228,29 @@ function ContactPage() {
               <div style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6 }}>Hinjewadi Phase 2, Pune 411 057, India</div>
             </div>
           </div>
+          <div style={{ background: "var(--card-bg)", borderRadius: 14, padding: 24, border: "1px solid var(--border)", marginBottom: 20 }}>
+            <span className="section-label" style={{ marginBottom: 14 }}>Connect</span>
+            <a
+              href={LINKEDIN_COMPANY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+                fontSize: 14,
+                color: "var(--cream)",
+                textDecoration: "none",
+                fontWeight: 500,
+              }}
+            >
+              <span style={{ color: "var(--gold)" }}>{"\u2192"}</span>
+              Follow us on LinkedIn
+            </a>
+            <p style={{ fontSize: 12.5, color: "var(--text-muted)", margin: "10px 0 0", lineHeight: 1.6 }}>
+              Market insights, report launches, and company updates from InsightAxis Intelligence.
+            </p>
+          </div>
           <div style={{ background: "var(--card-bg)", borderRadius: 14, padding: 24, border: "1px solid var(--border)" }}>
             <span className="section-label" style={{ marginBottom: 14 }}>Services</span>
             {["Custom Market Research", "Competitive Intelligence", "Industry Deep Dives", "Due Diligence Reports", "Strategic Consulting"].map((s, i) => (
@@ -1191,6 +1329,16 @@ function AboutPage() {
         </h1>
         <p style={{ fontSize: 16, color: "var(--text-muted)", maxWidth: 720, margin: "0 auto", lineHeight: 1.75 }}>
           InsightAxis Intelligence helps corporate strategy, product, finance, and investment teams make confident decisions across {DOMAINS.length} industry verticals with a growing library of syndicated reports and bespoke advisory engagements.
+        </p>
+        <p style={{ marginTop: 20 }}>
+          <a
+            href={LINKEDIN_COMPANY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: 14, color: "var(--gold)", textDecoration: "none", fontWeight: 500 }}
+          >
+            Follow us on LinkedIn →
+          </a>
         </p>
       </div>
 
@@ -1346,9 +1494,9 @@ function HomeStat({ num, suf, label }) {
 
 function HomePage() {
   useSEO({
-    title: "Market Research Reports & Industry Analysis | InsightAxis Intelligence",
+    title: "AI Market Research Reports & Industry Intelligence | InsightAxis Intelligence",
     description:
-      "Free market research reports across 10 industries and 2,000+ markets. Get market size, CAGR, key players, and forecasts to 2031 — global, regional, and country editions. Healthcare, Technology, F&B, Industrial, Energy, Automotive, Chemicals, Finance, FMCG, Consumer Goods.",
+      "AI-powered market research for enterprises, investors, and consultants. Free sample reports, 2,000+ markets, instant AI report generator, custom studies, competitive intelligence, and forecasting across 10 industries — validated by 850+ analysts.",
     path: "/",
     jsonLd: [
       {
@@ -1398,7 +1546,8 @@ function HomePage() {
           })),
         },
       },
-    ],
+      buildFaqSchema(HOME_FAQS),
+    ].filter(Boolean),
   });
 
   // Featured markets — one anchor per domain. Hand-picked top sellers/highly
@@ -1414,11 +1563,19 @@ function HomePage() {
     return picks;
   }, []);
   const marqueeItems = [
+    "AI Report Generator",
+    "Free Sample Reports",
     ...DOMAINS.map((d) => d.label),
-    "Global Coverage",
-    "Custom Advisory",
-    "Decision-Ready Intelligence",
+    "AXISFRAME™ Methodology",
+    "Competitive Intelligence",
+    "Market Sizing & Forecasting",
+    "Due Diligence",
+    "120+ Countries",
   ];
+  const totalMarkets = useMemo(
+    () => Object.values(MARKETS_DATA).reduce((n, list) => n + (list?.length || 0), 0),
+    [],
+  );
 
   return (
     <div>
@@ -2558,7 +2715,7 @@ function Footer() {
             </p>
             <div style={{ display: "flex", gap: 10 }}>
               {SOCIAL_LINKS.map((s) => (
-                <SocialIcon key={s.label} label={s.label} path={s.path} />
+                <SocialIcon key={s.label} label={s.label} path={s.path} href={s.href} />
               ))}
             </div>
           </div>
@@ -2567,24 +2724,44 @@ function Footer() {
               <div className="mono" style={{ fontSize: 11, fontWeight: 500, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: 16 }}>
                 {col.title}
               </div>
-              {col.links.map((link) => (
-                <Link
-                  key={link.label}
-                  to={link.to}
-                  style={{
-                    display: "block",
-                    padding: "6px 0",
-                    fontSize: 13.5,
-                    color: "var(--text-muted)",
-                    textDecoration: "none",
-                    transition: "color 180ms ease",
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = "var(--cream)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {col.links.map((link) => {
+                const linkStyle = {
+                  display: "block",
+                  padding: "6px 0",
+                  fontSize: 13.5,
+                  color: "var(--text-muted)",
+                  textDecoration: "none",
+                  transition: "color 180ms ease",
+                };
+                const hoverIn = (e) => { e.currentTarget.style.color = "var(--cream)"; };
+                const hoverOut = (e) => { e.currentTarget.style.color = "var(--text-muted)"; };
+                if (link.external && link.href) {
+                  return (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={linkStyle}
+                      onMouseEnter={hoverIn}
+                      onMouseLeave={hoverOut}
+                    >
+                      {link.label}
+                    </a>
+                  );
+                }
+                return (
+                  <Link
+                    key={link.label}
+                    to={link.to}
+                    style={linkStyle}
+                    onMouseEnter={hoverIn}
+                    onMouseLeave={hoverOut}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
             </div>
           ))}
         </div>

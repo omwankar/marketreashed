@@ -22,6 +22,7 @@ import { useEffect } from "react";
 
 export const SITE_URL = "https://insightaxis-intelligence.com";
 export const SITE_NAME = "InsightAxis Intelligence";
+export const LINKEDIN_COMPANY_URL = "https://www.linkedin.com/company/insightaxisintelligence/";
 export const OG_IMAGE_URL = `${SITE_URL}/og-image.png`;
 export const TWITTER_HANDLE = "@InsightAxisIntel";
 
