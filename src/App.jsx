@@ -1215,7 +1215,7 @@ function ContactPage() {
           Speak with an <em style={{ color: "var(--gold)", fontStyle: "italic" }}>analyst</em>
         </h1>
         <p style={{ fontSize: 15.5, color: "var(--text-muted)", margin: "0 auto", maxWidth: 600, lineHeight: 1.75 }}>
-          Reach our research specialists to scope a custom study, syndicated report, or advisory engagement.
+          Reach our analysts for custom market research, full report licensing, competitive intelligence, due diligence, or help validating an AI-generated sample for your decision.
         </p>
       </div>
 
@@ -1314,21 +1314,22 @@ function ContactPage() {
 
 function AboutPage() {
   useSEO({
-    title: "About InsightAxis Intelligence | Market Intelligence Methodology",
+    title: "About InsightAxis Intelligence | AI Market Research & AXISFRAME™",
     description:
-      "InsightAxis Intelligence delivers professional-grade market research reports across 10+ industry verticals. Learn about our methodology, analyst coverage and advisory engagements.",
+      "InsightAxis Intelligence combines AI-assisted report generation with analyst-led market research across 10+ verticals. Learn about AXISFRAME™, custom studies, and advisory for enterprises and investors.",
     path: "/about",
   });
   return (
     <div style={{ maxWidth: 1180, margin: "0 auto", padding: "60px 0 80px" }}>
       {/* Hero strip */}
       <div className="reveal" style={{ textAlign: "center", marginBottom: 72 }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}><AiBadge label="AI + analyst-led research" /></div>
         <span className="section-label" style={{ justifyContent: "center", marginBottom: 18 }}>Who we are</span>
         <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 3.8rem)", fontWeight: 600, margin: "0 0 16px", lineHeight: 1.08, letterSpacing: "-0.02em" }}>
           Decisions, made with <em style={{ color: "var(--gold)", fontStyle: "italic" }}>clarity.</em>
         </h1>
         <p style={{ fontSize: 16, color: "var(--text-muted)", maxWidth: 720, margin: "0 auto", lineHeight: 1.75 }}>
-          InsightAxis Intelligence helps corporate strategy, product, finance, and investment teams make confident decisions across {DOMAINS.length} industry verticals with a growing library of syndicated reports and bespoke advisory engagements.
+          InsightAxis Intelligence helps strategy, product, finance, and investment teams move faster with AI-assisted samples, syndicated reports across {DOMAINS.length} verticals, and bespoke advisory grounded in primary research and AXISFRAME™ validation.
         </p>
         <p style={{ marginTop: 20 }}>
           <a
@@ -1592,11 +1593,18 @@ function HomePage() {
             zIndex: 0,
           }}
         />
-        <FloatingParticles count={22} />
+        <div className="hero-aurora" aria-hidden="true" />
+        <FloatingParticles count={28} />
 
         <div style={{ position: "relative", zIndex: 2, maxWidth: 1240, margin: "0 auto", padding: "120px 32px 160px", minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-          <div className="reveal" style={{ maxWidth: 880 }}>
-            <span className="section-label" style={{ marginBottom: 24 }}>Global Market Intelligence</span>
+          <div className="reveal" style={{ maxWidth: 920 }}>
+            <div style={{ marginBottom: 20 }}><AiBadge label="AI + analyst-validated research" /></div>
+            <div className="hero-pills">
+              <span className="hero-pill hero-pill--ai">Instant AI samples</span>
+              <span className="hero-pill">{totalMarkets.toLocaleString()}+ market reports</span>
+              <span className="hero-pill">{DOMAINS.length} industry verticals</span>
+              <span className="hero-pill">120+ countries</span>
+            </div>
             <h1
               style={{
                 fontFamily: "'Cormorant Garamond', Georgia, serif",
@@ -1604,20 +1612,21 @@ function HomePage() {
                 fontWeight: 300,
                 letterSpacing: "-0.025em",
                 lineHeight: 1.04,
-                margin: "0 0 30px",
+                margin: "0 0 28px",
                 color: "var(--cream)",
               }}
             >
-              Precision research.
+              Market research
               <br />
-              <em style={{ color: "var(--gold)", fontStyle: "italic", fontWeight: 400 }}>Actionable</em> intelligence.
+              built for <span className="gradient-text">decisions</span>.
             </h1>
-            <p style={{ fontSize: 17, color: "var(--text-muted)", lineHeight: 1.75, margin: "0 0 40px", maxWidth: 600 }}>
-              InsightAxis Intelligence delivers comprehensive market intelligence across {DOMAINS.length} industry verticals — spanning global, regional, and country-level coverage with custom advisory built around your decisions.
+            <p style={{ fontSize: 18, color: "var(--text-muted)", lineHeight: 1.8, margin: "0 0 36px", maxWidth: 640 }}>
+              InsightAxis Intelligence combines AI-assisted report generation with syndicated coverage, custom studies, and competitive intelligence — so strategy, product, and investment teams move from question to evidence faster.
             </p>
-            <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-              <Link to="/domains" className="btn-gold" style={{ textDecoration: "none", display: "inline-block" }}>Explore markets →</Link>
-              <Link to="/generate" className="btn-ghost" style={{ textDecoration: "none", display: "inline-block" }}>Generate a sample report</Link>
+            <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
+              <Link to="/generate" className="btn-ai">Generate free AI sample →</Link>
+              <Link to="/domains" className="btn-gold" style={{ textDecoration: "none", display: "inline-block" }}>Browse reports</Link>
+              <Link to="/contact" className="btn-ghost" style={{ textDecoration: "none", display: "inline-block" }}>Talk to an analyst</Link>
             </div>
           </div>
         </div>
@@ -1636,11 +1645,61 @@ function HomePage() {
         <div className="reveal" style={{ marginBottom: 40 }}>
           <span className="section-label">By the numbers</span>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
-          <HomeStat num={DOMAINS.length} suf="+" label="Industry verticals" />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
+          <HomeStat num={totalMarkets} suf="+" label="Market reports" />
+          <HomeStat num={DOMAINS.length} suf="" label="Industry verticals" />
           <HomeStat num={120} suf="+" label="Countries covered" />
           <HomeStat num={12000} suf="+" label="Global clients" />
           <HomeStat num={850} suf="+" label="Research analysts" />
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 1240, margin: "0 auto", padding: "40px 32px 80px" }}>
+        <div className="reveal glass-panel" style={{ padding: "48px 40px" }}>
+          <div className="ai-platform-grid">
+            <div>
+              <AiBadge label="AI report generator" />
+              <h2 style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)", fontWeight: 600, margin: "20px 0 14px", lineHeight: 1.15 }}>
+                From brief to <em style={{ color: "var(--gold)", fontStyle: "italic" }}>structured sample</em> in seconds
+              </h2>
+              <p style={{ fontSize: 15, color: "var(--text-muted)", lineHeight: 1.8, margin: "0 0 24px" }}>
+                Scope any industry, pick geographies, and generate a decision-ready preview with sizing, segmentation matrices, regional shares, drivers, and competitive context — free before you engage analysts for full validation.
+              </p>
+              <Link to="/generate" className="btn-ai">Try the AI generator →</Link>
+            </div>
+            <div style={{ display: "grid", gap: 14 }}>
+              {AI_PLATFORM_STEPS.map((step, i) => (
+                <div key={step.title} className={`step-card reveal reveal-delay-${i + 1}`}>
+                  <div className="step-card__num">Step {String(i + 1).padStart(2, "0")}</div>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 500, color: "var(--cream)", marginBottom: 6 }}>{step.title}</div>
+                  <p style={{ fontSize: 13.5, color: "var(--text-muted)", margin: 0, lineHeight: 1.65 }}>{step.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 1240, margin: "0 auto", padding: "20px 32px 80px" }}>
+        <SectionIntro
+          label="Solutions"
+          title="Research built for your decision"
+          subtitle="Whether you are sizing a new market, supporting an investment committee, or arming a sales team — InsightAxis maps intelligence to how you actually work."
+        />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18 }}>
+          {BUYER_SOLUTIONS.map((sol, i) => (
+            <Link
+              key={sol.title}
+              to={sol.link}
+              className={`feature-card reveal reveal-delay-${(i % 4) + 1}`}
+              style={{ textDecoration: "none", color: "inherit", display: "block" }}
+            >
+              <div className="audience-card__who">{sol.who}</div>
+              <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 500, color: "var(--cream)", margin: "0 0 10px", lineHeight: 1.25 }}>{sol.title}</h3>
+              <p style={{ fontSize: 13.5, color: "var(--text-muted)", margin: 0, lineHeight: 1.7 }}>{sol.desc}</p>
+              <span style={{ display: "inline-block", marginTop: 16, fontSize: 13, color: "var(--gold)", fontWeight: 500 }}>Learn more →</span>
+            </Link>
+          ))}
         </div>
       </section>
 
@@ -1765,18 +1824,18 @@ function HomePage() {
 
       {/* SERVICES */}
       <section style={{ maxWidth: 1240, margin: "0 auto", padding: "80px 32px" }}>
-        <div className="reveal" style={{ marginBottom: 40, textAlign: "center" }}>
-          <span className="section-label" style={{ justifyContent: "center", marginBottom: 14 }}>Beyond reports</span>
-          <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 600, margin: "12px 0 12px", lineHeight: 1.15 }}>
-            Research <em style={{ color: "var(--gold)", fontStyle: "italic" }}>services</em>
-          </h2>
-          <p style={{ fontSize: 15, color: "var(--text-muted)", margin: "0 auto", maxWidth: 560, lineHeight: 1.75 }}>
-            Advisory, custom studies, and competitive intelligence for strategic teams.
-          </p>
-        </div>
+        <SectionIntro
+          label="Full-service research"
+          title="End-to-end market intelligence"
+          subtitle="From free AI samples to analyst-led custom studies — every engagement follows AXISFRAME™ with transparent assumptions and client-ready deliverables."
+          center
+        />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18 }}>
           {RESEARCH_SERVICES.map((service, i) => (
-            <div key={service.title} className={`service-card reveal reveal-delay-${(i % 8) + 1}`}>
+            <div
+              key={service.title}
+              className={`service-card reveal reveal-delay-${(i % 8) + 1}${service.ai ? " feature-card--ai" : ""}`}
+            >
               <div className="service-icon-box">{service.icon}</div>
               <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 500, color: "var(--cream)", marginBottom: 8, lineHeight: 1.2 }}>
                 {service.title}
@@ -1784,7 +1843,24 @@ function HomePage() {
               <div style={{ fontSize: 13.5, color: "var(--text-muted)", lineHeight: 1.7 }}>
                 {service.desc}
               </div>
-              <span className="tag-pill">Service</span>
+              <span className="tag-pill">{service.ai ? "AI-enabled" : "Service"}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 1240, margin: "0 auto", padding: "20px 32px 80px" }}>
+        <SectionIntro
+          label="Who we serve"
+          title="Built for teams that need evidence fast"
+          subtitle="InsightAxis supports the full research buying journey — from first market scan to board-ready forecasts."
+          center
+        />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
+          {AUDIENCE_SEGMENTS.map((seg, i) => (
+            <div key={seg.title} className={`audience-card reveal reveal-delay-${(i % 4) + 1}`}>
+              <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 500, color: "var(--cream)", margin: "0 0 10px" }}>{seg.title}</h3>
+              <p style={{ fontSize: 13.5, color: "var(--text-muted)", margin: 0, lineHeight: 1.7 }}>{seg.desc}</p>
             </div>
           ))}
         </div>
@@ -1792,31 +1868,64 @@ function HomePage() {
 
       {/* WHY US */}
       <section style={{ maxWidth: 1240, margin: "0 auto", padding: "80px 32px 100px" }}>
-        <div className="reveal" style={{ textAlign: "center", marginBottom: 48 }}>
-          <span className="section-label" style={{ justifyContent: "center", marginBottom: 14 }}>The difference</span>
-          <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 600, margin: "12px 0", lineHeight: 1.15 }}>
-            Why <em style={{ color: "var(--gold)", fontStyle: "italic" }}>InsightAxis</em>?
-          </h2>
-        </div>
+        <SectionIntro
+          label="The difference"
+          title="Why InsightAxis Intelligence?"
+          subtitle="AI accelerates delivery; analysts ensure depth, defensibility, and strategic relevance."
+          center
+        />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18 }}>
           {[
-            { icon: "\u25C9", title: "Unmatched accuracy", desc: "Three-layer verification across primary, secondary, and expert panels." },
-            { icon: "\u2301", title: "Real-time intelligence", desc: "Continuous tracking of developments, M&A, and regulatory shifts." },
-            { icon: "\u2737", title: "Global coverage", desc: "120+ countries with region-specific analysts and local expertise." },
-            { icon: "\u2726", title: "AI-powered insights", desc: "Advanced ML for forecasting, trend ID, and competitive analysis." },
-            { icon: "\u25D0", title: "Custom research", desc: "Bespoke studies, from rapid snapshots to deep strategic engagements." },
-            { icon: "\u2B21", title: "Trusted & confidential", desc: "Serving 78% of Fortune 500 with enterprise-grade data security." },
+            { icon: "\u26A1", title: "AI + human validation", desc: "Instant samples and automated structuring, with analyst review on every paid engagement." },
+            { icon: "\u25C9", title: "AXISFRAME™ methodology", desc: "Repeatable scoping, data acquisition, modeling, peer review, and executive-ready packaging." },
+            { icon: "\u2737", title: "Global coverage", desc: "120+ countries, regional editions, and country deep-dives across 10 verticals." },
+            { icon: "\u2301", title: "Decision-ready outputs", desc: "Sizing, segmentation, drivers, competition, and forecasts formatted for IC and strategy forums." },
+            { icon: "\u25D0", title: "Custom & syndicated", desc: "Start with catalog reports or commission bespoke studies aligned to your timeline." },
+            { icon: "\u2B21", title: "Confidential & secure", desc: "Enterprise-grade handling for sensitive commercial and investment workflows." },
           ].map((f, i) => (
-            <div key={i} className={`service-card reveal reveal-delay-${(i % 8) + 1}`}>
+            <div key={f.title} className={`feature-card reveal reveal-delay-${(i % 6) + 1}`}>
               <div className="service-icon-box">{f.icon}</div>
               <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 500, color: "var(--cream)", marginBottom: 8, lineHeight: 1.2 }}>
                 {f.title}
               </div>
-              <div style={{ fontSize: 13.5, color: "var(--text-muted)", lineHeight: 1.7 }}>
-                {f.desc}
-              </div>
+              <p style={{ fontSize: 13.5, color: "var(--text-muted)", lineHeight: 1.7, margin: 0 }}>{f.desc}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 1240, margin: "0 auto", padding: "20px 32px 80px" }}>
+        <SectionIntro
+          label="FAQ"
+          title="Market research questions, answered"
+          subtitle="Common questions from teams evaluating syndicated reports, AI samples, and custom studies."
+          center
+        />
+        <div style={{ display: "grid", gap: 12, maxWidth: 880, margin: "0 auto" }}>
+          {HOME_FAQS.map((faq, i) => (
+            <article key={faq.q} className={`faq-item reveal reveal-delay-${(i % 5) + 1}`}>
+              <h3 className="faq-item__q">{faq.q}</h3>
+              <p className="faq-item__a">{faq.a}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 1240, margin: "0 auto", padding: "20px 32px 100px" }}>
+        <div className="reveal cta-band">
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <AiBadge label="Start free" />
+            <h2 style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)", fontWeight: 600, margin: "20px 0 14px", lineHeight: 1.15 }}>
+              Ready to scope your next market study?
+            </h2>
+            <p style={{ fontSize: 16, color: "var(--text-muted)", maxWidth: 560, margin: "0 auto 28px", lineHeight: 1.75 }}>
+              Generate a free AI sample in seconds, browse {totalMarkets.toLocaleString()}+ reports, or speak with an analyst about custom research and enterprise access.
+            </p>
+            <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
+              <Link to="/generate" className="btn-ai">Generate AI sample</Link>
+              <Link to="/contact" className="btn-gold" style={{ textDecoration: "none" }}>Request full report</Link>
+            </div>
+          </div>
         </div>
       </section>
     </div>
@@ -2521,7 +2630,7 @@ function NavBar() {
   const navItems = [
     { to: "/", label: "Home", match: (t) => t === "home" },
     { to: "/domains", label: "Research", match: (t) => t === "domains" || t === "domain" || t === "market" },
-    { to: "/generate", label: "Generate", match: (t) => t === "generate" },
+    { to: "/generate", label: "AI Generator", match: (t) => t === "generate" },
     { to: "/about", label: "About", match: (t) => t === "about" },
     { to: "/contact", label: "Contact", match: (t) => t === "contact" },
   ];
@@ -2540,7 +2649,7 @@ function NavBar() {
               InsightAxis
             </div>
             <div className="mono" style={{ fontSize: 9.5, color: "var(--text-muted)", letterSpacing: "0.22em", textTransform: "uppercase", marginTop: 2 }}>
-              Market Intelligence
+              AI Market Intelligence
             </div>
           </div>
         </Link>
@@ -2711,7 +2820,7 @@ function Footer() {
               </div>
             </div>
             <p style={{ fontSize: 13.5, lineHeight: 1.8, color: "var(--text-muted)", margin: "0 0 24px", maxWidth: 360 }}>
-              Global market intelligence delivering comprehensive research across 10 industry sectors — empowering strategic decisions worldwide.
+              AI-assisted market research and analyst-led intelligence across 10 industry verticals — syndicated reports, custom studies, and free AI samples for faster strategic decisions.
             </p>
             <div style={{ display: "flex", gap: 10 }}>
               {SOCIAL_LINKS.map((s) => (

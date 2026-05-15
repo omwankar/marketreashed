@@ -1079,6 +1079,18 @@ a.social-btn {
 @media (max-width: 800px) {
   .navbar__inner { height: 68px; }
   .domain-card { aspect-ratio: 4 / 3; }
+  .glass-panel { padding: 32px 24px !important; }
+  .ai-platform-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .cta-band { padding: 40px 24px !important; }
+  .hero-pills { gap: 8px; }
+  .hero-pill { font-size: 11px; padding: 6px 12px; }
+}
+
+.ai-platform-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 48px;
+  align-items: center;
 }
 
 @media (prefers-reduced-motion: reduce) {

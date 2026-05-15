@@ -1782,12 +1782,12 @@ export function MordorReportForm({ initialTopic = "", onGenerated }) {
   return (
     <div style={{ maxWidth: 880, margin: "0 auto", padding: "60px 0 80px" }}>
       <div className="reveal" style={{ textAlign: "center", marginBottom: 44 }}>
-        <span className="section-label" style={{ justifyContent: "center", marginBottom: 18 }}>Report Builder</span>
+        <span className="section-label" style={{ justifyContent: "center", marginBottom: 18 }}>AI report generator</span>
         <h1 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 600, margin: "0 0 14px", lineHeight: 1.15 }}>
-          Build a <em style={{ color: "var(--gold)", fontStyle: "italic" }}>sample</em> research report
+          Build an <em style={{ color: "var(--gold)", fontStyle: "italic" }}>AI-powered</em> sample report
         </h1>
         <p style={{ fontSize: 15, color: "var(--text-muted)", margin: "0 auto", maxWidth: 640, lineHeight: 1.75 }}>
-          Configure scope and geographies — the sample builds instantly with sizing, segmentation, and regional data matched to your filters.
+          Configure industry, forecast years, geographies, and segmentation — get instant market sizing, topic-aware segments, regional shares, drivers, and competitive context. Free samples help you scope full analyst-validated studies.
         </p>
       </div>
 
