@@ -44,8 +44,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Webmaster verification: add the real meta tags below once issued by GSC / Bing Webmaster -->
-    <!-- <meta name="google-site-verification" content="REAL_GSC_CODE" /> -->
+    <meta name="google-site-verification" content="google028dfeece233a633" />
     <!-- <meta name="msvalidate.01" content="REAL_BING_CODE" /> -->
 
     <!-- Single-page-app deep-link restore (paired with public/404.html).
@@ -90,74 +89,89 @@
       rel="stylesheet"
     />
 
-    <!-- Organization schema -->
+    <!-- Entity + sitelink hints (@graph links Organization, WebSite, nav, services) -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "InsightAxis Intelligence",
-        "alternateName": "InsightAxis",
-        "url": "https://insightaxis-intelligence.com",
-        "logo": "https://insightaxis-intelligence.com/favicon.svg",
-        "description": "Professional market research reports for 250+ industries worldwide, covering market size, forecasts, competitive landscape, and growth trends.",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "Hinjewadi Phase 2",
-          "addressLocality": "Pune",
-          "postalCode": "411057",
-          "addressCountry": "IN"
-        },
-        "contactPoint": {
-          "@type": "ContactPoint",
-          "contactType": "customer service",
-          "availableLanguage": ["English"],
-          "areaServed": "Worldwide"
-        },
-        "sameAs": ["https://www.linkedin.com/company/insightaxisintelligence/"]
-      }
-    </script>
-
-    <!-- WebSite schema + SearchAction (enables Google sitelinks search box) -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "InsightAxis Intelligence",
-        "alternateName": "InsightAxis",
-        "url": "https://insightaxis-intelligence.com",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": {
-            "@type": "EntryPoint",
-            "urlTemplate": "https://insightaxis-intelligence.com/domains?q={search_term_string}"
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://insightaxis-intelligence.com/#organization",
+            "name": "InsightAxis Intelligence",
+            "legalName": "InsightAxis Intelligence",
+            "alternateName": ["InsightAxis", "InsightAxis Intelligence Market Research"],
+            "url": "https://insightaxis-intelligence.com",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://insightaxis-intelligence.com/favicon.svg"
+            },
+            "description": "InsightAxis Intelligence is an AI-assisted market research firm offering syndicated reports, free AI sample reports, custom studies, competitive intelligence, and forecasting across 10+ industry verticals worldwide.",
+            "foundingLocation": {
+              "@type": "Place",
+              "name": "Pune, India"
+            },
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Hinjewadi Phase 2",
+              "addressLocality": "Pune",
+              "postalCode": "411057",
+              "addressCountry": "IN"
+            },
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "contactType": "customer service",
+              "availableLanguage": ["English"],
+              "areaServed": "Worldwide",
+              "url": "https://insightaxis-intelligence.com/contact"
+            },
+            "sameAs": ["https://www.linkedin.com/company/insightaxisintelligence/"]
           },
-          "query-input": "required name=search_term_string"
-        }
-      }
-    </script>
-
-    <!-- SiteNavigationElement schema: gives Google the primary nav links so
-         it can surface them as sitelinks under our main result. -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "ItemList",
-        "name": "Primary navigation",
-        "itemListElement": [
-          { "@type": "SiteNavigationElement", "position": 1, "name": "Research Domains", "url": "https://insightaxis-intelligence.com/domains" },
-          { "@type": "SiteNavigationElement", "position": 2, "name": "Generate Sample Report", "url": "https://insightaxis-intelligence.com/generate" },
-          { "@type": "SiteNavigationElement", "position": 3, "name": "About", "url": "https://insightaxis-intelligence.com/about" },
-          { "@type": "SiteNavigationElement", "position": 4, "name": "Contact", "url": "https://insightaxis-intelligence.com/contact" },
-          { "@type": "SiteNavigationElement", "position": 5, "name": "Healthcare Market Research", "url": "https://insightaxis-intelligence.com/domains/healthcare" },
-          { "@type": "SiteNavigationElement", "position": 6, "name": "Technology Market Research", "url": "https://insightaxis-intelligence.com/domains/technology" },
-          { "@type": "SiteNavigationElement", "position": 7, "name": "Food & Beverage Market Research", "url": "https://insightaxis-intelligence.com/domains/fnb" },
-          { "@type": "SiteNavigationElement", "position": 8, "name": "Industrial Market Research", "url": "https://insightaxis-intelligence.com/domains/industrial" },
-          { "@type": "SiteNavigationElement", "position": 9, "name": "Energy & Utilities Market Research", "url": "https://insightaxis-intelligence.com/domains/energy" },
-          { "@type": "SiteNavigationElement", "position": 10, "name": "Automotive Market Research", "url": "https://insightaxis-intelligence.com/domains/automotive" },
-          { "@type": "SiteNavigationElement", "position": 11, "name": "Chemicals Market Research", "url": "https://insightaxis-intelligence.com/domains/chemicals" },
-          { "@type": "SiteNavigationElement", "position": 12, "name": "Financial Services Market Research", "url": "https://insightaxis-intelligence.com/domains/finance" },
-          { "@type": "SiteNavigationElement", "position": 13, "name": "FMCG Market Research", "url": "https://insightaxis-intelligence.com/domains/fmcg" },
-          { "@type": "SiteNavigationElement", "position": 14, "name": "Consumer Goods Market Research", "url": "https://insightaxis-intelligence.com/domains/consumer" }
+          {
+            "@type": "WebSite",
+            "@id": "https://insightaxis-intelligence.com/#website",
+            "name": "InsightAxis Intelligence",
+            "alternateName": "InsightAxis",
+            "url": "https://insightaxis-intelligence.com",
+            "publisher": { "@id": "https://insightaxis-intelligence.com/#organization" },
+            "inLanguage": "en",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://insightaxis-intelligence.com/domains?q={search_term_string}"
+              },
+              "query-input": "required name=search_term_string"
+            }
+          },
+          {
+            "@type": "ProfessionalService",
+            "@id": "https://insightaxis-intelligence.com/#service",
+            "name": "InsightAxis Intelligence — Market Research",
+            "url": "https://insightaxis-intelligence.com",
+            "provider": { "@id": "https://insightaxis-intelligence.com/#organization" },
+            "serviceType": [
+              "Market Research",
+              "Competitive Intelligence",
+              "Market Sizing and Forecasting",
+              "AI Report Generation"
+            ],
+            "areaServed": "Worldwide"
+          },
+          {
+            "@type": "ItemList",
+            "@id": "https://insightaxis-intelligence.com/#primary-nav",
+            "name": "Primary navigation",
+            "itemListElement": [
+              { "@type": "SiteNavigationElement", "position": 1, "name": "Research Domains", "url": "https://insightaxis-intelligence.com/domains" },
+              { "@type": "SiteNavigationElement", "position": 2, "name": "AI Report Generator", "url": "https://insightaxis-intelligence.com/generate" },
+              { "@type": "SiteNavigationElement", "position": 3, "name": "About Us", "url": "https://insightaxis-intelligence.com/about" },
+              { "@type": "SiteNavigationElement", "position": 4, "name": "Contact", "url": "https://insightaxis-intelligence.com/contact" },
+              { "@type": "SiteNavigationElement", "position": 5, "name": "Healthcare Research", "url": "https://insightaxis-intelligence.com/domains/healthcare" },
+              { "@type": "SiteNavigationElement", "position": 6, "name": "Technology Research", "url": "https://insightaxis-intelligence.com/domains/technology" },
+              { "@type": "SiteNavigationElement", "position": 7, "name": "Food & Beverage Research", "url": "https://insightaxis-intelligence.com/domains/fnb" },
+              { "@type": "SiteNavigationElement", "position": 8, "name": "Industrial Research", "url": "https://insightaxis-intelligence.com/domains/industrial" }
+            ]
+          }
         ]
       }
     </script>
