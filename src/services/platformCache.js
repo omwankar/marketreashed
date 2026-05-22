@@ -1,7 +1,9 @@
-const CACHE_KEY = "insightaxis_platform_intel_v4";
+const CACHE_KEY = "insightaxis_platform_intel_v5";
 const SESSION_KEY = CACHE_KEY;
 /** Skip network if cache is newer than this (fast repeat visits) */
-export const FRESH_MS = 1000 * 60 * 30;
+/** Avoid hammering APIs when quota is tight */
+export const FRESH_MS = 1000 * 60 * 120;
+
 /** localStorage kept for returning visitors on production */
 const PERSIST_MS = 1000 * 60 * 60 * 6;
 

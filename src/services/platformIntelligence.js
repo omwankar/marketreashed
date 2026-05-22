@@ -1,4 +1,4 @@
-import { generatePlatformJson, hasPlatformAiKey } from "./aiProvider.js";
+import { requestPlatformIntelligence } from "./platformApi.js";
 import {
   FRESH_MS,
   isCacheFresh,
@@ -16,18 +16,6 @@ const CATEGORY_COLORS = {
   Digital: "#ec4899",
   "Executive Signal": "#94a3b8",
 };
-
-const CORE_PROMPT = `Enterprise competitive intelligence snapshot. Competitors: A, B, C. Regions: APAC, EMEA, India, NA.
-
-Return ONLY JSON (no markdown):
-{"executiveSummary":"2 sentences","strategicInsight":"1 short paragraph","alerts":["3 with emoji"],"notifications":["3 short"],"recommendations":["3 actions"],"riskSignal":"1 sentence","confidence":"High","generatedAt":"ISO date","kpis":{"signalsToday":"18.4K","regions":42,"alerts":23},"competitorFeed":["3 lines"],"timeline":[{"time":"2m ago","category":"Pricing","description":"event"}, ...4 items]}`;
-
-const CHARTS_PROMPT = `Competitive intelligence chart data only. Competitors A,B,C.
-
-Return ONLY JSON:
-{"momentumTrend":[{"label":"W1","value":50},...6 varied 30-95],"velocityTrend":[{"label":"W1","value":40},...6],"marketShareTrend":[{"month":"Jan","you":30,"a":22,"b":18},...4 months],"activityByDay":[{"day":"Mon","intensity":55},...7 varied],"signalTrend":[{"month":"Jan","signals":4000},...4 rising],"competitorTable":[{"name":"Competitor A","activity":"High","change":"+12%","region":"APAC"},...4],"dashboardKpis":[{"label":"Market Coverage","value":"2,400+","sub":"segments"},...4]}`;
-
-const TOKEN_BUDGET = 2048;
 
 function colorForCategory(category) {
   return CATEGORY_COLORS[category] || "#94a3b8";
@@ -114,48 +102,6 @@ function normalizeIntel(raw, meta) {
   };
 }
 
-async function fetchFreshFromAi() {
-  const [coreSettled, chartsSettled] = await Promise.allSettled([
-    generatePlatformJson(CORE_PROMPT, TOKEN_BUDGET),
-    generatePlatformJson(CHARTS_PROMPT, TOKEN_BUDGET),
-  ]);
-
-  const failures = [];
-  let core = null;
-  let charts = null;
-  let provider = "gemini";
-  let usedFallback = false;
-
-  if (coreSettled.status === "fulfilled") {
-    core = coreSettled.value.data;
-    provider = coreSettled.value.provider;
-    usedFallback = coreSettled.value.usedFallback;
-  } else {
-    failures.push(`Core: ${coreSettled.reason?.message || "failed"}`);
-  }
-
-  if (chartsSettled.status === "fulfilled") {
-    charts = chartsSettled.value.data;
-    if (!core) {
-      provider = chartsSettled.value.provider;
-      usedFallback = chartsSettled.value.usedFallback;
-    }
-  } else {
-    failures.push(`Charts: ${chartsSettled.reason?.message || "failed"}`);
-  }
-
-  if (!core && !charts) {
-    throw new Error(failures.join(" · ") || "AI requests failed");
-  }
-
-  return {
-    raw: { ...core, ...charts },
-    provider,
-    usedFallback,
-    partial: failures.length > 0,
-  };
-}
-
 /** Sync read for instant paint (localStorage / sessionStorage) */
 export { readPlatformCache, isCacheFresh, FRESH_MS };
 
@@ -167,12 +113,8 @@ export async function fetchPlatformIntelligence({ forceRefresh = false } = {}) {
     }
   }
 
-  if (!hasPlatformAiKey()) {
-    return emptyIntel();
-  }
-
   try {
-    const { raw, provider, usedFallback, partial } = await fetchFreshFromAi();
+    const { raw, provider, usedFallback, partial } = await requestPlatformIntelligence();
     const merged = normalizeIntel(raw, {
       source: provider,
       apiAvailable: true,
@@ -184,16 +126,26 @@ export async function fetchPlatformIntelligence({ forceRefresh = false } = {}) {
     return merged;
   } catch (err) {
     console.warn("[platformIntelligence]", err);
-    const stale = !forceRefresh ? readPlatformCache() : null;
+    const stale = readPlatformCache();
     if (stale) {
-      return { ...stale, source: "cache", isStale: true, error: err?.message };
+      return {
+        ...stale,
+        source: "cache",
+        isStale: true,
+        error: err?.message,
+        errorCode: err?.code,
+        executiveSummary:
+          stale.executiveSummary ||
+          "Showing last saved intelligence — live refresh failed (quota or provider timeout).",
+      };
     }
     return emptyIntel({
       source: "error",
       apiAvailable: true,
       needsApiKey: false,
       error: err?.message || "AI request failed",
-      executiveSummary: "Unable to refresh intelligence. Click Refresh to try again.",
+      errorCode: err?.code,
+      executiveSummary: "Unable to refresh intelligence. See message below, then try once later.",
     });
   }
 }

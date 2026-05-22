@@ -80,23 +80,17 @@ function buildSitemapXml() {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
 }
 
-/** Dev-only proxy: browser cannot call integrate.api.nvidia.com directly (CORS). */
-function nvidiaProxyPlugin(env) {
+/** Dev: same /api/platform-intelligence route as Vercel production */
+function platformIntelligenceDevPlugin() {
   return {
-    name: "insightaxis-nvidia-proxy",
-    configureServer(server) {
-      server.middlewares.use((req, res, next) => {
-        const url = req.url?.split("?")[0];
-        if (url !== "/api/nvidia/chat/completions" || req.method !== "POST") {
-          next();
-          return;
-        }
+    name: "insightaxis-platform-intel-api",
+    async configureServer(server) {
+      const { default: handler } = await import("./api/platform-intelligence.js");
 
-        const apiKey = env.VITE_NVIDIA_API_KEY || env.NVIDIA_API_KEY;
-        if (!apiKey?.startsWith("nvapi-")) {
-          res.statusCode = 500;
-          res.setHeader("Content-Type", "application/json");
-          res.end(JSON.stringify({ error: "Set VITE_NVIDIA_API_KEY in .env and restart dev server" }));
+      server.middlewares.use((req, res, next) => {
+        const path = req.url?.split("?")[0];
+        if (path !== "/api/platform-intelligence" || (req.method !== "GET" && req.method !== "POST")) {
+          next();
           return;
         }
 
@@ -104,24 +98,17 @@ function nvidiaProxyPlugin(env) {
         req.on("data", (c) => chunks.push(c));
         req.on("end", async () => {
           try {
-            const body = Buffer.concat(chunks).toString("utf8");
-            const upstream = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${apiKey}`,
-                "Content-Type": "application/json",
-                Accept: "application/json",
-              },
-              body,
-            });
-            const text = await upstream.text();
-            res.statusCode = upstream.status;
+            const body = req.method === "POST" && chunks.length ? Buffer.concat(chunks) : undefined;
+            const request = new Request(`http://localhost${path}`, { method: req.method, body });
+            const response = await handler(request);
+            const text = await response.text();
+            res.statusCode = response.status;
             res.setHeader("Content-Type", "application/json");
             res.end(text);
           } catch (err) {
             res.statusCode = 502;
             res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify({ error: err?.message || "NVIDIA proxy failed" }));
+            res.end(JSON.stringify({ error: err?.message || "Dev API failed" }));
           }
         });
       });
@@ -159,11 +146,13 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   return {
     envDir: process.cwd(),
-    plugins: [react(), nvidiaProxyPlugin(env), sitemapPlugin()],
-    // Ensure Gemini key is always injected for client bundles (fixes stale dev server env)
+    plugins: [react(), platformIntelligenceDevPlugin(), sitemapPlugin()],
     define: {
-      "import.meta.env.VITE_NVIDIA_API_KEY": JSON.stringify(env.VITE_NVIDIA_API_KEY ?? ""),
+      "import.meta.env.VITE_AI_ENABLED": JSON.stringify(
+        Boolean(env.GROQ_API_KEY || env.VITE_GROQ_API_KEY || env.VITE_GEMINI_API_KEY || env.VITE_NVIDIA_API_KEY),
+      ),
       "import.meta.env.VITE_GEMINI_API_KEY": JSON.stringify(env.VITE_GEMINI_API_KEY ?? ""),
+      "import.meta.env.VITE_NVIDIA_API_KEY": JSON.stringify(env.VITE_NVIDIA_API_KEY ?? ""),
       "import.meta.env.VITE_EMAILJS_PUBLIC_KEY": JSON.stringify(env.VITE_EMAILJS_PUBLIC_KEY ?? ""),
     },
   };

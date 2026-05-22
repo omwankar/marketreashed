@@ -9,17 +9,12 @@ export function AiIntelStrip() {
     return (
       <div className="plt-intel-strip plt-intel-strip--warn" role="status">
         <p>
-          <strong>Connect AI:</strong> Add your NVIDIA API key to <code className="plt-code">.env</code>:
+          <strong>AI not configured on server.</strong> In <strong>Vercel → Project → Settings → Environment Variables</strong>, add:
           <br />
-          <code className="plt-code">VITE_NVIDIA_API_KEY=nvapi-your-key-here</code>
+          <code className="plt-code">GROQ_API_KEY</code> (recommended, fastest),{" "}
+          <code className="plt-code">VITE_GEMINI_API_KEY</code>, and/or <code className="plt-code">VITE_NVIDIA_API_KEY</code>
           <br />
-          Get a free key at{" "}
-          <a href="https://build.nvidia.com/" target="_blank" rel="noopener noreferrer" className="plt-intel-link">
-            build.nvidia.com
-          </a>
-          . Then <strong>restart</strong> <code className="plt-code">npm run dev</code>.
-          <br />
-          Or use <code className="plt-code">VITE_GEMINI_API_KEY</code> (tried first when both are set)
+          Enable for <strong>Production</strong>, then <strong>Redeploy</strong>. Local: add to <code className="plt-code">.env</code> and restart <code className="plt-code">npm run dev</code>.
         </p>
       </div>
     );
@@ -41,8 +36,8 @@ export function AiIntelStrip() {
               : isStale
                 ? "Showing cached intelligence · updating…"
                 : isLive
-                  ? intel.provider === "nvidia" && intel.usedFallback
-                    ? "NVIDIA fallback (Gemini unavailable)"
+                  ? intel.usedFallback
+                    ? `${providerLabel || "AI"} (fallback)`
                     : `${providerLabel || "AI"} active`
                   : intel.source === "error"
                     ? "Sync failed — retry"
@@ -50,7 +45,7 @@ export function AiIntelStrip() {
         </span>
         <p className="plt-intel-strip__summary">
           {loading
-            ? "Running 2 fast AI requests (text + charts)…"
+            ? "Generating intelligence (single optimized request)…"
             : refreshing
               ? "Refreshing latest data…"
               : intel.executiveSummary || "Click Refresh to generate a new intelligence snapshot."}
@@ -67,7 +62,24 @@ export function AiIntelStrip() {
         </button>
       </div>
       {intel.source === "error" && intel.error && (
-        <p className="plt-intel-strip__error">{intel.error}</p>
+        <div className="plt-intel-strip__error">
+          <p>{intel.error}</p>
+          {(intel.error.includes("quota") || intel.errorCode === "quota_exceeded") && (
+            <p className="plt-intel-strip__error-hint">
+              Gemini free tier is exhausted. Enable billing at{" "}
+              <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="plt-intel-link">
+                Google AI Studio
+              </a>
+              , or remove <code className="plt-code">VITE_GEMINI_API_KEY</code> on Vercel so only NVIDIA runs.
+              Cached data is shown when available — avoid clicking Refresh repeatedly.
+            </p>
+          )}
+          {intel.error.includes("timed out") && (
+            <p className="plt-intel-strip__error-hint">
+              NVIDIA model was slow. We now try a faster model first. Wait a minute and Refresh once.
+            </p>
+          )}
+        </div>
       )}
     </div>
   );

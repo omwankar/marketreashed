@@ -1,62 +1,52 @@
-import { generateGeminiJson, hasGeminiApiKey } from "./gemini.js";
-import { generateNvidiaJson, hasNvidiaApiKey, NVIDIA_MODEL } from "./nvidia.js";
+import { fetchPlatformAiStatus } from "./platformApi.js";
 
-/** True if Radar can call Gemini and/or NVIDIA */
+/** Build-time hint (optional); production uses GET /api/platform-intelligence */
+export function hasPlatformAiKeyBuildHint() {
+  return import.meta.env.VITE_AI_ENABLED === "true";
+}
+
+let cachedStatus = null;
+
+export async function resolvePlatformAiConfigured() {
+  if (cachedStatus) return cachedStatus;
+  cachedStatus = await fetchPlatformAiStatus();
+  return cachedStatus;
+}
+
 export function hasPlatformAiKey() {
-  return hasGeminiApiKey() || hasNvidiaApiKey();
+  return hasPlatformAiKeyBuildHint();
 }
 
-/** Primary provider when both keys exist: Gemini first */
 export function getActiveAiProvider() {
-  if (hasGeminiApiKey()) return "gemini";
-  if (hasNvidiaApiKey()) return "nvidia";
+  if (cachedStatus?.groq) return "groq";
+  if (cachedStatus?.gemini) return "gemini";
+  if (cachedStatus?.nvidia) return "nvidia";
   return null;
 }
 
-export function getAiProviderLabel() {
-  if (hasGeminiApiKey() && hasNvidiaApiKey()) {
-    return "Google Gemini · NVIDIA fallback";
+export function getAiProviderLabel(status = cachedStatus) {
+  if (!status?.configured) return null;
+  if (status.groq) {
+    const fallbacks = [status.gemini && "Gemini", status.nvidia && "NVIDIA"].filter(Boolean);
+    return fallbacks.length
+      ? `Groq · DeepSeek R1 (${fallbacks.join(" · ")} fallback)`
+      : "Groq · DeepSeek R1";
   }
-  if (hasGeminiApiKey()) return "Google Gemini";
-  if (hasNvidiaApiKey()) return `NVIDIA · ${NVIDIA_MODEL}`;
-  return null;
+  if (status.gemini && status.nvidia) return "Google Gemini · NVIDIA fallback";
+  if (status.gemini) return "Google Gemini";
+  if (status.nvidia) return "NVIDIA";
+  return "AI";
 }
 
-/**
- * Try Gemini first; if it fails and NVIDIA key exists, use NVIDIA.
- */
-export async function generatePlatformJson(prompt, maxTokens = 8192) {
-  const failures = [];
+export function getProviderDisplayName(provider) {
+  if (provider === "groq") return "Groq · DeepSeek R1";
+  if (provider === "gemini") return "Google Gemini";
+  if (provider === "nvidia") return "NVIDIA";
+  if (provider === "cache") return "Cached";
+  return provider || "AI";
+}
 
-  if (hasGeminiApiKey()) {
-    try {
-      const data = await generateGeminiJson(prompt, maxTokens);
-      return { data, provider: "gemini", usedFallback: false };
-    } catch (err) {
-      console.warn("[aiProvider] Gemini failed:", err);
-      failures.push(`Gemini: ${err?.message || "failed"}`);
-    }
-  }
-
-  if (hasNvidiaApiKey()) {
-    try {
-      const data = await generateNvidiaJson(prompt, maxTokens);
-      return {
-        data,
-        provider: "nvidia",
-        usedFallback: failures.length > 0,
-      };
-    } catch (err) {
-      console.warn("[aiProvider] NVIDIA failed:", err);
-      failures.push(`NVIDIA: ${err?.message || "failed"}`);
-    }
-  }
-
-  if (!hasGeminiApiKey() && !hasNvidiaApiKey()) {
-    throw new Error(
-      "No AI API key configured. Add VITE_GEMINI_API_KEY and/or VITE_NVIDIA_API_KEY to .env",
-    );
-  }
-
-  throw new Error(failures.join(" · ") || "All AI providers failed");
+/** @deprecated Client uses /api/platform-intelligence instead */
+export async function generatePlatformJson() {
+  throw new Error("Use requestPlatformIntelligence() — AI runs on server");
 }

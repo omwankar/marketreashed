@@ -127,6 +127,13 @@
   color: #fbbf24;
 }
 
+.plt-intel-strip__error-hint {
+  margin: 6px 0 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--plt-muted);
+}
+
 /* Legacy status refresh btn */
 .plt-status-bar {
   display: none;

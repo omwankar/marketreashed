@@ -90,7 +90,14 @@ export function LiveTracking() {
                   <p className="plt-insight-body">{intel.strategicInsight}</p>
                   {intel.riskSignal && <p className="plt-insight-risk">{intel.riskSignal}</p>}
                   <p className="plt-insight-meta">
-                    Confidence: {intel.confidence} · {intel.provider === "nvidia" ? "NVIDIA Kimi K2.6" : intel.provider === "gemini" ? "Gemini" : intel.source}
+                    Confidence: {intel.confidence} ·{" "}
+                    {intel.provider === "groq"
+                      ? "Groq · DeepSeek R1"
+                      : intel.provider === "nvidia"
+                        ? "NVIDIA"
+                        : intel.provider === "gemini"
+                          ? "Gemini"
+                          : intel.source}
                   </p>
                 </>
               )}
