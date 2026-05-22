@@ -2,7 +2,8 @@ import { RefreshCw, Sparkles, Wifi } from "lucide-react";
 import { usePlatformIntelligence } from "../../context/PlatformIntelligenceContext.jsx";
 
 export function AiIntelStrip() {
-  const { intel, loading, refreshing, refresh, apiConfigured, isLive, providerLabel } = usePlatformIntelligence();
+  const { intel, loading, refreshing, refresh, apiConfigured, isLive, providerLabel, isStale } =
+    usePlatformIntelligence();
 
   if (!apiConfigured) {
     return (
@@ -33,20 +34,26 @@ export function AiIntelStrip() {
         </span>
         <span className="plt-intel-strip__mode">
           <Sparkles className="h-3.5 w-3.5 text-violet-400" aria-hidden />
-          {loading || refreshing
+          {loading
             ? `Generating via ${providerLabel || "AI"}…`
-            : isLive
-              ? intel.provider === "nvidia" && intel.usedFallback
-                ? "NVIDIA fallback active (Gemini unavailable)"
-                : `${providerLabel || "AI"} active`
-              : intel.source === "error"
-                ? "Sync failed — retry"
-                : "Ready"}
+            : refreshing
+              ? "Updating intelligence in background…"
+              : isStale
+                ? "Showing cached intelligence · updating…"
+                : isLive
+                  ? intel.provider === "nvidia" && intel.usedFallback
+                    ? "NVIDIA fallback (Gemini unavailable)"
+                    : `${providerLabel || "AI"} active`
+                  : intel.source === "error"
+                    ? "Sync failed — retry"
+                    : "Ready"}
         </span>
         <p className="plt-intel-strip__summary">
-          {loading || refreshing
-            ? "Building timeline, charts, KPIs, and competitor feed…"
-            : intel.executiveSummary || "Click Refresh to generate a new intelligence snapshot."}
+          {loading
+            ? "Running 2 fast AI requests (text + charts)…"
+            : refreshing
+              ? "Refreshing latest data…"
+              : intel.executiveSummary || "Click Refresh to generate a new intelligence snapshot."}
         </p>
         <button
           type="button"

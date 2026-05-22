@@ -1,7 +1,10 @@
 import { generatePlatformJson, hasPlatformAiKey } from "./aiProvider.js";
-
-const CACHE_KEY = "insightaxis_platform_intel_v3";
-const CACHE_TTL_MS = 1000 * 60 * 45;
+import {
+  FRESH_MS,
+  isCacheFresh,
+  readPlatformCache,
+  writePlatformCache,
+} from "./platformCache.js";
 
 const CATEGORY_COLORS = {
   "Product Launch": "#06b6d4",
@@ -12,37 +15,19 @@ const CATEGORY_COLORS = {
   Innovation: "#3b82f6",
   Digital: "#ec4899",
   "Executive Signal": "#94a3b8",
-  Regulatory: "#f97316",
-  Partnership: "#14b8a6",
 };
 
-const INTELLIGENCE_PROMPT = `You are the strategic intelligence engine for InsightAxis Intelligence (enterprise competitive intelligence).
+const CORE_PROMPT = `Enterprise competitive intelligence snapshot. Competitors: A, B, C. Regions: APAC, EMEA, India, NA.
 
-Generate ONE fresh intelligence snapshot for a Fortune 500 strategy team (FMCG, industrial, tech). Use fictional competitors "Competitor A", "B", "C". Regions: APAC, EMEA, India, North America.
+Return ONLY JSON (no markdown):
+{"executiveSummary":"2 sentences","strategicInsight":"1 short paragraph","alerts":["3 with emoji"],"notifications":["3 short"],"recommendations":["3 actions"],"riskSignal":"1 sentence","confidence":"High","generatedAt":"ISO date","kpis":{"signalsToday":"18.4K","regions":42,"alerts":23},"competitorFeed":["3 lines"],"timeline":[{"time":"2m ago","category":"Pricing","description":"event"}, ...4 items]}`;
 
-Return ONLY valid JSON with this exact shape (no markdown):
-{
-  "executiveSummary": "2 sentences, board-ready",
-  "strategicInsight": "1 paragraph, highest-priority threat",
-  "alerts": ["3 strings with emoji prefix e.g. 🔴 📈 ⚡"],
-  "notifications": ["3 short toasts, max 12 words each"],
-  "recommendations": ["3 actionable strategies"],
-  "riskSignal": "one sentence warning",
-  "confidence": "High" or "Medium",
-  "generatedAt": "ISO-8601 datetime",
-  "kpis": { "signalsToday": "18.4K", "regions": 42, "alerts": 23 },
-  "competitorFeed": ["3 lines like Competitor A · action · region"],
-  "momentumTrend": [{ "label": "W1", "value": number }, ... exactly 6 weeks, values 30-95],
-  "velocityTrend": [{ "label": "W1", "value": number }, ... exactly 6 weeks],
-  "timeline": [{ "time": "2m ago", "category": "Product Launch|Pricing|Hiring|Acquisition|Expansion|Innovation|Digital|Executive Signal", "description": "specific event" }, ... 6 events, newest first],
-  "marketShareTrend": [{ "month": "Jan", "you": number, "a": number, "b": number }, ... 6 months],
-  "activityByDay": [{ "day": "Mon", "intensity": number }, ... 7 days Mon-Sun, intensity 15-95 varied],
-  "signalTrend": [{ "month": "Jan", "signals": number }, ... 6 months, rising trend],
-  "competitorTable": [{ "name": "Competitor A", "activity": "High|Medium|Low", "change": "+12%", "region": "APAC" }, ... 4 rows],
-  "dashboardKpis": [{ "label": "Market Coverage", "value": "2,400+", "sub": "segments tracked" }, ... 4 items]
-}
+const CHARTS_PROMPT = `Competitive intelligence chart data only. Competitors A,B,C.
 
-All numbers must be realistic and varied (not identical bars). Timeline descriptions must be unique and specific.`;
+Return ONLY JSON:
+{"momentumTrend":[{"label":"W1","value":50},...6 varied 30-95],"velocityTrend":[{"label":"W1","value":40},...6],"marketShareTrend":[{"month":"Jan","you":30,"a":22,"b":18},...4 months],"activityByDay":[{"day":"Mon","intensity":55},...7 varied],"signalTrend":[{"month":"Jan","signals":4000},...4 rising],"competitorTable":[{"name":"Competitor A","activity":"High","change":"+12%","region":"APAC"},...4],"dashboardKpis":[{"label":"Market Coverage","value":"2,400+","sub":"segments"},...4]}`;
+
+const TOKEN_BUDGET = 2048;
 
 function colorForCategory(category) {
   return CATEGORY_COLORS[category] || "#94a3b8";
@@ -72,6 +57,7 @@ export function emptyIntel(overrides = {}) {
     source: "unconfigured",
     apiAvailable: false,
     provider: null,
+    isStale: false,
     ...overrides,
   };
 }
@@ -123,34 +109,62 @@ function normalizeIntel(raw, meta) {
     competitorTable: (raw.competitorTable || []).slice(0, 6),
     dashboardKpis: (raw.dashboardKpis || []).slice(0, 4),
     needsApiKey: false,
+    isStale: false,
     ...meta,
   };
 }
 
-function readCache() {
-  try {
-    const raw = sessionStorage.getItem(CACHE_KEY);
-    if (!raw) return null;
-    const { ts, data } = JSON.parse(raw);
-    if (Date.now() - ts > CACHE_TTL_MS) return null;
-    return data;
-  } catch {
-    return null;
+async function fetchFreshFromAi() {
+  const [coreSettled, chartsSettled] = await Promise.allSettled([
+    generatePlatformJson(CORE_PROMPT, TOKEN_BUDGET),
+    generatePlatformJson(CHARTS_PROMPT, TOKEN_BUDGET),
+  ]);
+
+  const failures = [];
+  let core = null;
+  let charts = null;
+  let provider = "gemini";
+  let usedFallback = false;
+
+  if (coreSettled.status === "fulfilled") {
+    core = coreSettled.value.data;
+    provider = coreSettled.value.provider;
+    usedFallback = coreSettled.value.usedFallback;
+  } else {
+    failures.push(`Core: ${coreSettled.reason?.message || "failed"}`);
   }
+
+  if (chartsSettled.status === "fulfilled") {
+    charts = chartsSettled.value.data;
+    if (!core) {
+      provider = chartsSettled.value.provider;
+      usedFallback = chartsSettled.value.usedFallback;
+    }
+  } else {
+    failures.push(`Charts: ${chartsSettled.reason?.message || "failed"}`);
+  }
+
+  if (!core && !charts) {
+    throw new Error(failures.join(" · ") || "AI requests failed");
+  }
+
+  return {
+    raw: { ...core, ...charts },
+    provider,
+    usedFallback,
+    partial: failures.length > 0,
+  };
 }
 
-function writeCache(data) {
-  try {
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
-  } catch {
-    /* ignore */
-  }
-}
+/** Sync read for instant paint (localStorage / sessionStorage) */
+export { readPlatformCache, isCacheFresh, FRESH_MS };
 
 export async function fetchPlatformIntelligence({ forceRefresh = false } = {}) {
   if (!forceRefresh) {
-    const cached = readCache();
-    if (cached) return { ...cached, source: "cache" };
+    const cached = readPlatformCache();
+    if (cached && isCacheFresh(cached.cacheAge)) {
+      return { ...cached, source: "cache", isStale: false, fromCache: true };
+    }
   }
 
   if (!hasPlatformAiKey()) {
@@ -158,23 +172,28 @@ export async function fetchPlatformIntelligence({ forceRefresh = false } = {}) {
   }
 
   try {
-    const { data, provider, usedFallback } = await generatePlatformJson(INTELLIGENCE_PROMPT, 8192);
-    const merged = normalizeIntel(data, {
+    const { raw, provider, usedFallback, partial } = await fetchFreshFromAi();
+    const merged = normalizeIntel(raw, {
       source: provider,
       apiAvailable: true,
       provider,
       usedFallback: Boolean(usedFallback),
+      partial,
     });
-    writeCache(merged);
+    writePlatformCache(merged);
     return merged;
   } catch (err) {
     console.warn("[platformIntelligence]", err);
+    const stale = !forceRefresh ? readPlatformCache() : null;
+    if (stale) {
+      return { ...stale, source: "cache", isStale: true, error: err?.message };
+    }
     return emptyIntel({
       source: "error",
       apiAvailable: true,
       needsApiKey: false,
       error: err?.message || "AI request failed",
-      executiveSummary: "Unable to load AI intelligence. Check Gemini and NVIDIA keys in .env, then click Refresh.",
+      executiveSummary: "Unable to refresh intelligence. Click Refresh to try again.",
     });
   }
 }
