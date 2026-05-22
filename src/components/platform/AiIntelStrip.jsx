@@ -50,13 +50,18 @@ export function AiIntelStrip() {
           </p>
         ) : (
           <p>
-            <strong>API keys not visible on server.</strong> Add on your host (not only local .env):
+            <strong>Keys in Vercel UI ≠ keys on live server.</strong> You must{" "}
+            <strong>Redeploy</strong> after adding env vars (Deployments → ⋮ → Redeploy).
             <br />
-            <code className="plt-code">GROQ_API_KEY</code>=<code className="plt-code">gsk_...</code> (exact name, no typo)
+            Open{" "}
+            <a href="/api/platform-intelligence" target="_blank" rel="noreferrer" className="plt-intel-link">
+              /api/platform-intelligence
+            </a>
+            : need <code className="plt-code">"configured":true</code> and{" "}
+            <code className="plt-code">"keysPresent":{"{"}groq:true,...{"}"}</code>.
             <br />
-            Optional: <code className="plt-code">VITE_GEMINI_API_KEY</code>, <code className="plt-code">VITE_NVIDIA_API_KEY</code>
-            <br />
-            Scope: <strong>Production</strong> → <strong>Save</strong> → <strong>Redeploy</strong> (required after any env change).
+            Confirm <code className="plt-code">insightaxisintelligence.com</code> is on the{" "}
+            <strong>same</strong> Vercel project where you added keys (marketreashed).
             {setupHint && (
               <>
                 <br />

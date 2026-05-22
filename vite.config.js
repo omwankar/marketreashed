@@ -103,7 +103,7 @@ function platformIntelligenceDevPlugin(env) {
   return {
     name: "insightaxis-platform-intel-api",
     async configureServer(server) {
-      const { default: handler } = await import("./api/platform-intelligence.js");
+      const { handlePlatformIntelligenceRequest } = await import("./api/platform-intelligence.js");
 
       server.middlewares.use((req, res, next) => {
         const path = req.url?.split("?")[0];
@@ -119,7 +119,7 @@ function platformIntelligenceDevPlugin(env) {
           try {
             const body = req.method === "POST" && chunks.length ? Buffer.concat(chunks) : undefined;
             const request = new Request(`http://localhost${path}`, { method: req.method, body });
-            const response = await handler(request);
+            const response = await handlePlatformIntelligenceRequest(request);
             const text = await response.text();
             res.statusCode = response.status;
             res.setHeader("Content-Type", "application/json");

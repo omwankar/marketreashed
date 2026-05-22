@@ -1,6 +1,7 @@
 /**
- * Radar AI on server — fastest provider first: Groq → Gemini → NVIDIA.
- * Env: GROQ_API_KEY (or VITE_GROQ_API_KEY), VITE_GEMINI_API_KEY, VITE_NVIDIA_API_KEY
+ * Radar AI — Groq → Gemini → NVIDIA fallback.
+ * Vercel: api/platform-intelligence.js (Node req/res)
+ * Dev/Netlify: handlePlatformIntelligenceRequest(Request)
  */
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
@@ -15,13 +16,6 @@ const FULL_PROMPT = `Enterprise competitive intelligence. Competitors A,B,C. Reg
 Return ONLY one JSON object (no markdown):
 {"executiveSummary":"2 sentences","strategicInsight":"1 short paragraph","alerts":["3 with emoji"],"notifications":["3 short"],"recommendations":["3 actions"],"riskSignal":"1 sentence","confidence":"High","generatedAt":"ISO date","kpis":{"signalsToday":"18.4K","regions":42,"alerts":23},"competitorFeed":["3 lines"],"timeline":[{"time":"2m ago","category":"Pricing","description":"event"},...4],"momentumTrend":[{"label":"W1","value":50},...6 varied 30-95],"velocityTrend":[{"label":"W1","value":40},...6],"marketShareTrend":[{"month":"Jan","you":30,"a":22,"b":18},...4],"activityByDay":[{"day":"Mon","intensity":55},...7],"signalTrend":[{"month":"Jan","signals":4000},...4],"competitorTable":[{"name":"Competitor A","activity":"High","change":"+12%","region":"APAC"},...4],"dashboardKpis":[{"label":"Market Coverage","value":"2,400+","sub":"segments"},...4]}`;
 
-function jsonResponse(body, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
 function firstEnv(...names) {
   for (const name of names) {
     const v = process.env[name];
@@ -30,7 +24,7 @@ function firstEnv(...names) {
   return "";
 }
 
-function getKeys() {
+export function getKeys() {
   const groq = firstEnv("GROQ_API_KEY", "VITE_GROQ_API_KEY", "GROQ_KEY");
   const gemini = firstEnv("VITE_GEMINI_API_KEY", "GEMINI_API_KEY", "GOOGLE_GEMINI_API_KEY");
   const nvidia = firstEnv("VITE_NVIDIA_API_KEY", "NVIDIA_API_KEY");
@@ -44,6 +38,49 @@ function hasAnyKey(keys) {
     keys.gemini?.length >= 20 ||
     keys.nvidia?.startsWith("nvapi-")
   );
+}
+
+export function buildStatus(keys) {
+  const groqOk = Boolean(keys.groq?.startsWith("gsk_") || keys.groq?.length >= 30);
+  const keysPresent = {
+    groq: keys.groq.length > 0,
+    gemini: keys.gemini.length > 0,
+    nvidia: keys.nvidia.length > 0,
+  };
+  const configured = hasAnyKey(keys);
+  let hint;
+  if (!configured) {
+    if (!keysPresent.groq && !keysPresent.gemini && !keysPresent.nvidia) {
+      hint =
+        "Server sees ZERO env vars. After adding keys in Vercel → Deployments → Redeploy (required). Confirm insightaxisintelligence.com is linked to this Vercel project.";
+    } else {
+      hint =
+        "Env vars exist but invalid format (Groq must start with gsk_, NVIDIA with nvapi-). Re-save keys without quotes/spaces, then redeploy.";
+    }
+  }
+  return {
+    configured,
+    groq: groqOk,
+    gemini: Boolean(keys.gemini?.length >= 20),
+    nvidia: Boolean(keys.nvidia?.startsWith("nvapi-")),
+    primary: groqOk ? "groq" : keys.gemini?.length >= 20 ? "gemini" : "nvidia",
+    keysPresent,
+    runtime: process.env.VERCEL ? "vercel" : process.env.NETLIFY ? "netlify" : "dev",
+    hint,
+  };
+}
+
+function jsonResponse(body, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+function sendJsonRes(res, body, status = 200) {
+  res.statusCode = status;
+  res.setHeader("Content-Type", "application/json");
+  res.end(JSON.stringify(body));
 }
 
 function sleep(ms) {
@@ -210,9 +247,7 @@ async function generateWithFallback(prompt, keys) {
   }
 
   if (!hasAnyKey(keys)) {
-    throw new Error(
-      "No API keys on server. Add GROQ_API_KEY (recommended), and/or VITE_GEMINI_API_KEY, VITE_NVIDIA_API_KEY in Vercel.",
-    );
+    throw new Error("No API keys on server. Add GROQ_API_KEY in Vercel, then Redeploy.");
   }
 
   throw new Error(failures.join(" · ") || "All AI providers failed");
@@ -228,21 +263,12 @@ async function fetchFreshIntel(keys) {
   };
 }
 
-export default async function handler(request) {
+/** Web Request API — Vite dev + Netlify */
+export async function handlePlatformIntelligenceRequest(request) {
   const keys = getKeys();
 
   if (request.method === "GET") {
-    const groqOk = Boolean(keys.groq?.startsWith("gsk_") || keys.groq?.length >= 30);
-    return jsonResponse({
-      configured: hasAnyKey(keys),
-      groq: groqOk,
-      gemini: Boolean(keys.gemini?.length >= 20),
-      nvidia: Boolean(keys.nvidia?.startsWith("nvapi-")),
-      primary: groqOk ? "groq" : keys.gemini?.length >= 20 ? "gemini" : "nvidia",
-      hint: !hasAnyKey(keys)
-        ? "Set GROQ_API_KEY (gsk_...) on Netlify/Vercel Production, then redeploy."
-        : undefined,
-    });
+    return jsonResponse(buildStatus(keys));
   }
 
   if (request.method !== "POST") {
@@ -256,5 +282,29 @@ export default async function handler(request) {
     const message = err?.message || "Intelligence generation failed";
     const isQuota = message.includes("rate limit") || message.includes("quota");
     return jsonResponse({ error: message, code: isQuota ? "quota_exceeded" : "provider_error" }, isQuota ? 429 : 500);
+  }
+}
+
+/** Vercel Node.js serverless — req/res (env vars injected here after redeploy) */
+export default async function handler(req, res) {
+  const keys = getKeys();
+
+  if (req.method === "GET") {
+    sendJsonRes(res, buildStatus(keys));
+    return;
+  }
+
+  if (req.method !== "POST") {
+    sendJsonRes(res, { error: "Method not allowed" }, 405);
+    return;
+  }
+
+  try {
+    const result = await fetchFreshIntel(keys);
+    sendJsonRes(res, result);
+  } catch (err) {
+    const message = err?.message || "Intelligence generation failed";
+    const isQuota = message.includes("rate limit") || message.includes("quota");
+    sendJsonRes(res, { error: message, code: isQuota ? "quota_exceeded" : "provider_error" }, isQuota ? 429 : 500);
   }
 }
