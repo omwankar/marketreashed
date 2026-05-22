@@ -80,8 +80,26 @@ function buildSitemapXml() {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
 }
 
+const AI_ENV_KEYS = [
+  "GROQ_API_KEY",
+  "VITE_GROQ_API_KEY",
+  "VITE_GEMINI_API_KEY",
+  "GEMINI_API_KEY",
+  "VITE_NVIDIA_API_KEY",
+  "NVIDIA_API_KEY",
+];
+
+/** Push .env into process.env so api/platform-intelligence.js can read keys in dev */
+function applyAiEnvToProcess(env = {}) {
+  for (const key of AI_ENV_KEYS) {
+    if (env[key]) process.env[key] = env[key];
+  }
+}
+
 /** Dev: same /api/platform-intelligence route as Vercel production */
-function platformIntelligenceDevPlugin() {
+function platformIntelligenceDevPlugin(env) {
+  applyAiEnvToProcess(env);
+
   return {
     name: "insightaxis-platform-intel-api",
     async configureServer(server) {
@@ -97,6 +115,7 @@ function platformIntelligenceDevPlugin() {
         const chunks = [];
         req.on("data", (c) => chunks.push(c));
         req.on("end", async () => {
+          applyAiEnvToProcess(env);
           try {
             const body = req.method === "POST" && chunks.length ? Buffer.concat(chunks) : undefined;
             const request = new Request(`http://localhost${path}`, { method: req.method, body });
@@ -146,7 +165,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   return {
     envDir: process.cwd(),
-    plugins: [react(), platformIntelligenceDevPlugin(), sitemapPlugin()],
+    plugins: [react(), platformIntelligenceDevPlugin(env), sitemapPlugin()],
     define: {
       "import.meta.env.VITE_AI_ENABLED": JSON.stringify(
         Boolean(env.GROQ_API_KEY || env.VITE_GROQ_API_KEY || env.VITE_GEMINI_API_KEY || env.VITE_NVIDIA_API_KEY),

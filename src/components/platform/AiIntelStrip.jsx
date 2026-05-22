@@ -2,20 +2,69 @@ import { RefreshCw, Sparkles, Wifi } from "lucide-react";
 import { usePlatformIntelligence } from "../../context/PlatformIntelligenceContext.jsx";
 
 export function AiIntelStrip() {
-  const { intel, loading, refreshing, refresh, apiConfigured, isLive, providerLabel, isStale } =
+  const { intel, loading, refreshing, refresh, apiConfigured, apiMissing, setupHint, isLive, providerLabel, isStale } =
     usePlatformIntelligence();
 
   if (!apiConfigured) {
     return (
       <div className="plt-intel-strip plt-intel-strip--warn" role="status">
-        <p>
-          <strong>AI not configured on server.</strong> In <strong>Vercel → Project → Settings → Environment Variables</strong>, add:
-          <br />
-          <code className="plt-code">GROQ_API_KEY</code> (recommended, fastest),{" "}
-          <code className="plt-code">VITE_GEMINI_API_KEY</code>, and/or <code className="plt-code">VITE_NVIDIA_API_KEY</code>
-          <br />
-          Enable for <strong>Production</strong>, then <strong>Redeploy</strong>. Local: add to <code className="plt-code">.env</code> and restart <code className="plt-code">npm run dev</code>.
-        </p>
+        {apiMissing ? (
+          <p>
+            <strong>Server API is not running on your host.</strong> Local <code className="plt-code">.env</code> does
+            not fix production — keys must be on <strong>Netlify</strong> or <strong>Vercel</strong>, then{" "}
+            <strong>redeploy</strong>.
+            <br />
+            Netlify: Site settings → Environment variables → add <code className="plt-code">GROQ_API_KEY</code>, then
+            Deploys → Trigger deploy.
+            <br />
+            Vercel: Project → Settings → Environment Variables → same keys → Redeploy.
+            <br />
+            Test: open <code className="plt-code">/api/platform-intelligence</code> — you must see JSON, not the
+            homepage.
+            {setupHint && (
+              <>
+                <br />
+                <span className="plt-intel-strip__error-hint">{setupHint}</span>
+              </>
+            )}
+          </p>
+        ) : import.meta.env.DEV ? (
+          <p>
+            <strong>Local .env not loaded into dev API.</strong> In project root <code className="plt-code">.env</code> add:
+            <br />
+            <code className="plt-code">GROQ_API_KEY=gsk_your-key</code> (recommended)
+            <br />
+            Optional: <code className="plt-code">VITE_GEMINI_API_KEY</code>, <code className="plt-code">VITE_NVIDIA_API_KEY</code>
+            <br />
+            Then <strong>stop</strong> and restart <code className="plt-code">npm run dev</code>. Test:{" "}
+            <a href="/api/platform-intelligence" target="_blank" rel="noreferrer" className="plt-intel-link">
+              /api/platform-intelligence
+            </a>{" "}
+            should show <code className="plt-code">"configured":true</code>.
+            {setupHint && (
+              <>
+                <br />
+                <span className="plt-intel-strip__error-hint">{setupHint}</span>
+              </>
+            )}
+          </p>
+        ) : (
+          <p>
+            <strong>API keys not visible on server.</strong> Add on your host (not only local .env):
+            <br />
+            <code className="plt-code">GROQ_API_KEY</code>=<code className="plt-code">gsk_...</code> (exact name, no typo)
+            <br />
+            Optional: <code className="plt-code">VITE_GEMINI_API_KEY</code>, <code className="plt-code">VITE_NVIDIA_API_KEY</code>
+            <br />
+            Scope: <strong>Production</strong> → <strong>Save</strong> → <strong>Redeploy</strong> (required after any env change).
+            {setupHint && (
+              <>
+                <br />
+                <span className="plt-intel-strip__error-hint">{setupHint}</span>
+              </>
+            )}
+          </p>
+        )}
       </div>
     );
   }

@@ -22,16 +22,25 @@ function jsonResponse(body, status = 200) {
   });
 }
 
+function firstEnv(...names) {
+  for (const name of names) {
+    const v = process.env[name];
+    if (v && String(v).trim()) return String(v).trim();
+  }
+  return "";
+}
+
 function getKeys() {
-  const groq = (process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY || "").trim();
-  const gemini = (process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || "").trim();
-  const nvidia = (process.env.VITE_NVIDIA_API_KEY || process.env.NVIDIA_API_KEY || "").trim();
+  const groq = firstEnv("GROQ_API_KEY", "VITE_GROQ_API_KEY", "GROQ_KEY");
+  const gemini = firstEnv("VITE_GEMINI_API_KEY", "GEMINI_API_KEY", "GOOGLE_GEMINI_API_KEY");
+  const nvidia = firstEnv("VITE_NVIDIA_API_KEY", "NVIDIA_API_KEY");
   return { groq, gemini, nvidia };
 }
 
 function hasAnyKey(keys) {
   return (
     keys.groq?.startsWith("gsk_") ||
+    keys.groq?.length >= 30 ||
     keys.gemini?.length >= 20 ||
     keys.nvidia?.startsWith("nvapi-")
   );
@@ -173,7 +182,7 @@ async function tryNvidiaModels(prompt, apiKey) {
 async function generateWithFallback(prompt, keys) {
   const failures = [];
 
-  if (keys.groq?.startsWith("gsk_")) {
+  if (keys.groq?.startsWith("gsk_") || keys.groq?.length >= 30) {
     try {
       const data = await withRetry(() => callGroq(prompt, keys.groq), { attempts: 2, delays: [0, 1000] });
       return { data, provider: "groq", usedFallback: false };
@@ -223,12 +232,16 @@ export default async function handler(request) {
   const keys = getKeys();
 
   if (request.method === "GET") {
+    const groqOk = Boolean(keys.groq?.startsWith("gsk_") || keys.groq?.length >= 30);
     return jsonResponse({
       configured: hasAnyKey(keys),
-      groq: Boolean(keys.groq?.startsWith("gsk_")),
+      groq: groqOk,
       gemini: Boolean(keys.gemini?.length >= 20),
       nvidia: Boolean(keys.nvidia?.startsWith("nvapi-")),
-      primary: keys.groq?.startsWith("gsk_") ? "groq" : keys.gemini?.length >= 20 ? "gemini" : "nvidia",
+      primary: groqOk ? "groq" : keys.gemini?.length >= 20 ? "gemini" : "nvidia",
+      hint: !hasAnyKey(keys)
+        ? "Set GROQ_API_KEY (gsk_...) on Netlify/Vercel Production, then redeploy."
+        : undefined,
     });
   }
 

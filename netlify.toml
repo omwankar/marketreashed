@@ -1,0 +1,22 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+# API must run BEFORE SPA fallback (public/_redirects also lists this rule)
+[[redirects]]
+  from = "/api/platform-intelligence"
+  to = "/.netlify/functions/platform-intelligence"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/nvidia/chat/completions"
+  to = "/.netlify/functions/nvidia-chat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -1,5 +1,4 @@
-# Netlify SPA fallback: serve the React shell for any unknown path.
-# Without this, deep links like /domains/healthcare or /markets/global-... return 404
-# on first hit (Google can't crawl them). The 200 status ensures crawlers see content,
-# not a redirect — perfect for client-side routing.
+# Netlify: API routes BEFORE SPA fallback (order matters)
+/api/platform-intelligence  /.netlify/functions/platform-intelligence  200
+/api/nvidia/chat/completions  /.netlify/functions/nvidia-chat  200
 /*    /index.html   200

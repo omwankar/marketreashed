@@ -21,6 +21,8 @@ export function PlatformIntelligenceProvider({ children }) {
   const [intel, setIntel] = useState(createInitialIntel);
   const hadCache = useRef(Boolean(readPlatformCache()));
   const [apiConfigured, setApiConfigured] = useState(false);
+  const [setupHint, setSetupHint] = useState(null);
+  const [apiMissing, setApiMissing] = useState(false);
   const [providerLabel, setProviderLabel] = useState(null);
   const [loading, setLoading] = useState(!hadCache.current);
   const [refreshing, setRefreshing] = useState(false);
@@ -56,11 +58,18 @@ export function PlatformIntelligenceProvider({ children }) {
 
     resolvePlatformAiConfigured().then((status) => {
       setApiConfigured(status.configured);
-
+      setSetupHint(status.hint || null);
+      setApiMissing(Boolean(status.apiMissing));
       setProviderLabel(getAiProviderLabel(status));
 
       if (!status.configured) {
-        setIntel({ ...emptyIntel(), needsApiKey: true, source: "unconfigured" });
+        setIntel({
+          ...emptyIntel(),
+          needsApiKey: true,
+          source: "unconfigured",
+          setupHint: status.hint,
+          apiMissing: Boolean(status.apiMissing),
+        });
         setLoading(false);
         return;
       }
@@ -82,6 +91,8 @@ export function PlatformIntelligenceProvider({ children }) {
       refreshing,
       refresh: () => load(true),
       apiConfigured,
+      setupHint,
+      apiMissing,
       providerLabel,
       isLive:
         (intel.source === "groq" ||
@@ -92,7 +103,7 @@ export function PlatformIntelligenceProvider({ children }) {
       hasData: apiConfigured && (intel.timeline?.length > 0 || intel.executiveSummary?.length > 20),
       isStale: Boolean(intel.isStale),
     }),
-    [intel, loading, refreshing, load, apiConfigured, providerLabel],
+    [intel, loading, refreshing, load, apiConfigured, setupHint, apiMissing, providerLabel],
   );
 
   return (

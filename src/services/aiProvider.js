@@ -8,7 +8,7 @@ export function hasPlatformAiKeyBuildHint() {
 let cachedStatus = null;
 
 export async function resolvePlatformAiConfigured() {
-  if (cachedStatus) return cachedStatus;
+  if (cachedStatus && !import.meta.env.DEV) return cachedStatus;
   cachedStatus = await fetchPlatformAiStatus();
   return cachedStatus;
 }
