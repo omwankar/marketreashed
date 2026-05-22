@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect, useMemo } from "react";
+﻿import { useState, useRef, useEffect, useMemo, lazy, Suspense } from "react";
 import {
   Routes,
   Route,
@@ -33,6 +33,7 @@ import MordorReport, {
   MordorReportForm,
   buildReportForMarket,
 } from "./components/MordorReport.jsx";
+const PlatformPage = lazy(() => import("./pages/PlatformPage.jsx"));
 
 // EmailJS configuration
 const EMAILJS_SERVICE_ID = "service_h382m08";
@@ -366,6 +367,7 @@ function getPageType(pathname) {
   if (pathname === "/generate") return "generate";
   if (pathname === "/about") return "about";
   if (pathname === "/contact") return "contact";
+  if (pathname === "/radar" || pathname === "/platform") return "radar";
   return "other";
 }
 
@@ -2630,13 +2632,16 @@ function NavBar() {
   const navItems = [
     { to: "/", label: "Home", match: (t) => t === "home" },
     { to: "/domains", label: "Research", match: (t) => t === "domains" || t === "domain" || t === "market" },
+    { to: "/radar", label: "Radar", match: (t) => t === "radar" },
     { to: "/generate", label: "AI Generator", match: (t) => t === "generate" },
     { to: "/about", label: "About", match: (t) => t === "about" },
     { to: "/contact", label: "Contact", match: (t) => t === "contact" },
   ];
 
+  const isRadar = pageType === "radar";
+
   return (
-    <header className={`navbar${scrolled ? " scrolled" : ""}`}>
+    <header className={`navbar${scrolled ? " scrolled" : ""}${isRadar ? " navbar--radar" : ""}`}>
       <div className="navbar__inner">
         <Link
           to="/"
@@ -2716,7 +2721,7 @@ function NavBar() {
 function Breadcrumb() {
   const location = useLocation();
   const pageType = getPageType(location.pathname);
-  if (pageType === "home" || pageType === "market") return null;
+  if (pageType === "home" || pageType === "market" || pageType === "radar") return null;
   const domainId = getDomainIdFromPath(location.pathname);
   const domain = domainId ? DOMAINS.find((d) => d.id === domainId) : null;
 
@@ -2920,20 +2925,23 @@ function LegacyHashRedirect() {
 
 export default function App() {
   const location = useLocation();
+  const isPlatformPage = location.pathname === "/radar" || location.pathname === "/platform";
   // Pass pathname as key so the reveal observer re-runs after every
   // client-side route change (App itself doesn't re-mount, only <Routes>
   // children do, so a no-dep useEffect would only fire on initial mount).
   useScrollReveal({ key: location.pathname });
 
   return (
-    <div style={{ background: "var(--navy)", minHeight: "100vh", color: "var(--cream)" }}>
+    <div style={{ background: isPlatformPage ? "#050e1a" : "var(--navy)", minHeight: "100vh", color: "var(--cream)" }}>
       <ScrollToTopOnRouteChange />
       <LegacyHashRedirect />
 
       {/* Announcement bar */}
+      {!isPlatformPage && (
       <div style={{ background: "var(--navy-2)", borderBottom: "1px solid var(--border)", color: "var(--text-muted)", fontSize: 11.5, padding: "8px 0", textAlign: "center", letterSpacing: "0.04em", fontFamily: "'JetBrains Mono', monospace" }}>
         InsightAxis · Trusted by 12,000+ organizations · 2026 Global Market Outlook now live
       </div>
+      )}
 
       <NavBar />
 
@@ -2964,6 +2972,15 @@ export default function App() {
               <div style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 32px" }}>
                 <MarketDetailPage />
               </div>
+            }
+          />
+          <Route path="/platform" element={<Navigate to="/radar" replace />} />
+          <Route
+            path="/radar"
+            element={
+              <Suspense fallback={<div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)" }}>Loading Radar…</div>}>
+                <PlatformPage />
+              </Suspense>
             }
           />
           <Route
@@ -3019,7 +3036,7 @@ export default function App() {
         </Routes>
       </main>
 
-      <Footer />
+      {!isPlatformPage && <Footer />}
     </div>
   );
 }

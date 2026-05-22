@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import { MARKET_SEEDS } from "./src/data/marketSeeds.js";
 import { buildExpandedCatalog } from "./src/marketCatalog.js";
@@ -39,6 +39,7 @@ function buildSitemapXml() {
   // Top-level pages
   pushUrl(`${SITE_URL}/`, "1.0", "daily");
   pushUrl(`${SITE_URL}/domains`, "0.9", "weekly");
+  pushUrl(`${SITE_URL}/radar`, "0.9", "weekly");
   pushUrl(`${SITE_URL}/generate`, "0.8", "weekly");
   pushUrl(`${SITE_URL}/about`, "0.7", "monthly");
   pushUrl(`${SITE_URL}/contact`, "0.6", "monthly");
@@ -79,6 +80,55 @@ function buildSitemapXml() {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
 }
 
+/** Dev-only proxy: browser cannot call integrate.api.nvidia.com directly (CORS). */
+function nvidiaProxyPlugin(env) {
+  return {
+    name: "insightaxis-nvidia-proxy",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const url = req.url?.split("?")[0];
+        if (url !== "/api/nvidia/chat/completions" || req.method !== "POST") {
+          next();
+          return;
+        }
+
+        const apiKey = env.VITE_NVIDIA_API_KEY || env.NVIDIA_API_KEY;
+        if (!apiKey?.startsWith("nvapi-")) {
+          res.statusCode = 500;
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify({ error: "Set VITE_NVIDIA_API_KEY in .env and restart dev server" }));
+          return;
+        }
+
+        const chunks = [];
+        req.on("data", (c) => chunks.push(c));
+        req.on("end", async () => {
+          try {
+            const body = Buffer.concat(chunks).toString("utf8");
+            const upstream = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+              body,
+            });
+            const text = await upstream.text();
+            res.statusCode = upstream.status;
+            res.setHeader("Content-Type", "application/json");
+            res.end(text);
+          } catch (err) {
+            res.statusCode = 502;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ error: err?.message || "NVIDIA proxy failed" }));
+          }
+        });
+      });
+    },
+  };
+}
+
 // Vite plugin: emit a sitemap.xml into the build output at every build,
 // and serve it from the dev server during development.
 function sitemapPlugin() {
@@ -105,6 +155,16 @@ function sitemapPlugin() {
   };
 }
 
-export default defineConfig({
-  plugins: [react(), sitemapPlugin()],
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "");
+  return {
+    envDir: process.cwd(),
+    plugins: [react(), nvidiaProxyPlugin(env), sitemapPlugin()],
+    // Ensure Gemini key is always injected for client bundles (fixes stale dev server env)
+    define: {
+      "import.meta.env.VITE_NVIDIA_API_KEY": JSON.stringify(env.VITE_NVIDIA_API_KEY ?? ""),
+      "import.meta.env.VITE_GEMINI_API_KEY": JSON.stringify(env.VITE_GEMINI_API_KEY ?? ""),
+      "import.meta.env.VITE_EMAILJS_PUBLIC_KEY": JSON.stringify(env.VITE_EMAILJS_PUBLIC_KEY ?? ""),
+    },
+  };
 });
