@@ -8,13 +8,22 @@ const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODEL = "deepseek-r1-distill-llama-70b";
 const GEMINI_MODEL = "gemini-2.0-flash";
 const NVIDIA_MODELS = ["meta/llama-3.1-8b-instruct", "moonshotai/kimi-k2.6"];
-const TOKEN_BUDGET = 1536;
+const TOKEN_BUDGET = 4096;
 const RETRYABLE = new Set([429, 502, 503, 504]);
 
-const FULL_PROMPT = `Enterprise competitive intelligence. Competitors A,B,C. Regions APAC,EMEA,India,NA.
+function buildRadarPrompt(industry = {}) {
+  const label = industry.industryLabel || industry.label || "Technology";
+  const desc = industry.industryDesc || industry.desc || "enterprise markets";
+  const today = new Date().toISOString().slice(0, 10);
+
+  return `Enterprise competitive intelligence for the ${label} industry. Context: ${desc}.
+Today is ${today}. Provide current, realistic intelligence using real company names active in ${label}.
 
 Return ONLY one JSON object (no markdown):
-{"executiveSummary":"2 sentences","strategicInsight":"1 short paragraph","alerts":["3 with emoji"],"notifications":["3 short"],"recommendations":["3 actions"],"riskSignal":"1 sentence","confidence":"High","generatedAt":"ISO date","kpis":{"signalsToday":"18.4K","regions":42,"alerts":23},"competitorFeed":["3 lines"],"timeline":[{"time":"2m ago","category":"Pricing","description":"event"},...4],"momentumTrend":[{"label":"W1","value":50},...6 varied 30-95],"velocityTrend":[{"label":"W1","value":40},...6],"marketShareTrend":[{"month":"Jan","you":30,"a":22,"b":18},...4],"activityByDay":[{"day":"Mon","intensity":55},...7],"signalTrend":[{"month":"Jan","signals":4000},...4],"competitorTable":[{"name":"Competitor A","activity":"High","change":"+12%","region":"APAC"},...4],"dashboardKpis":[{"label":"Market Coverage","value":"2,400+","sub":"segments"},...4]}`;
+{"industry":"${label}","executiveSummary":"2 sentences specific to ${label}","strategicInsight":"1 paragraph on ${label} competitive dynamics","alerts":["3 emoji alerts for ${label}"],"notifications":["3 short notifications"],"recommendations":["3 strategic actions"],"riskSignal":"1 sentence","confidence":"High|Medium","generatedAt":"ISO date","kpis":{"signalsToday":"18.4K","regions":42,"alerts":23},"competitorFeed":["3 recent ${label} competitor moves with real company names"],"timeline":[{"time":"2m ago","category":"Pricing|Launch|Hiring|M&A","description":"realistic ${label} event"},...5],"newsFeed":[{"headline":"realistic ${label} headline","summary":"1 sentence","source":"Industry press","time":"2h ago"},...5],"agentOutputs":[{"id":"comp","status":"Active — Last run: 2m ago","metric":"512 signals/day","lastInsight":"1 sentence ${label} insight"},{"id":"price","status":"Active — Last run: 5m ago","metric":"2.4k SKUs","lastInsight":"..."},{"id":"trend","status":"Active — Last run: 1m ago","metric":"94% precision","lastInsight":"..."},{"id":"brief","status":"Active — Last run: 8m ago","metric":"6:00 AM daily","lastInsight":"..."},{"id":"risk","status":"Active — Last run: 30s ago","metric":"0 critical open","lastInsight":"..."}],"momentumTrend":[{"label":"W1","value":50},...6],"velocityTrend":[{"label":"W1","value":40},...6],"marketShareTrend":[{"month":"Jan","you":30,"a":22,"b":18},...4],"activityByDay":[{"day":"Mon","intensity":55},...7],"signalTrend":[{"month":"Jan","signals":4000},...4],"competitorTable":[{"name":"Real ${label} company","activity":"High","change":"+12%","region":"APAC"},...4],"dashboardKpis":[{"label":"Market Coverage","value":"2,400+","sub":"segments"},...4]}
+
+Rules: use REAL ${label} companies only; news must sound plausible for ${today}; never use placeholder names like Competitor A.`;
+}
 
 function firstEnv(...names) {
   for (const name of names) {
@@ -253,14 +262,36 @@ async function generateWithFallback(prompt, keys) {
   throw new Error(failures.join(" · ") || "All AI providers failed");
 }
 
-async function fetchFreshIntel(keys) {
-  const result = await generateWithFallback(FULL_PROMPT, keys);
+async function fetchFreshIntel(keys, industry = {}) {
+  const prompt = buildRadarPrompt(industry);
+  const result = await generateWithFallback(prompt, keys);
   return {
     raw: result.data,
     provider: result.provider,
     usedFallback: result.usedFallback,
     partial: false,
   };
+}
+
+function readReqBody(req) {
+  return new Promise((resolve, reject) => {
+    if (req.body != null && req.body !== "") {
+      resolve(typeof req.body === "string" ? req.body : JSON.stringify(req.body));
+      return;
+    }
+    const chunks = [];
+    req.on("data", (c) => chunks.push(c));
+    req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+    req.on("error", reject);
+  });
+}
+
+async function parseIndustryBody(request) {
+  try {
+    return await request.json();
+  } catch {
+    return {};
+  }
 }
 
 /** Web Request API — Vite dev + Netlify */
@@ -276,7 +307,8 @@ export async function handlePlatformIntelligenceRequest(request) {
   }
 
   try {
-    const result = await fetchFreshIntel(keys);
+    const body = await parseIndustryBody(request);
+    const result = await fetchFreshIntel(keys, body);
     return jsonResponse(result);
   } catch (err) {
     const message = err?.message || "Intelligence generation failed";
@@ -300,7 +332,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const result = await fetchFreshIntel(keys);
+    const raw = await readReqBody(req);
+    const body = raw ? JSON.parse(raw) : {};
+    const result = await fetchFreshIntel(keys, body);
     sendJsonRes(res, result);
   } catch (err) {
     const message = err?.message || "Intelligence generation failed";

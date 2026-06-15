@@ -1,11 +1,11 @@
-const CACHE_KEY = "insightaxis_platform_intel_v5";
-const SESSION_KEY = CACHE_KEY;
-/** Skip network if cache is newer than this (fast repeat visits) */
-/** Avoid hammering APIs when quota is tight */
+const CACHE_PREFIX = "insightaxis_platform_intel_v7";
+/** Skip network if cache is newer than this */
 export const FRESH_MS = 1000 * 60 * 120;
-
-/** localStorage kept for returning visitors on production */
 const PERSIST_MS = 1000 * 60 * 60 * 6;
+
+function cacheKey(industryId) {
+  return `${CACHE_PREFIX}_${industryId || "technology"}`;
+}
 
 function parseEntry(raw) {
   if (!raw) return null;
@@ -14,16 +14,21 @@ function parseEntry(raw) {
   return { ts, data };
 }
 
-export function readPlatformCache() {
+export function readPlatformCache(industryId = "technology") {
+  const key = cacheKey(industryId);
   try {
-    const fromLocal = parseEntry(localStorage.getItem(CACHE_KEY));
-    if (fromLocal) return { ...fromLocal.data, source: fromLocal.data.source || "cache", cacheAge: Date.now() - fromLocal.ts };
+    const fromLocal = parseEntry(localStorage.getItem(key));
+    if (fromLocal) {
+      return { ...fromLocal.data, source: fromLocal.data.source || "cache", cacheAge: Date.now() - fromLocal.ts };
+    }
   } catch {
     /* quota / private mode */
   }
   try {
-    const fromSession = parseEntry(sessionStorage.getItem(SESSION_KEY));
-    if (fromSession) return { ...fromSession.data, source: fromSession.data.source || "cache", cacheAge: Date.now() - fromSession.ts };
+    const fromSession = parseEntry(sessionStorage.getItem(key));
+    if (fromSession) {
+      return { ...fromSession.data, source: fromSession.data.source || "cache", cacheAge: Date.now() - fromSession.ts };
+    }
   } catch {
     /* ignore */
   }
@@ -34,15 +39,16 @@ export function isCacheFresh(cacheAgeMs) {
   return typeof cacheAgeMs === "number" && cacheAgeMs < FRESH_MS;
 }
 
-export function writePlatformCache(data) {
+export function writePlatformCache(data, industryId = "technology") {
+  const key = cacheKey(industryId);
   const entry = JSON.stringify({ ts: Date.now(), data });
   try {
-    sessionStorage.setItem(SESSION_KEY, entry);
+    sessionStorage.setItem(key, entry);
   } catch {
     /* ignore */
   }
   try {
-    localStorage.setItem(CACHE_KEY, entry);
+    localStorage.setItem(key, entry);
   } catch {
     /* ignore */
   }

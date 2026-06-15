@@ -43,8 +43,8 @@ function TabPanel({ tabId, recommendations, intel }) {
     case "signals":
       return (
         <ul className="space-y-2 text-sm">
-          {(intel.notifications?.length ? intel.notifications : intel.alerts || []).map((s) => (
-            <li key={s} className="plt-glass rounded-lg px-3 py-2 text-slate-300">
+          {(intel.notifications?.length ? intel.notifications : intel.alerts || []).map((s, i) => (
+            <li key={`signal-${i}`} className="plt-glass rounded-lg px-3 py-2 text-slate-300">
               {s}
             </li>
           ))}
@@ -84,8 +84,8 @@ function TabPanel({ tabId, recommendations, intel }) {
     case "strategy":
       return (
         <div className="grid gap-3">
-          {(recommendations || []).slice(0, 3).map((r) => (
-            <div key={r} className="plt-glass rounded-lg px-4 py-3 text-sm text-slate-200 border-l-2 border-blue-500">
+          {(recommendations || []).slice(0, 3).map((r, i) => (
+            <div key={`rec-${i}`} className="plt-glass rounded-lg px-4 py-3 text-sm text-slate-200 border-l-2 border-blue-500">
               {r}
             </div>
           ))}

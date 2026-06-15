@@ -11,6 +11,12 @@
   force = true
 
 [[redirects]]
+  from = "/api/generate-report"
+  to = "/.netlify/functions/generate-report"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/nvidia/chat/completions"
   to = "/.netlify/functions/nvidia-chat"
   status = 200

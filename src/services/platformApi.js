@@ -44,13 +44,13 @@ export async function fetchPlatformAiStatus() {
 /**
  * @returns {Promise<{ raw: object, provider: string, usedFallback: boolean, partial?: boolean }>}
  */
-export async function requestPlatformIntelligence() {
+export async function requestPlatformIntelligence({ industryId, industryLabel, industryDesc } = {}) {
   let res;
   try {
     res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: "{}",
+      body: JSON.stringify({ industryId, industryLabel, industryDesc }),
       cache: "no-store",
     });
   } catch (err) {

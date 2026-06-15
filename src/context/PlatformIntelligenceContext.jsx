@@ -4,13 +4,23 @@ import {
   emptyIntel,
   readPlatformCache,
   isCacheFresh,
+  sanitizeIntel,
 } from "../services/platformIntelligence.js";
 import { getAiProviderLabel, resolvePlatformAiConfigured } from "../services/aiProvider.js";
+import {
+  getRadarIndustry,
+  readStoredRadarIndustry,
+  writeStoredRadarIndustry,
+} from "../data/radarIndustries.js";
 
-function createInitialIntel() {
-  const cached = readPlatformCache();
+function createInitialIntel(industryId) {
+  const cached = readPlatformCache(industryId);
   if (cached) {
-    return { ...cached, needsApiKey: false, isStale: !isCacheFresh(cached.cacheAge) };
+    return {
+      ...sanitizeIntel(cached),
+      needsApiKey: false,
+      isStale: !isCacheFresh(cached.cacheAge),
+    };
   }
   return { ...emptyIntel(), needsApiKey: false, source: "loading" };
 }
@@ -18,8 +28,10 @@ function createInitialIntel() {
 const PlatformIntelligenceContext = createContext(null);
 
 export function PlatformIntelligenceProvider({ children }) {
-  const [intel, setIntel] = useState(createInitialIntel);
-  const hadCache = useRef(Boolean(readPlatformCache()));
+  const [industryId, setIndustryIdState] = useState(readStoredRadarIndustry);
+  const industry = useMemo(() => getRadarIndustry(industryId), [industryId]);
+  const [intel, setIntel] = useState(() => createInitialIntel(industryId));
+  const hadCache = useRef(Boolean(readPlatformCache(industryId)));
   const [apiConfigured, setApiConfigured] = useState(false);
   const [setupHint, setSetupHint] = useState(null);
   const [apiMissing, setApiMissing] = useState(false);
@@ -28,29 +40,47 @@ export function PlatformIntelligenceProvider({ children }) {
   const [refreshing, setRefreshing] = useState(false);
   const bootstrapped = useRef(false);
 
-  const load = useCallback(async (forceRefresh = false) => {
-    const showFullLoading = forceRefresh || !intel.timeline?.length;
-    if (showFullLoading) setLoading(true);
-    else setRefreshing(true);
+  const load = useCallback(
+    async (forceRefresh = false, nextIndustry = industry) => {
+      const showFullLoading = forceRefresh || !intel.timeline?.length;
+      if (showFullLoading) setLoading(true);
+      else setRefreshing(true);
 
-    try {
-      const data = await fetchPlatformIntelligence({ forceRefresh });
-      setIntel({ ...data, needsApiKey: false, isStale: Boolean(data.isStale) });
-    } catch (err) {
-      setIntel({
-        ...emptyIntel(),
-        needsApiKey: false,
-        source: "error",
-        apiAvailable: true,
-        error: err?.message || "AI request failed",
-        executiveSummary:
-          "Could not reach AI on server. Add GROQ_API_KEY (fastest) and/or other keys in Vercel → Environment Variables, then redeploy.",
-      });
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [intel.timeline?.length]);
+      try {
+        const data = await fetchPlatformIntelligence({ forceRefresh, industry: nextIndustry });
+        setIntel({ ...data, needsApiKey: false, isStale: Boolean(data.isStale) });
+      } catch (err) {
+        setIntel({
+          ...emptyIntel(),
+          needsApiKey: false,
+          source: "error",
+          apiAvailable: true,
+          error: err?.message || "AI request failed",
+          executiveSummary:
+            "Could not reach AI on server. Add GROQ_API_KEY in Vercel → Environment Variables, then redeploy.",
+        });
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [industry, intel.timeline?.length],
+  );
+
+  const setIndustryId = useCallback(
+    (id) => {
+      if (id === industryId) return;
+      const next = getRadarIndustry(id);
+      writeStoredRadarIndustry(id);
+      setIndustryIdState(id);
+      hadCache.current = Boolean(readPlatformCache(id));
+      setIntel(createInitialIntel(id));
+      if (apiConfigured) {
+        load(true, next);
+      }
+    },
+    [apiConfigured, industryId, load],
+  );
 
   useEffect(() => {
     if (bootstrapped.current) return;
@@ -74,26 +104,30 @@ export function PlatformIntelligenceProvider({ children }) {
         return;
       }
 
-      const cached = readPlatformCache();
+      const cached = readPlatformCache(industryId);
       if (cached && isCacheFresh(cached.cacheAge)) {
+        setIntel({ ...sanitizeIntel(cached), needsApiKey: false, isStale: false });
         setLoading(false);
         return;
       }
 
-      load(false);
+      load(false, industry);
     });
-  }, [load]);
+  }, [industry, industryId, load]);
 
   const value = useMemo(
     () => ({
       intel,
       loading,
       refreshing,
-      refresh: () => load(true),
+      refresh: () => load(true, industry),
       apiConfigured,
       setupHint,
       apiMissing,
       providerLabel,
+      industryId,
+      industryLabel: industry.label,
+      setIndustryId,
       isLive:
         (intel.source === "groq" ||
           intel.source === "nvidia" ||
@@ -103,7 +137,19 @@ export function PlatformIntelligenceProvider({ children }) {
       hasData: apiConfigured && (intel.timeline?.length > 0 || intel.executiveSummary?.length > 20),
       isStale: Boolean(intel.isStale),
     }),
-    [intel, loading, refreshing, load, apiConfigured, setupHint, apiMissing, providerLabel],
+    [
+      intel,
+      loading,
+      refreshing,
+      load,
+      industry,
+      apiConfigured,
+      setupHint,
+      apiMissing,
+      providerLabel,
+      industryId,
+      setIndustryId,
+    ],
   );
 
   return (

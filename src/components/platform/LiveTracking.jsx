@@ -47,7 +47,7 @@ export function LiveTracking() {
               ))}
             </ul>
           ) : (
-            <p className="plt-chart-empty-text">Connect Gemini API to load live timeline.</p>
+            <p className="plt-chart-empty-text">Select an industry and refresh to load the live timeline.</p>
           )}
         </div>
 

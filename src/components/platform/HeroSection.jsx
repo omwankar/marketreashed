@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, BarChart3, Globe2, Radar, TrendingUp } from "lucide-react";
 import { usePlatformIntelligence } from "../../context/PlatformIntelligenceContext.jsx";
+import { bookDemoContact } from "../../constants/contactLinks.js";
 import { AiIntelStrip } from "./AiIntelStrip.jsx";
 import { SparkArea, SparkLine } from "./Charts.jsx";
 import { PltBadge } from "./shared.jsx";
 
 export function HeroSection() {
-  const { intel, loading, hasData } = usePlatformIntelligence();
+  const { intel, loading, hasData, industryLabel } = usePlatformIntelligence();
   const alerts = intel.alerts || [];
   const [idx, setIdx] = useState(0);
 
@@ -41,11 +42,11 @@ export function HeroSection() {
           </h1>
 
           <p className="plt-hero__subtitle">
-            Transform market signals, competitor activity, and industry data into strategic business decisions with real-time AI intelligence.
+            Transform {industryLabel} market signals, competitor activity, and industry news into strategic decisions with real-time AI intelligence.
           </p>
 
           <div className="plt-hero__actions">
-            <Link to="/contact" className="plt-btn-primary">
+            <Link to={bookDemoContact({ industryLabel })} className="plt-btn-primary">
               Book Demo <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
             <a href="#overview" className="plt-btn-ghost">Explore Radar</a>
@@ -97,8 +98,8 @@ export function HeroSection() {
               <p className="plt-chart-box__label">Competitor feed (AI)</p>
               {intel.competitorFeed?.length ? (
                 <ul>
-                  {intel.competitorFeed.map((r) => (
-                    <li key={r}>
+                  {intel.competitorFeed.map((r, i) => (
+                    <li key={`feed-${i}-${String(r).slice(0, 40)}`}>
                       <span className="plt-feed-dot" aria-hidden /> {r}
                     </li>
                   ))}

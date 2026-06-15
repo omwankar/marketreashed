@@ -2,6 +2,8 @@ import { useSEO } from "../hooks/useSEO.js";
 import { PLATFORM_SEO, PLATFORM_KEYWORDS } from "../lib/platformData.js";
 import { PlatformIntelligenceProvider } from "../context/PlatformIntelligenceContext.jsx";
 
+import { IndustrySlicer } from "../components/platform/IndustrySlicer.jsx";
+import { IndustryNewsFeed } from "../components/platform/IndustryNewsFeed.jsx";
 import { HeroSection } from "../components/platform/HeroSection.jsx";
 import { TrustedBy } from "../components/platform/TrustedBy.jsx";
 import { PlatformOverview } from "../components/platform/PlatformOverview.jsx";
@@ -55,9 +57,11 @@ function PlatformContent() {
 
   return (
     <div className="platform-page min-h-screen">
+      <IndustrySlicer />
       <HeroSection />
       <TrustedBy />
       <PlatformOverview />
+      <IndustryNewsFeed />
       <LiveTracking />
       <AIInsightsEngine />
       <IndustriesGrid />

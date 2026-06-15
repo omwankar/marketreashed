@@ -77,8 +77,8 @@ export function AIInsightsEngine() {
         <div className="plt-panel p-6">
           <p className="font-mono text-xs text-violet-300 mb-2">Strategic recommendations (AI)</p>
           <ul className="grid gap-2 md:grid-cols-3">
-            {(intel.recommendations || []).map((rec) => (
-              <li key={rec} className="text-sm text-slate-300 plt-glass rounded-lg px-3 py-2 border-l-2 border-blue-500">
+            {(intel.recommendations || []).map((rec, i) => (
+              <li key={`rec-${i}`} className="text-sm text-slate-300 plt-glass rounded-lg px-3 py-2 border-l-2 border-blue-500">
                 {rec}
               </li>
             ))}

@@ -1,8 +1,12 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { bookDemoContact } from "../../constants/contactLinks.js";
+import { usePlatformIntelligence } from "../../context/PlatformIntelligenceContext.jsx";
 import { PltReveal, PltSection } from "./shared.jsx";
 
 export function CTASection() {
+  const { industryLabel } = usePlatformIntelligence();
+
   return (
     <PltSection id="cta" className="!pb-8" ariaLabel="Call to action">
       <PltReveal>
@@ -14,13 +18,15 @@ export function CTASection() {
               Turn Market Intelligence Into Competitive Advantage
             </h2>
             <p className="mt-5 text-lg text-slate-400">
-              Empower your organization with AI-driven strategic intelligence.
+              Empower your organization with AI-driven {industryLabel} intelligence.
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-4">
-              <Link to="/contact" className="plt-btn-primary">
+              <Link to={bookDemoContact({ industryLabel })} className="plt-btn-primary">
                 Schedule Demo <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link to="/contact" className="plt-btn-ghost">Request Consultation</Link>
+              <Link to="/contact?intent=consultation&subject=Radar Consultation" className="plt-btn-ghost">
+                Request Consultation
+              </Link>
             </div>
           </div>
         </div>

@@ -8,6 +8,7 @@ import {
   useLocation,
   useParams,
   Navigate,
+  useSearchParams,
 } from "react-router-dom";
 import emailjs from "@emailjs/browser";
 import { buildExpandedCatalog } from "./marketCatalog.js";
@@ -1164,6 +1165,7 @@ function GenerateSampleTab() {
 // ─── CONTACT PAGE ────────────────────────────────────────────────────────────
 
 function ContactPage() {
+  const [searchParams] = useSearchParams();
   useSEO({
     title: "Contact InsightAxis Intelligence | Get Custom Reports",
     description:
@@ -1173,6 +1175,18 @@ function ContactPage() {
   const [form, setForm] = useState({ name: "", company: "", email: "", phone: "", subject: "", message: "" });
   const [status, setStatus] = useState(null);
   const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    const subject = searchParams.get("subject");
+    const message = searchParams.get("message");
+    if (subject || message) {
+      setForm((prev) => ({
+        ...prev,
+        subject: subject ? decodeURIComponent(subject) : prev.subject,
+        message: message ? decodeURIComponent(message) : prev.message,
+      }));
+    }
+  }, [searchParams]);
 
   const handleSubmit = async () => {
     if (!form.name || !form.email || !form.message) { setStatus("error"); return; }
@@ -1391,8 +1405,6 @@ function AboutPage() {
       {/* Stats */}
       <div className="reveal" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 0, marginBottom: 96, borderBottom: "1px solid var(--border)" }}>
         {[
-          { num: "850", suf: "+", label: "Research analysts" },
-          { num: "12,000", suf: "+", label: "Clients worldwide" },
           { num: "120", suf: "+", label: "Countries covered" },
         ].map((s, i) => (
           <AboutStat key={i} {...s} />
@@ -1499,7 +1511,7 @@ function HomePage() {
   useSEO({
     title: "AI Market Research Reports & Industry Intelligence | InsightAxis Intelligence",
     description:
-      "AI-powered market research for enterprises, investors, and consultants. Free sample reports, 2,000+ markets, instant AI report generator, custom studies, competitive intelligence, and forecasting across 10 industries — validated by 850+ analysts.",
+      "AI-powered market research for enterprises, investors, and consultants. Free sample reports, 2,000+ markets, instant AI report generator, custom studies, competitive intelligence, and forecasting across 10 industries.",
     path: "/",
     jsonLd: [
       {
@@ -1651,8 +1663,6 @@ function HomePage() {
           <HomeStat num={totalMarkets} suf="+" label="Market reports" />
           <HomeStat num={DOMAINS.length} suf="" label="Industry verticals" />
           <HomeStat num={120} suf="+" label="Countries covered" />
-          <HomeStat num={12000} suf="+" label="Global clients" />
-          <HomeStat num={850} suf="+" label="Research analysts" />
         </div>
       </section>
 
@@ -2939,7 +2949,7 @@ export default function App() {
       {/* Announcement bar */}
       {!isPlatformPage && (
       <div style={{ background: "var(--navy-2)", borderBottom: "1px solid var(--border)", color: "var(--text-muted)", fontSize: 11.5, padding: "8px 0", textAlign: "center", letterSpacing: "0.04em", fontFamily: "'JetBrains Mono', monospace" }}>
-        InsightAxis · Trusted by 12,000+ organizations · 2026 Global Market Outlook now live
+        InsightAxis · 2026 Global Market Outlook now live
       </div>
       )}
 

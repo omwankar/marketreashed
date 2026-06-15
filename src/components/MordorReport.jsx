@@ -11,6 +11,7 @@ import {
   buildMordorSampleInputFromMarket,
   buildMordorSampleInputFromTopic,
 } from "../utils/mordorMarketSampleInput.js";
+import { requestGenerateReport } from "../services/generateReportApi.js";
 import { scopeEntriesFromHierarchy, buildSegmentationTableRows } from "../utils/segmentHierarchy.js";
 import { SITE_URL } from "../hooks/useSEO.js";
 
@@ -20,7 +21,6 @@ import { SITE_URL } from "../hooks/useSEO.js";
 
 const BRAND = "InsightAxis Intelligence";
 const CONTACT_PATH = "/contact";
-const GEMINI_MODEL = "gemini-2.0-flash";
 
 function contactHref(intent) {
   return intent ? `${CONTACT_PATH}?intent=${encodeURIComponent(intent)}` : CONTACT_PATH;
@@ -100,124 +100,8 @@ const C = {
 const DONUT_PALETTE = [C.primary, C.accent, C.accentLight, "#7BAFD4", "#B8CDDF", "#E0E7EF"];
 
 // ─────────────────────────────────────────────────────────────────
-// GEMINI + DATA SHAPE
+// LOCAL FALLBACK + AI MERGE
 // ─────────────────────────────────────────────────────────────────
-
-async function generateGeminiText(prompt, maxOutputTokens = 4000) {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-  if (!apiKey) throw new Error("Missing Gemini API key");
-
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens, temperature: 0.55 },
-      }),
-    },
-  );
-  if (!res.ok) throw new Error("Gemini request failed");
-  const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.map((p) => p.text).join("") || "";
-}
-
-function buildMordorPrompt(input) {
-  const {
-    industry, baseYear, forecastEndYear, geographies, dimensions, audience,
-  } = input;
-  const currentYear = baseYear + 1;
-  return `You are a senior market research analyst at a Mordor-Intelligence-class firm. Produce a comprehensive market research report for: "${industry} Market".
-
-Audience: ${audience}.
-Base year: ${baseYear}. Forecast: ${currentYear} to ${forecastEndYear}.
-Geographies in scope: ${geographies.join(", ")}.
-Segmentation dimensions to analyze (${dimensions.length}): ${dimensions.join(", ")}.
-
-Respond ONLY with valid JSON (no markdown, no preamble) matching exactly this shape. Use real-sounding company names and plausible figures. Keep all paragraph fields between 150 and 220 words.
-
-{
-  "title": "${industry} Market Size & Share Analysis - Growth Trends and Forecast (${currentYear} - ${forecastEndYear})",
-  "executive": "one paragraph executive description mentioning the ${dimensions.length} segmentation dimensions (${dimensions.join(", ")}) and geography coverage",
-  "marketSize": {
-    "baseYear": ${baseYear},
-    "currentYear": ${currentYear},
-    "forecastYear": ${forecastEndYear},
-    "baseValue": numeric USD billion at base year,
-    "currentValue": numeric USD billion at current year,
-    "forecastValue": numeric USD billion at forecast year,
-    "cagr": numeric CAGR % between current and forecast year,
-    "studyPeriod": "${baseYear}-${forecastEndYear}",
-    "fastestGrowingMarket": "region name",
-    "largestMarket": "region name",
-    "marketConcentration": "Low" | "Medium" | "High",
-    "majorPlayers": [array of 6-8 real company names]
-  },
-  "takeaways": [array of 5 strings, one per segmentation dimension + geography, e.g. "By Product Type: <Leader> leads with X.X% revenue share in ${currentYear}; <Fastest> grows at X.X% CAGR through ${forecastEndYear}."],
-  "drivers": [
-    array of 5-6 objects: {
-      "name": "short driver name (max 8 words)",
-      "impact": "+X.X%",
-      "region": "Global | <region>",
-      "timeline": "Short-term" | "Medium-term" | "Long-term",
-      "paragraph": "150-200 word detailed explanation"
-    }
-  ],
-  "restraints": [
-    array of 4 objects: {
-      "name": "short restraint name",
-      "impact": "-X.X%",
-      "region": "Global | <region>",
-      "timeline": "Short-term" | "Medium-term" | "Long-term",
-      "paragraph": "150-200 word detailed explanation"
-    }
-  ],
-  "segments": [
-    array of ${dimensions.length} objects (one per dimension: ${dimensions.join(", ")}), each: {
-      "dimension": "${dimensions[0]}",
-      "headline": "By <Dimension>: <Specific Leader> Holds the Largest Share",
-      "leader": { "name": "segment name", "share": numeric %, "paragraph": "150-200 word paragraph explaining why this segment leads" },
-      "fastest": { "name": "segment name", "cagr": numeric %, "paragraph": "150-200 word paragraph explaining why this segment is fastest growing" },
-      "subSegments": [array of 5-7 sub-segment name strings]
-    }
-  ],
-  "geography": {
-    "regions": [
-      array of 5 objects (one per: North America, Europe, Asia-Pacific, Latin America, Middle East & Africa), each: {
-        "name": "region name",
-        "share": numeric % share of global market,
-        "intensity": "High" | "Medium" | "Low",
-        "cagr": numeric %
-      }
-    ],
-    "largestParagraph": "180-220 words on the largest region and why it leads",
-    "fastestParagraph": "180-220 words on the fastest growing region and growth drivers",
-    "matureParagraph": "150-180 words on mature markets overview",
-    "emergingParagraph": "150-180 words on emerging markets overview"
-  },
-  "competitive": {
-    "fragmentationParagraph": "180-220 word paragraph on market fragmentation level",
-    "strategiesParagraph": "180-220 word paragraph on leading manufacturers' strategies",
-    "industryLeaders": [array of exactly 5 top company names],
-    "concentration": numeric 0-1 (0 = fragmented, 1 = consolidated),
-    "extendedProfiles": [array of 15-18 company name strings]
-  },
-  "developments": [
-    array of 5 objects: { "date": "Month YYYY", "company": "Company name", "description": "2-3 sentences (40-60 words) describing the announcement" }
-  ],
-  "scope": {
-    "${dimensions[0]}": [array of 5-7 sub-segment name strings],
-    ${dimensions.slice(1).map((d) => `"${d}": [array of 5-7 sub-segment name strings]`).join(",\n    ")},
-    "Geography": ${JSON.stringify(geographies)}
-  },
-  "faqs": [
-    array of 5 objects: { "q": "question", "a": "70-110 word answer" } covering: projected value by ${forecastEndYear}, largest region's revenue share, fastest growing segment, fastest growing region's CAGR, and one substitution / competitive dynamic question
-  ]
-}`;
-}
-
-// Local synthesizer used when the API key is missing or the call fails.
 function pickRegion(regions, index, fallback = "Asia-Pacific") {
   const r = regions[index] ?? regions[regions.length - 1] ?? regions[0];
   return r || { name: fallback, share: 0, cagr: 6, intensity: "Medium" };
@@ -491,13 +375,13 @@ function normalizeReport(payload, fallback) {
         headline: api.headline || fb.headline,
         leader: {
           ...fb.leader,
-          name: fb.leader.name,
+          name: api.leader?.name || fb.leader.name,
           share: api.leader?.share ?? fb.leader.share,
           paragraph: api.leader?.paragraph || fb.leader.paragraph,
         },
         fastest: {
           ...fb.fastest,
-          name: fb.fastest.name,
+          name: api.fastest?.name || fb.fastest.name,
           cagr: api.fastest?.cagr ?? fb.fastest.cagr,
           paragraph: api.fastest?.paragraph || fb.fastest.paragraph,
         },
@@ -1739,7 +1623,7 @@ export function MordorReportForm({ initialTopic = "", onGenerated }) {
     });
   };
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     const topic = industry.trim();
     if (!topic) return;
     if (!geographies.length) {
@@ -1749,24 +1633,42 @@ export function MordorReportForm({ initialTopic = "", onGenerated }) {
     setLoading(true);
     setError(null);
 
-    // Local synthesizer is instant and already applies topic + geography filters.
-    // Skipping blocking Gemini calls (6000-token JSON) — they added 30–60s waits with little benefit.
-    window.requestAnimationFrame(() => {
-      try {
-        const input = buildMordorSampleInputFromTopic(topic, {
-          baseYear: Number(baseYear),
-          forecastEndYear: Number(forecastEndYear),
-          geographies,
-          audience,
-          dimCount,
-        });
-        onGenerated(buildLocalMordorReport(input));
-      } catch (err) {
-        setError(err?.message || "Could not build sample report.");
-      } finally {
-        setLoading(false);
-      }
+    const input = buildMordorSampleInputFromTopic(topic, {
+      baseYear: Number(baseYear),
+      forecastEndYear: Number(forecastEndYear),
+      geographies,
+      audience,
+      dimCount,
     });
+    const fallback = buildLocalMordorReport(input);
+    const dimensionNames =
+      input.segmentRows?.map((r) => r.dimension) || dimensions.slice(0, dimCount);
+
+    try {
+      const { report, provider } = await requestGenerateReport({
+        industry: input.industry || topic,
+        baseYear: Number(baseYear),
+        forecastEndYear: Number(forecastEndYear),
+        geographies,
+        dimensions: dimensionNames,
+        audience,
+      });
+      onGenerated({
+        ...normalizeReport(report, fallback),
+        aiProvider: provider,
+        dataAsOf: report.dataAsOf || new Date().toISOString().slice(0, 10),
+      });
+    } catch (err) {
+      const msg = err?.message || "AI report generation failed";
+      if (err?.code === "not_configured") {
+        setError("AI not configured on server — add GROQ_API_KEY and redeploy. Showing template sample.");
+      } else {
+        setError(`${msg} — showing template sample.`);
+      }
+      onGenerated({ ...fallback, aiSource: "template" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fieldLabel = {
@@ -1787,7 +1689,7 @@ export function MordorReportForm({ initialTopic = "", onGenerated }) {
           Build an <em style={{ color: "var(--gold)", fontStyle: "italic" }}>AI-powered</em> sample report
         </h1>
         <p style={{ fontSize: 15, color: "var(--text-muted)", margin: "0 auto", maxWidth: 640, lineHeight: 1.75 }}>
-          Configure industry, forecast years, geographies, and segmentation — get instant market sizing, topic-aware segments, regional shares, drivers, and competitive context. Free samples help you scope full analyst-validated studies.
+          Configure industry, forecast years, geographies, and segmentation — AI researches real companies, current market context, and realistic sizing (Groq → Gemini fallback). Free samples help you scope full analyst-validated studies.
         </p>
       </div>
 
@@ -1926,11 +1828,11 @@ export function MordorReportForm({ initialTopic = "", onGenerated }) {
             className="btn-gold"
             style={{ opacity: loading || !industry.trim() ? 0.55 : 1, cursor: loading || !industry.trim() ? "not-allowed" : "pointer" }}
           >
-            {loading ? "Building sample…" : "Generate sample →"}
+            {loading ? "Researching live market data…" : "Generate sample →"}
           </button>
           {loading && (
             <span style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em" }}>
-              Applying filters for {geographies.length} region{geographies.length === 1 ? "" : "s"}…
+              AI analyzing {industry.trim() || "market"} · real companies & current market context…
             </span>
           )}
           {error && <span style={{ fontSize: 12, color: "var(--gold-light)" }}>{error}</span>}

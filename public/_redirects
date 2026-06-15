@@ -1,4 +1,5 @@
 # Netlify: API routes BEFORE SPA fallback (order matters)
 /api/platform-intelligence  /.netlify/functions/platform-intelligence  200
+/api/generate-report  /.netlify/functions/generate-report  200
 /api/nvidia/chat/completions  /.netlify/functions/nvidia-chat  200
 /*    /index.html   200

@@ -96,18 +96,22 @@ function applyAiEnvToProcess(env = {}) {
   }
 }
 
-/** Dev: same /api/platform-intelligence route as Vercel production */
+/** Dev: /api/* routes same as Vercel production */
 function platformIntelligenceDevPlugin(env) {
   applyAiEnvToProcess(env);
 
+  const API_ROUTES = {
+    "/api/platform-intelligence": () => import("./api/platform-intelligence.js"),
+    "/api/generate-report": () => import("./api/generate-report.js"),
+  };
+
   return {
     name: "insightaxis-platform-intel-api",
-    async configureServer(server) {
-      const { handlePlatformIntelligenceRequest } = await import("./api/platform-intelligence.js");
-
+    configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const path = req.url?.split("?")[0];
-        if (path !== "/api/platform-intelligence" || (req.method !== "GET" && req.method !== "POST")) {
+        const loadHandler = API_ROUTES[path];
+        if (!loadHandler || (req.method !== "GET" && req.method !== "POST")) {
           next();
           return;
         }
@@ -117,9 +121,14 @@ function platformIntelligenceDevPlugin(env) {
         req.on("end", async () => {
           applyAiEnvToProcess(env);
           try {
+            const mod = await loadHandler();
+            const handler =
+              path === "/api/platform-intelligence"
+                ? mod.handlePlatformIntelligenceRequest
+                : mod.handleGenerateReportRequest;
             const body = req.method === "POST" && chunks.length ? Buffer.concat(chunks) : undefined;
             const request = new Request(`http://localhost${path}`, { method: req.method, body });
-            const response = await handlePlatformIntelligenceRequest(request);
+            const response = await handler(request);
             const text = await response.text();
             res.statusCode = response.status;
             res.setHeader("Content-Type", "application/json");
